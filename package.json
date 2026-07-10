@@ -1,0 +1,15 @@
+{
+  "name": "palworld-dashboard",
+  "version": "0.1.0",
+  "private": false,
+  "type": "commonjs",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "NODE_ENV=development node server.js",
+    "lint": "node --check server.js"
+  },
+  "dependencies": {
+    "express": "^4.21.2",
+    "ws": "^8.18.3"
+  }
+}

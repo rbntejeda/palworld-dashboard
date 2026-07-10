@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="es-CL">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>palworld-dashboard</title>
+    <meta name="description" content="Dashboard para monitorear un servidor Palworld con WebSocket y snapshots cada 5 segundos.">
+    <meta name="theme-color" content="#08111a">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/styles.css">
+  </head>
+  <body>
+    <main class="shell">
+      <section class="hero">
+        <div class="hero-copy">
+          <p class="eyebrow">Palworld server monitor</p>
+          <h1>palworld-dashboard</h1>
+          <p class="subtitle">
+            Panel técnico para ver carga, memoria, jugadores y disponibilidad de un servidor Palworld.
+          </p>
+          <div class="hero-pills">
+            <span class="pill pill-live" id="service-pill">Service live</span>
+            <span class="pill">Actualiza cada 5s</span>
+            <span class="pill">WebSocket</span>
+            <span class="pill">Docker ready</span>
+          </div>
+        </div>
+
+        <article class="status-card">
+          <div class="status-header">
+            <div>
+              <p class="eyebrow">Live snapshot</p>
+              <h2 id="updated-at">--:--:--</h2>
+            </div>
+            <button id="theme-toggle" class="toggle-button" type="button">Modo noche</button>
+          </div>
+
+          <div class="status-grid">
+            <div>
+              <span class="status-label">Servicio</span>
+              <strong id="service-state">--</strong>
+              <p id="service-note">Conectando...</p>
+            </div>
+            <div>
+              <span class="status-label">Jugadores</span>
+              <strong id="players">0/0</strong>
+              <p id="latency">Latencia -- ms</p>
+            </div>
+            <div>
+              <span class="status-label">Uptime</span>
+              <strong id="uptime">--</strong>
+              <p id="ws-state">WS connecting</p>
+            </div>
+          </div>
+
+          <div class="progress-stack">
+            <div class="progress-row">
+              <div><span>CPU load</span><strong id="cpu-value">0%</strong></div>
+              <div class="bar"><span class="fill cpu" id="cpu-bar"></span></div>
+            </div>
+            <div class="progress-row">
+              <div><span>Memory usage</span><strong id="memory-value">0 / 0 GB</strong></div>
+              <div class="bar"><span class="fill memory" id="memory-bar"></span></div>
+            </div>
+          </div>
+        </article>
+      </section>
+
+      <section class="metrics" id="metrics">
+        <article class="metric-card good">
+          <span class="metric-title">Disponibilidad</span>
+          <strong class="metric-value" id="availability">0%</strong>
+          <p id="availability-note">Esperando datos</p>
+        </article>
+        <article class="metric-card warn">
+          <span class="metric-title">Latencia</span>
+          <strong class="metric-value" id="latency-card">-- ms</strong>
+          <p id="latency-note">Sin lectura</p>
+        </article>
+        <article class="metric-card good">
+          <span class="metric-title">Estado WS</span>
+          <strong class="metric-value" id="ws-card">Connecting</strong>
+          <p>Conexión en tiempo real al backend.</p>
+        </article>
+        <article class="metric-card warn">
+          <span class="metric-title">Cadencia</span>
+          <strong class="metric-value">5 s</strong>
+          <p>Snapshots desde el servidor cada 5 segundos.</p>
+        </article>
+      </section>
+
+      <section class="content-grid">
+        <article class="panel">
+          <p class="eyebrow">Timeline</p>
+          <h3>Historial reciente</h3>
+          <div class="history-list" id="history"></div>
+        </article>
+
+        <article class="panel">
+          <p class="eyebrow">Arquitectura</p>
+          <h3>Lista para crecer</h3>
+          <ul class="notes">
+            <li>Collector para leer estado del host y del juego.</li>
+            <li>Pub/Sub para desacoplar recolección y frontend.</li>
+            <li>WebSocket para empujar snapshots al navegador.</li>
+            <li>Nginx Proxy Manager para publicar el panel con TLS.</li>
+          </ul>
+          <div class="connection-block">
+            <span class="connection-label">API</span>
+            <strong>GET /api/snapshot</strong>
+            <p>El navegador puede arrancar con un snapshot inicial y luego seguir por WS.</p>
+          </div>
+        </article>
+      </section>
+    </main>
+
+    <script src="/app.js" defer></script>
+  </body>
+</html>
