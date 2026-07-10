@@ -46,13 +46,21 @@ function availabilityValue(stateValue) {
   return 0;
 }
 
+function memoryUsagePercent(item) {
+  if (!item.memoryTotal) {
+    return 0;
+  }
+
+  return Math.min((item.memoryUsed / item.memoryTotal) * 100, 100);
+}
+
 function renderHistory() {
   nodes.history.innerHTML = state.history
     .slice(-5)
     .reverse()
     .map((item) => {
       const cpuWidth = `${item.cpuLoad}%`;
-      const memoryWidth = `${Math.min((item.memoryUsed / item.memoryTotal) * 100, 100)}%`;
+      const memoryWidth = `${memoryUsagePercent(item)}%`;
 
       return `
         <div class="history-item">
@@ -86,7 +94,7 @@ function render(snapshot, connected) {
   nodes.cpuValue.textContent = `${snapshot.cpuLoad}%`;
   nodes.cpuBar.style.width = `${snapshot.cpuLoad}%`;
   nodes.memoryValue.textContent = `${snapshot.memoryUsed.toFixed(1)} / ${snapshot.memoryTotal.toFixed(1)} GB`;
-  nodes.memoryBar.style.width = `${Math.min((snapshot.memoryUsed / snapshot.memoryTotal) * 100, 100)}%`;
+  nodes.memoryBar.style.width = `${memoryUsagePercent(snapshot)}%`;
   nodes.availability.textContent = `${availabilityValue(snapshot.serviceState).toFixed(1)}%`;
   nodes.availabilityNote.textContent = statusLabel(snapshot.serviceState);
   nodes.latencyCard.textContent = `${snapshot.latency} ms`;
