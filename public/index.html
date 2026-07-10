@@ -114,6 +114,42 @@
           </div>
         </article>
       </section>
+
+      <section class="history-section">
+        <article class="panel history-panel">
+          <div class="panel-header">
+            <div>
+              <p class="eyebrow">Histórico</p>
+              <h3>Resumen por tiempo desde Redis o memoria</h3>
+            </div>
+            <div class="history-controls" role="group" aria-label="Selector de histórico">
+              <button class="history-toggle is-active" type="button" data-bucket="hour">Hora</button>
+              <button class="history-toggle" type="button" data-bucket="day">Día</button>
+            </div>
+          </div>
+          <p class="history-note" id="history-note">Cargando histórico...</p>
+          <svg id="history-chart" class="history-chart" viewBox="0 0 1200 360" preserveAspectRatio="none" aria-label="Gráfico de carga histórica">
+            <defs>
+              <linearGradient id="cpu-gradient" x1="0" x2="0" y1="0" y2="1">
+                <stop offset="0%" stop-color="#ffbe5d" stop-opacity="0.55"></stop>
+                <stop offset="100%" stop-color="#ffbe5d" stop-opacity="0.03"></stop>
+              </linearGradient>
+              <linearGradient id="mem-gradient" x1="0" x2="0" y1="0" y2="1">
+                <stop offset="0%" stop-color="#6ee7b7" stop-opacity="0.55"></stop>
+                <stop offset="100%" stop-color="#6ee7b7" stop-opacity="0.03"></stop>
+              </linearGradient>
+            </defs>
+            <g id="history-grid" class="history-grid"></g>
+            <path id="cpu-area" class="history-area cpu" d=""></path>
+            <path id="memory-area" class="history-area memory" d=""></path>
+            <polyline id="cpu-line" class="history-line cpu" points=""></polyline>
+            <polyline id="memory-line" class="history-line memory" points=""></polyline>
+            <g id="history-points"></g>
+            <g id="history-labels"></g>
+          </svg>
+          <div class="history-summary" id="history-summary"></div>
+        </article>
+      </section>
     </main>
 
     <script src="/app.js" defer></script>

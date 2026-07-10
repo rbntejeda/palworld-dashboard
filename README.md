@@ -28,6 +28,7 @@ docker run --rm -p 3000:3000 palworld-dashboard
 ## API
 
 - `GET /api/snapshot`
+- `GET /api/history?bucket=hour|day&limit=24`
 - `GET /healthz`
 - `WS /ws`
 
@@ -46,3 +47,6 @@ docker run --rm -p 3000:3000 palworld-dashboard
 - `PALWORLD_PORT`: puerto del servidor Palworld
 - `PALWORLD_MAX_PLAYERS`: capacidad máxima mostrada en el panel, por defecto `32`
 - `REFRESH_INTERVAL_MS`: intervalo de refresco, por defecto `5000`
+- `REDIS_URL`: URL opcional para persistir y leer histórico
+- `REDIS_HISTORY_KEY`: clave opcional para la serie histórica, por defecto `palworld:history`
+- `HISTORY_RETENTION_DAYS`: cuántos días conservar en Redis, por defecto `30`

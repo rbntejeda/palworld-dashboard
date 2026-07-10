@@ -1,5 +1,7 @@
 const state = {
-  history: []
+  history: [],
+  historyMode: 'hour',
+  historySeries: []
 };
 
 const el = (id) => document.getElementById(id);
@@ -23,7 +25,18 @@ const nodes = {
   latencyNote: el('latency-note'),
   wsCard: el('ws-card'),
   history: el('history'),
-  themeToggle: el('theme-toggle')
+  themeToggle: el('theme-toggle'),
+  historyNote: el('history-note'),
+  historyChart: el('history-chart'),
+  historyGrid: el('history-grid'),
+  cpuArea: el('cpu-area'),
+  memoryArea: el('memory-area'),
+  cpuLine: el('cpu-line'),
+  memoryLine: el('memory-line'),
+  historyPoints: el('history-points'),
+  historyLabels: el('history-labels'),
+  historySummary: el('history-summary'),
+  historyButtons: Array.from(document.querySelectorAll('.history-toggle'))
 };
 
 function formatTime(iso) {
@@ -52,6 +65,12 @@ function memoryUsagePercent(item) {
   }
 
   return Math.min((item.memoryUsed / item.memoryTotal) * 100, 100);
+}
+
+function metricColor(stateValue) {
+  if (stateValue === 'online') return '#6ee7b7';
+  if (stateValue === 'degraded') return '#ffbe5d';
+  return '#ff5f6d';
 }
 
 function renderHistory() {
@@ -103,6 +122,138 @@ function render(snapshot, connected) {
   renderHistory();
 }
 
+function buildChartPath(points, key, width, height, padding) {
+  if (!points.length) {
+    return { line: '', area: '' };
+  }
+
+  const innerWidth = width - padding * 2;
+  const innerHeight = height - padding * 2;
+  const step = points.length === 1 ? 0 : innerWidth / (points.length - 1);
+  const toY = (value) => padding + innerHeight - (Math.max(0, Math.min(100, value)) / 100) * innerHeight;
+
+  const coords = points.map((point, index) => ({
+    x: padding + index * step,
+    y: toY(point[key])
+  }));
+
+  const line = coords.map((point) => `${point.x.toFixed(1)},${point.y.toFixed(1)}`).join(' ');
+  const area =
+    coords.length === 1
+      ? `M ${coords[0].x.toFixed(1)} ${height - padding} L ${coords[0].x.toFixed(1)} ${coords[0].y.toFixed(1)} L ${coords[0].x.toFixed(1)} ${height - padding} Z`
+      : `M ${coords[0].x.toFixed(1)} ${height - padding} L ${coords[0].x.toFixed(1)} ${coords[0].y.toFixed(1)} ${coords
+          .slice(1)
+          .map((point) => `L ${point.x.toFixed(1)} ${point.y.toFixed(1)}`)
+          .join(' ')} L ${coords[coords.length - 1].x.toFixed(1)} ${height - padding} Z`;
+
+  return { line, area };
+}
+
+function renderHistoryChart(points) {
+  const width = 1200;
+  const height = 360;
+  const padding = 42;
+
+  if (!points.length) {
+    nodes.historyNote.textContent = 'No hay datos suficientes todavía.';
+    nodes.historySummary.innerHTML = '';
+    nodes.historyGrid.innerHTML = '';
+    nodes.cpuLine.setAttribute('points', '');
+    nodes.memoryLine.setAttribute('points', '');
+    nodes.cpuArea.setAttribute('d', '');
+    nodes.memoryArea.setAttribute('d', '');
+    nodes.historyPoints.innerHTML = '';
+    nodes.historyLabels.innerHTML = '';
+    return;
+  }
+
+  nodes.historyNote.textContent = `Mostrando ${points.length} bucket(s) por ${state.historyMode === 'day' ? 'día' : 'hora'} desde Redis o memoria.`;
+
+  const cpuPath = buildChartPath(points, 'cpuLoad', width, height, padding);
+  const memoryPath = buildChartPath(points, 'memoryUsagePercent', width, height, padding);
+  const gridLines = [0, 25, 50, 75, 100];
+
+  nodes.historyGrid.innerHTML = gridLines
+    .map((value) => {
+      const y = padding + (height - padding * 2) - (value / 100) * (height - padding * 2);
+      return `
+        <g>
+          <line x1="${padding}" y1="${y.toFixed(1)}" x2="${width - padding}" y2="${y.toFixed(1)}"></line>
+          <text x="${padding - 8}" y="${(y + 4).toFixed(1)}" text-anchor="end">${value}%</text>
+        </g>
+      `;
+    })
+    .join('');
+
+  nodes.cpuLine.setAttribute('points', cpuPath.line);
+  nodes.memoryLine.setAttribute('points', memoryPath.line);
+  nodes.cpuArea.setAttribute('d', cpuPath.area);
+  nodes.memoryArea.setAttribute('d', memoryPath.area);
+
+  const innerWidth = width - padding * 2;
+  const innerHeight = height - padding * 2;
+  const step = points.length === 1 ? 0 : innerWidth / (points.length - 1);
+  const toY = (value) => padding + innerHeight - (Math.max(0, Math.min(100, value)) / 100) * innerHeight;
+
+  nodes.historyPoints.innerHTML = points
+    .map((point, index) => {
+      const x = padding + index * step;
+      const cpuY = toY(point.cpuLoad);
+      const memoryY = toY(point.memoryUsagePercent);
+      return `
+        <g>
+          <circle cx="${x.toFixed(1)}" cy="${cpuY.toFixed(1)}" r="5" fill="#ffbe5d"></circle>
+          <circle cx="${x.toFixed(1)}" cy="${memoryY.toFixed(1)}" r="5" fill="#6ee7b7"></circle>
+        </g>
+      `;
+    })
+    .join('');
+
+  const labelStep = Math.max(1, Math.ceil(points.length / 6));
+  nodes.historyLabels.innerHTML = points
+    .map((point, index) => {
+      if (index % labelStep !== 0 && index !== points.length - 1) {
+        return '';
+      }
+
+      const x = padding + index * step;
+      return `<text x="${x.toFixed(1)}" y="${height - 12}" text-anchor="middle">${point.label}</text>`;
+    })
+    .join('');
+
+  nodes.historySummary.innerHTML = points
+    .slice(-8)
+    .map(
+      (point) => `
+        <div class="summary-card">
+          <strong>${point.label}</strong>
+          <span>CPU ${point.cpuLoad}%</span>
+          <span>RAM ${point.memoryUsagePercent}%</span>
+          <span>Lat ${point.latency} ms</span>
+        </div>
+      `
+    )
+    .join('');
+}
+
+async function fetchHistory(bucket) {
+  state.historyMode = bucket;
+  nodes.historyButtons.forEach((button) => {
+    button.classList.toggle('is-active', button.dataset.bucket === bucket);
+  });
+
+  try {
+    const limit = bucket === 'day' ? 30 : 24;
+    const response = await fetch(`/api/history?bucket=${encodeURIComponent(bucket)}&limit=${limit}`);
+    const data = await response.json();
+    state.historySeries = Array.isArray(data.points) ? data.points : [];
+    renderHistoryChart(state.historySeries);
+  } catch (error) {
+    nodes.historyNote.textContent = `No pude cargar el histórico: ${error.message}`;
+    renderHistoryChart([]);
+  }
+}
+
 function connect() {
   const protocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
   const socket = new WebSocket(`${protocol}//${location.host}/ws`);
@@ -132,11 +283,18 @@ nodes.themeToggle.addEventListener('click', () => {
   nodes.themeToggle.textContent = document.body.classList.contains('light') ? 'Modo noche' : 'Modo día';
 });
 
+nodes.historyButtons.forEach((button) => {
+  button.addEventListener('click', () => {
+    void fetchHistory(button.dataset.bucket);
+  });
+});
+
 fetch('/api/snapshot')
   .then((response) => response.json())
   .then((snapshot) => {
     render(snapshot, false);
     connect();
+    void fetchHistory(state.historyMode);
   })
   .catch(() => {
     const fallback = {
@@ -153,4 +311,5 @@ fetch('/api/snapshot')
     };
     render(fallback, false);
     connect();
+    void fetchHistory(state.historyMode);
   });

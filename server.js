@@ -4,6 +4,7 @@ const net = require('node:net');
 const os = require('node:os');
 const path = require('node:path');
 const express = require('express');
+const { createClient } = require('redis');
 const { WebSocketServer } = require('ws');
 
 const PORT = Number(process.env.PORT || 3000);
@@ -11,22 +12,40 @@ const HOSTNAME = process.env.HOSTNAME || '0.0.0.0';
 const MAX_PLAYERS = Number(process.env.PALWORLD_MAX_PLAYERS || 32);
 const GAME_HOST = process.env.PALWORLD_HOST || process.env.GAME_HOST || '';
 const GAME_PORT = Number(process.env.PALWORLD_PORT || process.env.GAME_PORT || 0);
+const REDIS_URL = process.env.REDIS_URL || '';
+const REDIS_HISTORY_KEY = process.env.REDIS_HISTORY_KEY || 'palworld:history';
+const HISTORY_RETENTION_DAYS = Number(process.env.HISTORY_RETENTION_DAYS || 30);
+const REFRESH_INTERVAL_MS = Number(process.env.REFRESH_INTERVAL_MS || 5000);
+const HISTORY_DEFAULT_LIMIT = 24;
+const HISTORY_MAX_LIMIT = 90;
 const startedAt = Date.now();
-const refreshIntervalMs = Number(process.env.REFRESH_INTERVAL_MS || 5000);
 
 const app = express();
 const publicDir = path.join(__dirname, 'public');
-
 app.use(express.static(publicDir));
 
 const state = {
   startedAt,
   lastUpdatedAt: startedAt,
-  snapshot: createEmptySnapshot()
+  snapshot: createEmptySnapshot(),
+  samples: []
 };
+
+let refreshInFlight = false;
+let previousCpuSample = null;
+let previousOsCpuSample = null;
+let redisClient = null;
+let redisConnectPromise = null;
 
 app.get('/api/snapshot', (_req, res) => {
   res.json(state.snapshot);
+});
+
+app.get('/api/history', async (req, res) => {
+  const bucket = normalizeBucket(req.query.bucket);
+  const limit = normalizeLimit(req.query.limit, bucket);
+  const summary = await getHistorySummary(bucket, limit);
+  res.json(summary);
 });
 
 app.get('/healthz', (_req, res) => {
@@ -35,10 +54,6 @@ app.get('/healthz', (_req, res) => {
 
 const server = http.createServer(app);
 const wss = new WebSocketServer({ server, path: '/ws' });
-
-let refreshInFlight = false;
-let previousCpuSample = null;
-let previousOsCpuSample = null;
 
 function createEmptySnapshot() {
   return {
@@ -54,7 +69,190 @@ function createEmptySnapshot() {
     memoryTotal: 1,
     latency: 0,
     note: 'Waiting for first system sample.',
-    probeTarget: GAME_HOST && GAME_PORT ? `${GAME_HOST}:${GAME_PORT}` : 'not configured'
+    probeTarget: GAME_HOST && GAME_PORT ? `${GAME_HOST}:${GAME_PORT}` : 'not configured',
+    memoryUsagePercent: 0
+  };
+}
+
+function normalizeBucket(value) {
+  return value === 'day' ? 'day' : 'hour';
+}
+
+function normalizeLimit(value, bucket) {
+  const parsed = Number.parseInt(Array.isArray(value) ? value[0] : value || '', 10);
+  const maxLimit = bucket === 'day' ? 30 : HISTORY_MAX_LIMIT;
+  const fallback = bucket === 'day' ? 30 : HISTORY_DEFAULT_LIMIT;
+
+  if (Number.isNaN(parsed) || parsed <= 0) {
+    return fallback;
+  }
+
+  return Math.min(parsed, maxLimit);
+}
+
+async function getRedisClient() {
+  if (!REDIS_URL) {
+    return null;
+  }
+
+  if (redisClient && redisClient.isOpen) {
+    return redisClient;
+  }
+
+  if (redisConnectPromise) {
+    return redisConnectPromise;
+  }
+
+  redisClient = createClient({ url: REDIS_URL });
+  redisClient.on('error', (error) => {
+    console.error(`Redis error: ${error.message}`);
+  });
+
+  redisConnectPromise = redisClient
+    .connect()
+    .then(() => redisClient)
+    .catch((error) => {
+      console.error(`Redis connect failed: ${error.message}`);
+      redisClient = null;
+      return null;
+    })
+    .finally(() => {
+      redisConnectPromise = null;
+    });
+
+  return redisConnectPromise;
+}
+
+async function persistSnapshot(snapshot) {
+  state.samples.push(snapshot);
+
+  const maxSamples = Math.max(60, Math.floor((HISTORY_RETENTION_DAYS * 24 * 60 * 60 * 1000) / REFRESH_INTERVAL_MS));
+  if (state.samples.length > maxSamples) {
+    state.samples.splice(0, state.samples.length - maxSamples);
+  }
+
+  const client = await getRedisClient();
+  if (!client) {
+    return;
+  }
+
+  const cutoff = Date.now() - HISTORY_RETENTION_DAYS * 24 * 60 * 60 * 1000;
+  const payload = JSON.stringify(snapshot);
+
+  await client.zAdd(REDIS_HISTORY_KEY, [
+    {
+      score: Date.parse(snapshot.updatedAt),
+      value: payload
+    }
+  ]);
+
+  await client.zRemRangeByScore(REDIS_HISTORY_KEY, 0, cutoff - 1);
+}
+
+async function loadRawHistory(since) {
+  const client = await getRedisClient();
+  if (client) {
+    const entries = await client.zRangeByScore(REDIS_HISTORY_KEY, since, '+inf');
+    if (entries.length > 0) {
+      return entries
+        .map((entry) => {
+          try {
+            return JSON.parse(entry);
+          } catch {
+            return null;
+          }
+        })
+        .filter(Boolean);
+    }
+  }
+
+  return state.samples.filter((sample) => Date.parse(sample.updatedAt) >= since);
+}
+
+async function getHistorySummary(bucket, limit) {
+  const bucketMs = bucket === 'day' ? 24 * 60 * 60 * 1000 : 60 * 60 * 1000;
+  const now = Date.now();
+  const since = now - bucketMs * limit;
+  const rawSamples = await loadRawHistory(since);
+  const groups = new Map();
+
+  for (const sample of rawSamples) {
+    const timestamp = Date.parse(sample.updatedAt);
+    if (Number.isNaN(timestamp) || timestamp < since) {
+      continue;
+    }
+
+    const bucketStart = Math.floor(timestamp / bucketMs) * bucketMs;
+    const existing = groups.get(bucketStart) || createHistoryGroup(bucketStart, bucket);
+    addSampleToGroup(existing, sample);
+    groups.set(bucketStart, existing);
+  }
+
+  const points = Array.from(groups.values())
+    .sort((a, b) => a.timestamp - b.timestamp)
+    .slice(-limit)
+    .map(finalizeHistoryGroup);
+
+  return {
+    bucket,
+    limit,
+    source: REDIS_URL ? 'redis-or-memory' : 'memory',
+    points
+  };
+}
+
+function createHistoryGroup(timestamp, bucket) {
+  return {
+    timestamp,
+    bucket,
+    count: 0,
+    cpuLoadSum: 0,
+    memoryUsagePercentSum: 0,
+    playersSum: 0,
+    latencySum: 0,
+    serviceState: 'online',
+    maxPlayers: MAX_PLAYERS
+  };
+}
+
+function addSampleToGroup(group, sample) {
+  group.count += 1;
+  group.cpuLoadSum += Number(sample.cpuLoad || 0);
+  group.memoryUsagePercentSum += Number(sample.memoryUsagePercent || 0);
+  group.playersSum += Number(sample.players || 0);
+  group.latencySum += Number(sample.latency || 0);
+  group.maxPlayers = Number(sample.maxPlayers || group.maxPlayers);
+  group.serviceState = mergeServiceState(group.serviceState, sample.serviceState);
+}
+
+function mergeServiceState(current, next) {
+  const rank = { offline: 0, degraded: 1, online: 2 };
+  return rank[next] < rank[current] ? next : current;
+}
+
+function finalizeHistoryGroup(group) {
+  const date = new Date(group.timestamp);
+  const label =
+    group.bucket === 'day'
+      ? new Intl.DateTimeFormat('es-CL', {
+          month: 'short',
+          day: '2-digit'
+        }).format(date)
+      : new Intl.DateTimeFormat('es-CL', {
+          hour: '2-digit',
+          minute: '2-digit'
+        }).format(date);
+
+  return {
+    timestamp: group.timestamp,
+    label,
+    count: group.count,
+    cpuLoad: round(group.cpuLoadSum / group.count),
+    memoryUsagePercent: round(group.memoryUsagePercentSum / group.count),
+    players: round(group.playersSum / group.count),
+    latency: round(group.latencySum / group.count),
+    serviceState: group.serviceState,
+    maxPlayers: group.maxPlayers
   };
 }
 
@@ -280,20 +478,20 @@ async function buildSnapshot() {
     : 'Host metrics from /proc. Set PALWORLD_HOST and PALWORLD_PORT to probe the game server.';
 
   return {
-    id: `snapshot-${Math.floor(Date.now() / refreshIntervalMs)}`,
+    id: `snapshot-${Math.floor(Date.now() / REFRESH_INTERVAL_MS)}`,
     updatedAt: new Date().toISOString(),
     uptimeSeconds: Math.floor((Date.now() - state.startedAt) / 1000),
     wsState: 'connected',
     serviceState,
     players: 0,
     maxPlayers: MAX_PLAYERS,
-    cpuLoad: Math.round(cpuLoad * 10) / 10,
-    memoryUsed: Math.round(memory.usedGb * 100) / 100,
-    memoryTotal: Math.round(memory.totalGb * 100) / 100,
+    cpuLoad: round(cpuLoad),
+    memoryUsed: round(memory.usedGb),
+    memoryTotal: round(memory.totalGb),
     latency: probe.latencyMs,
     note,
     probeTarget: probe.target,
-    memoryUsagePercent: Math.round(memory.usagePercent * 10) / 10
+    memoryUsagePercent: round(memory.usagePercent)
   };
 }
 
@@ -307,6 +505,7 @@ async function refreshSnapshot() {
   try {
     state.snapshot = await buildSnapshot();
     state.lastUpdatedAt = Date.now();
+    await persistSnapshot(state.snapshot);
 
     const payload = JSON.stringify({
       type: 'snapshot',
@@ -318,6 +517,8 @@ async function refreshSnapshot() {
         client.send(payload);
       }
     }
+  } catch (error) {
+    console.error(`Refresh failed: ${error.message}`);
   } finally {
     refreshInFlight = false;
   }
@@ -331,14 +532,19 @@ function clamp(value, min, max) {
   return Math.min(Math.max(value, min), max);
 }
 
+function round(value) {
+  return Math.round(value * 10) / 10;
+}
+
 wss.on('connection', (socket) => {
   socket.send(JSON.stringify({ type: 'snapshot', data: state.snapshot }));
 });
 
 void refreshSnapshot();
+void getRedisClient();
 setInterval(() => {
   void refreshSnapshot();
-}, refreshIntervalMs);
+}, REFRESH_INTERVAL_MS);
 
 server.listen(PORT, HOSTNAME, () => {
   console.log(`palworld-dashboard listening on http://${HOSTNAME}:${PORT}`);
