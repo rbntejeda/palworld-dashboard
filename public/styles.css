@@ -314,6 +314,159 @@ body.light .notes li {
   padding: 1rem;
 }
 
+.world-section {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+  margin-top: 1rem;
+}
+
+.world-card,
+.players-card {
+  min-height: 100%;
+}
+
+.world-description {
+  color: #94a3b8;
+  line-height: 1.6;
+  margin-bottom: 1rem;
+}
+
+.world-meta {
+  display: grid;
+  gap: 0.9rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.world-label {
+  color: #94a3b8;
+  display: block;
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  margin-bottom: 0.35rem;
+  text-transform: uppercase;
+}
+
+.players-header {
+  align-items: center;
+  display: flex;
+  gap: 1rem;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.players-pill,
+.platform-badge {
+  align-items: center;
+  border-radius: 999px;
+  display: inline-flex;
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  padding: 0.35rem 0.7rem;
+  text-transform: uppercase;
+}
+
+.players-pill {
+  background: rgb(110 231 183 / 14%);
+  color: #6ee7b7;
+}
+
+.players-list {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.player-row {
+  background: rgb(15 23 42 / 40%);
+  border: 1px solid rgb(148 163 184 / 12%);
+  border-radius: 1rem;
+  display: grid;
+  gap: 0.85rem;
+  padding: 0.9rem;
+}
+
+body.light .player-row {
+  background: rgb(255 255 255 / 64%);
+}
+
+.player-main {
+  align-items: center;
+  display: flex;
+  gap: 0.8rem;
+}
+
+.player-avatar {
+  align-items: center;
+  border-radius: 0.95rem;
+  color: #08111a;
+  display: inline-flex;
+  font-weight: 900;
+  height: 2.5rem;
+  justify-content: center;
+  width: 2.5rem;
+}
+
+.player-avatar.steam,
+.platform-badge.steam {
+  background: linear-gradient(135deg, #5eead4, #22d3ee);
+}
+
+.player-avatar.xbox,
+.platform-badge.xbox {
+  background: linear-gradient(135deg, #86efac, #22c55e);
+}
+
+.player-avatar.pc,
+.platform-badge.pc {
+  background: linear-gradient(135deg, #ffd166, #f97316);
+}
+
+.player-copy {
+  display: grid;
+}
+
+.player-copy strong {
+  font-size: 1rem;
+  margin-bottom: 0.15rem;
+}
+
+.player-copy span {
+  color: #94a3b8;
+  font-size: 0.88rem;
+}
+
+.player-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.player-meta span {
+  color: #cbd5e1;
+  font-size: 0.84rem;
+}
+
+.platform-badge {
+  background: rgb(148 163 184 / 12%);
+  color: #f8fafc;
+}
+
+.player-empty {
+  background: rgb(15 23 42 / 40%);
+  border: 1px dashed rgb(148 163 184 / 24%);
+  border-radius: 1rem;
+  color: #94a3b8;
+  display: grid;
+  gap: 0.2rem;
+  padding: 1rem;
+}
+
+body.light .player-empty {
+  background: rgb(255 255 255 / 64%);
+}
+
 .history-section {
   margin-top: 1rem;
   padding-bottom: 3rem;
@@ -448,6 +601,7 @@ body.light .summary-card {
   .hero,
   .metrics,
   .content-grid,
+  .world-section,
   .history-summary {
     grid-template-columns: 1fr;
   }

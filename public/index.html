@@ -75,7 +75,7 @@
           <p id="availability-note">Esperando datos</p>
         </article>
         <article class="metric-card warn">
-          <span class="metric-title">Latencia</span>
+          <span class="metric-title">Latency API</span>
           <strong class="metric-value" id="latency-card">-- ms</strong>
           <p id="latency-note">Sin lectura</p>
         </article>
@@ -85,9 +85,46 @@
           <p>Conexión en tiempo real al backend.</p>
         </article>
         <article class="metric-card warn">
-          <span class="metric-title">Cadencia</span>
-          <strong class="metric-value">5 s</strong>
-          <p>Snapshots desde el servidor cada 5 segundos.</p>
+          <span class="metric-title">Server FPS</span>
+          <strong class="metric-value" id="server-fps">--</strong>
+          <p id="server-fps-note">Lectura REST</p>
+        </article>
+        <article class="metric-card good">
+          <span class="metric-title">In-game Days</span>
+          <strong class="metric-value" id="game-days">--</strong>
+          <p id="game-days-note">Mundo actual</p>
+        </article>
+        <article class="metric-card warn">
+          <span class="metric-title">Base Camps</span>
+          <strong class="metric-value" id="base-camps">--</strong>
+          <p id="base-camps-note">Bases del mundo</p>
+        </article>
+      </section>
+
+      <section class="world-section">
+        <article class="panel world-card">
+          <p class="eyebrow">World</p>
+          <h3 id="server-name">Palworld</h3>
+          <p class="world-description" id="server-description">Esperando datos REST.</p>
+          <div class="world-meta">
+            <div>
+              <span class="world-label">Version</span>
+              <strong id="server-version">--</strong>
+            </div>
+            <div>
+              <span class="world-label">World GUID</span>
+              <strong id="world-guid">--</strong>
+            </div>
+          </div>
+        </article>
+
+        <article class="panel players-card">
+          <p class="eyebrow">Players online</p>
+          <div class="players-header">
+            <h3 id="player-count">0 players</h3>
+            <span class="players-pill" id="players-pill">REST</span>
+          </div>
+          <div class="players-list" id="players-list"></div>
         </article>
       </section>
 

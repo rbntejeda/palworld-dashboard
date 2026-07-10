@@ -24,6 +24,19 @@ const nodes = {
   latencyCard: el('latency-card'),
   latencyNote: el('latency-note'),
   wsCard: el('ws-card'),
+  serverFps: el('server-fps'),
+  serverFpsNote: el('server-fps-note'),
+  gameDays: el('game-days'),
+  gameDaysNote: el('game-days-note'),
+  baseCamps: el('base-camps'),
+  baseCampsNote: el('base-camps-note'),
+  serverName: el('server-name'),
+  serverDescription: el('server-description'),
+  serverVersion: el('server-version'),
+  worldGuid: el('world-guid'),
+  playerCount: el('player-count'),
+  playersPill: el('players-pill'),
+  playersList: el('players-list'),
   history: el('history'),
   themeToggle: el('theme-toggle'),
   historyNote: el('history-note'),
@@ -59,6 +72,22 @@ function availabilityValue(stateValue) {
   return 0;
 }
 
+function formatWorldCoord(value) {
+  if (value === null || value === undefined || Number.isNaN(Number(value))) {
+    return '--';
+  }
+
+  return Number(value).toFixed(0);
+}
+
+function formatGameDays(value) {
+  if (value === null || value === undefined || Number.isNaN(Number(value))) {
+    return '--';
+  }
+
+  return `${Number(value).toFixed(0)} d`;
+}
+
 function memoryUsagePercent(item) {
   if (!item.memoryTotal) {
     return 0;
@@ -71,6 +100,20 @@ function metricColor(stateValue) {
   if (stateValue === 'online') return '#6ee7b7';
   if (stateValue === 'degraded') return '#ffbe5d';
   return '#ff5f6d';
+}
+
+function platformMeta(player) {
+  const userId = String(player.userId || '').toLowerCase();
+
+  if (userId.startsWith('steam_')) {
+    return { label: 'Steam', glyph: 'S', key: 'steam' };
+  }
+
+  if (userId.startsWith('xbox_') || userId.startsWith('xbl') || userId.includes('xbox')) {
+    return { label: 'Xbox', glyph: 'X', key: 'xbox' };
+  }
+
+  return { label: 'PC', glyph: 'P', key: 'pc' };
 }
 
 function renderHistory() {
@@ -107,6 +150,8 @@ function render(snapshot, connected) {
   nodes.serviceState.textContent = snapshot.serviceState.toUpperCase();
   nodes.serviceNote.textContent = snapshot.note;
   nodes.players.textContent = `${snapshot.players}/${snapshot.maxPlayers}`;
+  nodes.playerCount.textContent = `${snapshot.players} player${snapshot.players === 1 ? '' : 's'} online`;
+  nodes.playersPill.textContent = snapshot.rest?.configured ? 'REST API' : 'Fallback';
   nodes.latency.textContent = snapshot.latency > 0 ? `Latencia ${snapshot.latency} ms` : 'Latencia sin respuesta';
   nodes.uptime.textContent = `${Math.floor(snapshot.uptimeSeconds / 3600)}h ${Math.floor((snapshot.uptimeSeconds % 3600) / 60)}m`;
   nodes.wsState.textContent = connected ? 'WS connected' : 'WS reconnecting';
@@ -119,7 +164,64 @@ function render(snapshot, connected) {
   nodes.latencyCard.textContent = `${snapshot.latency} ms`;
   nodes.latencyNote.textContent = snapshot.latency > 40 ? 'Alta' : snapshot.latency > 0 ? 'Normal' : 'Sin datos';
   nodes.wsCard.textContent = connected ? 'Connected' : 'Offline';
+  nodes.serverFps.textContent = snapshot.rest?.metrics?.serverfps ?? '--';
+  nodes.serverFpsNote.textContent = snapshot.rest?.configured ? 'REST metrics' : 'No REST';
+  nodes.gameDays.textContent = formatGameDays(snapshot.rest?.metrics?.days);
+  nodes.gameDaysNote.textContent = snapshot.rest?.configured ? 'In-game calendar' : 'No REST';
+  nodes.baseCamps.textContent = snapshot.rest?.metrics?.basecampnum ?? '--';
+  nodes.baseCampsNote.textContent = snapshot.rest?.configured ? 'World bases' : 'No REST';
+  nodes.serverName.textContent = snapshot.rest?.serverInfo?.servername || 'Palworld';
+  nodes.serverDescription.textContent = snapshot.rest?.serverInfo?.description || 'Esperando datos REST.';
+  nodes.serverVersion.textContent = snapshot.rest?.serverInfo?.version || '--';
+  nodes.worldGuid.textContent = snapshot.rest?.serverInfo?.worldguid || '--';
+  nodes.playersList.innerHTML = renderPlayers(snapshot.rest?.players || []);
   renderHistory();
+}
+
+function renderPlayers(players) {
+  if (!players.length) {
+    return `
+      <div class="player-empty">
+        <strong>No players online</strong>
+        <span>El REST API devolvió una lista vacía.</span>
+      </div>
+    `;
+  }
+
+  return players
+    .map((player) => {
+      const platform = platformMeta(player);
+      const coords = `${formatWorldCoord(player.locationX)}, ${formatWorldCoord(player.locationY)}`;
+
+      return `
+        <article class="player-row">
+          <div class="player-main">
+            <div class="player-avatar ${platform.key}" aria-hidden="true">${platform.glyph}</div>
+            <div class="player-copy">
+              <strong>${escapeHtml(player.name)}</strong>
+              <span>${escapeHtml(player.accountName || player.name)}</span>
+            </div>
+          </div>
+          <div class="player-meta">
+            <span class="platform-badge ${platform.key}">${platform.label}</span>
+            <span>Loc ${coords}</span>
+            <span>Ping ${Number(player.ping || 0).toFixed(0)} ms</span>
+            <span>Lvl ${player.level || 0}</span>
+            <span>Bld ${player.buildingCount || 0}</span>
+          </div>
+        </article>
+      `;
+    })
+    .join('');
+}
+
+function escapeHtml(value) {
+  return String(value)
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#39;');
 }
 
 function buildChartPath(points, key, width, height, padding) {

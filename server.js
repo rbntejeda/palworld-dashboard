@@ -12,6 +12,9 @@ const HOSTNAME = process.env.HOSTNAME || '0.0.0.0';
 const MAX_PLAYERS = Number(process.env.PALWORLD_MAX_PLAYERS || 32);
 const GAME_HOST = process.env.PALWORLD_HOST || process.env.GAME_HOST || '';
 const GAME_PORT = Number(process.env.PALWORLD_PORT || process.env.GAME_PORT || 0);
+const REST_BASE_URL = (process.env.PALWORLD_REST_URL || process.env.PALWORLD_API_URL || '').replace(/\/$/, '');
+const REST_USERNAME = process.env.PALWORLD_REST_USER || process.env.PALWORLD_REST_USERNAME || '';
+const REST_PASSWORD = process.env.PALWORLD_REST_PASSWORD || process.env.PALWORLD_REST_PASS || '';
 const REDIS_URL = process.env.REDIS_URL || '';
 const REDIS_HISTORY_KEY = process.env.REDIS_HISTORY_KEY || 'palworld:history';
 const HISTORY_RETENTION_DAYS = Number(process.env.HISTORY_RETENTION_DAYS || 30);
@@ -70,7 +73,17 @@ function createEmptySnapshot() {
     latency: 0,
     note: 'Waiting for first system sample.',
     probeTarget: GAME_HOST && GAME_PORT ? `${GAME_HOST}:${GAME_PORT}` : 'not configured',
-    memoryUsagePercent: 0
+    memoryUsagePercent: 0,
+    rest: {
+      configured: false,
+      baseUrl: REST_BASE_URL || 'not configured',
+      ok: false,
+      errors: [],
+      serverInfo: null,
+      players: [],
+      metrics: null,
+      latencyMs: 0
+    }
   };
 }
 
@@ -210,8 +223,16 @@ function createHistoryGroup(timestamp, bucket) {
     memoryUsagePercentSum: 0,
     playersSum: 0,
     latencySum: 0,
+    serverFpsSum: 0,
+    serverFrameTimeSum: 0,
+    baseCampNumSum: 0,
+    daysSum: 0,
+    currentPlayerNumSum: 0,
     serviceState: 'online',
-    maxPlayers: MAX_PLAYERS
+    maxPlayers: MAX_PLAYERS,
+    serverName: '',
+    worldGuid: '',
+    description: ''
   };
 }
 
@@ -223,6 +244,14 @@ function addSampleToGroup(group, sample) {
   group.latencySum += Number(sample.latency || 0);
   group.maxPlayers = Number(sample.maxPlayers || group.maxPlayers);
   group.serviceState = mergeServiceState(group.serviceState, sample.serviceState);
+  group.serverFpsSum += Number(sample.rest?.metrics?.serverfps || 0);
+  group.serverFrameTimeSum += Number(sample.rest?.metrics?.serverframetime || 0);
+  group.baseCampNumSum += Number(sample.rest?.metrics?.basecampnum || 0);
+  group.daysSum += Number(sample.rest?.metrics?.days || 0);
+  group.currentPlayerNumSum += Number(sample.rest?.metrics?.currentplayernum || sample.players || 0);
+  group.serverName = sample.rest?.serverInfo?.servername || group.serverName;
+  group.worldGuid = sample.rest?.serverInfo?.worldguid || group.worldGuid;
+  group.description = sample.rest?.serverInfo?.description || group.description;
 }
 
 function mergeServiceState(current, next) {
@@ -251,8 +280,16 @@ function finalizeHistoryGroup(group) {
     memoryUsagePercent: round(group.memoryUsagePercentSum / group.count),
     players: round(group.playersSum / group.count),
     latency: round(group.latencySum / group.count),
+    serverFps: round(group.serverFpsSum / group.count),
+    serverFrameTime: round(group.serverFrameTimeSum / group.count),
+    baseCampNum: round(group.baseCampNumSum / group.count),
+    days: round(group.daysSum / group.count),
+    currentPlayerNum: round(group.currentPlayerNumSum / group.count),
     serviceState: group.serviceState,
-    maxPlayers: group.maxPlayers
+    maxPlayers: group.maxPlayers,
+    serverName: group.serverName,
+    worldGuid: group.worldGuid,
+    description: group.description
   };
 }
 
@@ -395,6 +432,108 @@ function probeGameServer() {
   });
 }
 
+async function fetchPalworldRestData() {
+  if (!REST_BASE_URL) {
+    return {
+      configured: false,
+      baseUrl: 'not configured',
+      ok: false,
+      errors: [],
+      serverInfo: null,
+      players: [],
+      metrics: null,
+      latencyMs: 0
+    };
+  }
+
+  const headers = {};
+  if (REST_USERNAME || REST_PASSWORD) {
+    headers.Authorization = `Basic ${Buffer.from(`${REST_USERNAME}:${REST_PASSWORD}`).toString('base64')}`;
+  }
+
+  const started = Date.now();
+  const [infoResult, playersResult, metricsResult] = await Promise.all([
+    fetchPalworldJson('/info', headers),
+    fetchPalworldJson('/players', headers),
+    fetchPalworldJson('/metrics', headers)
+  ].map((promise) => promise.catch((error) => ({ error }))));
+
+  const errors = [];
+  const serverInfo = normalizeFetchResult(infoResult, errors);
+  const players = normalizeFetchResult(playersResult, errors)?.players || [];
+  const metrics = normalizeFetchResult(metricsResult, errors);
+
+  const ok = errors.length === 0;
+
+  return {
+    configured: true,
+    baseUrl: REST_BASE_URL,
+    ok,
+    errors,
+    serverInfo,
+    players: Array.isArray(players) ? players.map(normalizePlayer) : [],
+    metrics,
+    latencyMs: Date.now() - started
+  };
+}
+
+async function fetchPalworldJson(pathname, headers) {
+  const response = await fetch(`${REST_BASE_URL}${pathname}`, {
+    headers,
+    signal: AbortSignal.timeout(2500)
+  });
+
+  if (!response.ok) {
+    throw new Error(`${pathname} -> ${response.status}`);
+  }
+
+  return response.json();
+}
+
+function normalizeFetchResult(result, errors) {
+  if (result && result.error) {
+    errors.push(result.error.message || String(result.error));
+    return null;
+  }
+
+  return result;
+}
+
+function normalizePlayer(player) {
+  const userId = String(player?.userId || '').toLowerCase();
+  const accountName = String(player?.accountName || '').trim();
+  const name = String(player?.name || accountName || 'Unknown').trim();
+  const platform = detectPlatform(userId, accountName);
+  const locationX = Number(player?.location_x || 0);
+  const locationY = Number(player?.location_y || 0);
+
+  return {
+    name,
+    accountName: accountName || name,
+    userId: player?.userId || '',
+    playerId: player?.playerId || '',
+    ip: player?.ip || '',
+    ping: Number(player?.ping || 0),
+    locationX,
+    locationY,
+    level: Number(player?.level || 0),
+    buildingCount: Number(player?.building_count || 0),
+    platform
+  };
+}
+
+function detectPlatform(userId, accountName) {
+  if (userId.startsWith('steam_')) {
+    return { key: 'steam', label: 'Steam', glyph: 'S' };
+  }
+
+  if (userId.startsWith('xbox_') || userId.startsWith('xbl') || accountName.includes('xbox')) {
+    return { key: 'xbox', label: 'Xbox', glyph: 'X' };
+  }
+
+  return { key: 'pc', label: 'PC', glyph: 'P' };
+}
+
 async function readCpuUsageFromOs() {
   const firstSample = sampleOsCpu();
 
@@ -455,27 +594,40 @@ function readMemoryUsageFromOs() {
 }
 
 async function buildSnapshot() {
-  const [cpuLoad, memory, probe] = await Promise.all([
+  const [cpuLoad, memory, probe, rest] = await Promise.all([
     readCpuUsage(),
     readMemoryUsage(),
-    probeGameServer()
+    probeGameServer(),
+    fetchPalworldRestData()
   ]);
 
-  const serviceState = probe.configured
-    ? probe.connected
-      ? cpuLoad >= 80 || memory.usagePercent >= 85
-        ? 'degraded'
-        : 'online'
-      : 'offline'
-    : cpuLoad >= 80 || memory.usagePercent >= 85
+  const worldInfo = rest.serverInfo || {};
+  const restMetrics = rest.metrics || {};
+  const restPlayers = rest.players || [];
+  const playerCount = Number(restMetrics.currentplayernum ?? restPlayers.length ?? 0);
+  const maxPlayers = Number(restMetrics.maxplayernum || MAX_PLAYERS);
+  const restLatency = rest.latencyMs || 0;
+  const apiHealthy = !rest.configured || rest.ok;
+  const highLoad = cpuLoad >= 80 || memory.usagePercent >= 85;
+  const serviceState = apiHealthy
+    ? highLoad
       ? 'degraded'
-      : 'online';
+      : 'online'
+    : rest.serverInfo || rest.metrics
+      ? 'degraded'
+      : 'offline';
 
-  const note = probe.configured
-    ? probe.connected
-      ? `Host metrics from /proc. Game probe OK for ${probe.target}.`
-      : `Host metrics from /proc. Game probe failed for ${probe.target}.`
-    : 'Host metrics from /proc. Set PALWORLD_HOST and PALWORLD_PORT to probe the game server.';
+  const note = rest.configured
+    ? rest.ok
+      ? `REST API ${REST_BASE_URL}. ${worldInfo.servername || 'Palworld'} | ${restMetrics.days ?? 0} days | ${restMetrics.basecampnum ?? 0} base camps.`
+      : `REST API at ${REST_BASE_URL} returned errors: ${rest.errors.join(', ')}`
+    : probe.configured
+      ? probe.connected
+        ? `Host metrics from /proc. Game probe OK for ${probe.target}.`
+        : `Host metrics from /proc. Game probe failed for ${probe.target}.`
+      : 'Host metrics from /proc. Set PALWORLD_HOST and PALWORLD_PORT to probe the game server.';
+
+  const playersList = restPlayers.slice(0, 20);
 
   return {
     id: `snapshot-${Math.floor(Date.now() / REFRESH_INTERVAL_MS)}`,
@@ -483,15 +635,25 @@ async function buildSnapshot() {
     uptimeSeconds: Math.floor((Date.now() - state.startedAt) / 1000),
     wsState: 'connected',
     serviceState,
-    players: 0,
-    maxPlayers: MAX_PLAYERS,
+    players: playerCount,
+    maxPlayers,
     cpuLoad: round(cpuLoad),
     memoryUsed: round(memory.usedGb),
     memoryTotal: round(memory.totalGb),
-    latency: probe.latencyMs,
+    latency: rest.configured ? restLatency : probe.latencyMs,
     note,
-    probeTarget: probe.target,
-    memoryUsagePercent: round(memory.usagePercent)
+    probeTarget: rest.configured ? REST_BASE_URL : probe.target,
+    memoryUsagePercent: round(memory.usagePercent),
+    rest: {
+      configured: rest.configured,
+      baseUrl: rest.baseUrl,
+      ok: rest.ok,
+      errors: rest.errors,
+      latencyMs: restLatency,
+      serverInfo: worldInfo,
+      metrics: restMetrics,
+      players: playersList
+    }
   };
 }
 
