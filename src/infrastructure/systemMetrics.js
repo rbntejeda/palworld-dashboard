@@ -86,6 +86,98 @@ async function readMemoryUsage() {
   }
 }
 
+async function readTemperature() {
+  const thermalZoneTemperature = await readTemperatureFromThermalZones();
+  if (thermalZoneTemperature !== null) {
+    return thermalZoneTemperature;
+  }
+
+  return readTemperatureFromHwmon();
+}
+
+async function readTemperatureFromThermalZones() {
+  try {
+    const thermalDir = '/sys/class/thermal';
+    const entries = await fs.readdir(thermalDir, { withFileTypes: true });
+    const readings = [];
+
+    for (const entry of entries) {
+      if (!entry.isDirectory() || !entry.name.startsWith('thermal_zone')) {
+        continue;
+      }
+
+      try {
+        const rawValue = await fs.readFile(`${thermalDir}/${entry.name}/temp`, 'utf8');
+        const celsius = Number.parseFloat(rawValue.trim()) / 1000;
+
+        if (Number.isFinite(celsius)) {
+          readings.push(celsius);
+        }
+      } catch {
+        continue;
+      }
+    }
+
+    return aggregateTemperature(readings);
+  } catch (error) {
+    if (error && error.code !== 'ENOENT') {
+      throw error;
+    }
+
+    return null;
+  }
+}
+
+async function readTemperatureFromHwmon() {
+  try {
+    const hwmonDir = '/sys/class/hwmon';
+    const entries = await fs.readdir(hwmonDir, { withFileTypes: true });
+    const readings = [];
+
+    for (const entry of entries) {
+      if (!entry.isDirectory() || !entry.name.startsWith('hwmon')) {
+        continue;
+      }
+
+      const fullDir = `${hwmonDir}/${entry.name}`;
+      const files = await fs.readdir(fullDir, { withFileTypes: true });
+
+      for (const file of files) {
+        if (!file.isFile() || !file.name.startsWith('temp') || !file.name.endsWith('_input')) {
+          continue;
+        }
+
+        try {
+          const rawValue = await fs.readFile(`${fullDir}/${file.name}`, 'utf8');
+          const celsius = Number.parseFloat(rawValue.trim()) / 1000;
+
+          if (Number.isFinite(celsius)) {
+            readings.push(celsius);
+          }
+        } catch {
+          continue;
+        }
+      }
+    }
+
+    return aggregateTemperature(readings);
+  } catch (error) {
+    if (error && error.code !== 'ENOENT') {
+      throw error;
+    }
+
+    return null;
+  }
+}
+
+function aggregateTemperature(readings) {
+  if (!readings.length) {
+    return null;
+  }
+
+  return Math.round(Math.max(...readings) * 10) / 10;
+}
+
 async function readCpuUsageFromOs() {
   const firstSample = sampleOsCpu();
 
@@ -155,6 +247,7 @@ function clamp(value, min, max) {
 module.exports = {
   readCpuUsage,
   readMemoryUsage,
+  readTemperature,
   readCpuUsageFromOs,
   readMemoryUsageFromOs
 };

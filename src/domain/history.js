@@ -21,6 +21,8 @@ function createHistoryGroup(timestamp, bucket, maxPlayers) {
     count: 0,
     cpuLoadSum: 0,
     memoryUsagePercentSum: 0,
+    serverTemperatureSum: 0,
+    serverTemperatureCount: 0,
     playersSum: 0,
     latencySum: 0,
     serverFpsSum: 0,
@@ -45,6 +47,10 @@ function addSampleToGroup(group, sample, maxPlayers) {
   group.count += 1;
   group.cpuLoadSum += Number(sample.cpuLoad || 0);
   group.memoryUsagePercentSum += Number(sample.memoryUsagePercent || 0);
+  if (Number.isFinite(Number(sample.serverTemperatureC))) {
+    group.serverTemperatureSum += Number(sample.serverTemperatureC);
+    group.serverTemperatureCount += 1;
+  }
   group.playersSum += Number(sample.players || 0);
   group.latencySum += Number(sample.latency || 0);
   group.maxPlayers = Number(sample.maxPlayers || maxPlayers || group.maxPlayers);
@@ -82,6 +88,8 @@ function finalizeHistoryGroup(group) {
     count: group.count,
     cpuLoad: round(group.cpuLoadSum / group.count),
     memoryUsagePercent: round(group.memoryUsagePercentSum / group.count),
+    serverTemperatureC:
+      group.serverTemperatureCount > 0 ? round(group.serverTemperatureSum / group.serverTemperatureCount) : null,
     players: round(group.playersSum / group.count),
     latency: round(group.latencySum / group.count),
     serverFps: round(group.serverFpsSum / group.count),

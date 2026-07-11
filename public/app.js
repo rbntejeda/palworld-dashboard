@@ -26,6 +26,8 @@ const nodes = {
   wsCard: el('ws-card'),
   serverFps: el('server-fps'),
   serverFpsNote: el('server-fps-note'),
+  serverTemp: el('server-temp'),
+  serverTempNote: el('server-temp-note'),
   gameDays: el('game-days'),
   gameDaysNote: el('game-days-note'),
   baseCamps: el('base-camps'),
@@ -86,6 +88,14 @@ function formatGameDays(value) {
   }
 
   return `${Number(value).toFixed(0)} d`;
+}
+
+function formatTemperature(value) {
+  if (value === null || value === undefined || Number.isNaN(Number(value))) {
+    return '--';
+  }
+
+  return `${Number(value).toFixed(1)}°C`;
 }
 
 function abbreviateId(value, head = 8, tail = 6) {
@@ -176,6 +186,8 @@ function render(snapshot, connected) {
   nodes.wsCard.textContent = connected ? 'Connected' : 'Offline';
   nodes.serverFps.textContent = snapshot.rest?.metrics?.serverfps ?? '--';
   nodes.serverFpsNote.textContent = snapshot.rest?.configured ? 'REST metrics' : 'No REST';
+  nodes.serverTemp.textContent = formatTemperature(snapshot.serverTemperatureC);
+  nodes.serverTempNote.textContent = snapshot.serverTemperatureC === null ? 'Sin sensor' : 'Sensor del host';
   nodes.gameDays.textContent = formatGameDays(snapshot.rest?.metrics?.days);
   nodes.gameDaysNote.textContent = snapshot.rest?.configured ? 'In-game calendar' : 'No REST';
   nodes.baseCamps.textContent = snapshot.rest?.metrics?.basecampnum ?? '--';
@@ -339,13 +351,14 @@ function renderHistoryChart(points) {
     .slice(-8)
     .map(
       (point) => `
-        <div class="summary-card">
-          <strong>${point.label}</strong>
-          <span>CPU ${point.cpuLoad}%</span>
-          <span>RAM ${point.memoryUsagePercent}%</span>
-          <span>Lat ${point.latency} ms</span>
-        </div>
-      `
+          <div class="summary-card">
+            <strong>${point.label}</strong>
+            <span>CPU ${point.cpuLoad}%</span>
+            <span>RAM ${point.memoryUsagePercent}%</span>
+            <span>Temp ${formatTemperature(point.serverTemperatureC)}</span>
+            <span>Lat ${point.latency} ms</span>
+          </div>
+        `
     )
     .join('');
 }
@@ -419,6 +432,7 @@ fetch('/api/snapshot')
       cpuLoad: 0,
       memoryUsed: 0,
       memoryTotal: 8,
+      serverTemperatureC: null,
       latency: 0,
       uptimeSeconds: 0,
       note: 'No se pudo leer el backend.'

@@ -2,7 +2,7 @@ const { summarizeHistory } = require('../domain/history');
 const { fetchPalworldRestData } = require('../infrastructure/palworldRestClient');
 const { probeGameServer } = require('../infrastructure/gameProbe');
 const { createHistoryStore } = require('../infrastructure/historyStore');
-const { readCpuUsage, readMemoryUsage } = require('../infrastructure/systemMetrics');
+const { readCpuUsage, readMemoryUsage, readTemperature } = require('../infrastructure/systemMetrics');
 
 function createDashboardRuntime(config) {
   const startedAt = Date.now();
@@ -24,9 +24,10 @@ function createDashboardRuntime(config) {
   let refreshInFlight = false;
 
   async function buildSnapshot() {
-    const [cpuLoad, memory, probe, rest] = await Promise.all([
+    const [cpuLoad, memory, temperatureC, probe, rest] = await Promise.all([
       readCpuUsage(),
       readMemoryUsage(),
+      readTemperature(),
       probeGameServer({ host: config.gameHost, port: config.gamePort }),
       fetchPalworldRestData({
         baseUrl: config.restBaseUrl,
@@ -74,6 +75,7 @@ function createDashboardRuntime(config) {
       cpuLoad: round(cpuLoad),
       memoryUsed: round(memory.usedGb),
       memoryTotal: round(memory.totalGb),
+      serverTemperatureC: temperatureC === null ? null : round(temperatureC),
       latency: rest.configured ? restLatency : probe.latencyMs,
       note,
       probeTarget: rest.configured ? config.restBaseUrl : probe.target,
@@ -148,6 +150,7 @@ function createEmptySnapshot(config, startedAt) {
     cpuLoad: 0,
     memoryUsed: 0,
     memoryTotal: 1,
+    serverTemperatureC: null,
     latency: 0,
     note: 'Waiting for first system sample.',
     probeTarget: config.gameHost && config.gamePort ? `${config.gameHost}:${config.gamePort}` : 'not configured',
