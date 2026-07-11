@@ -88,6 +88,16 @@ function formatGameDays(value) {
   return `${Number(value).toFixed(0)} d`;
 }
 
+function abbreviateId(value, head = 8, tail = 6) {
+  const text = String(value || '').trim();
+
+  if (text.length <= head + tail + 3) {
+    return text || '--';
+  }
+
+  return `${text.slice(0, head)}…${text.slice(-tail)}`;
+}
+
 function memoryUsagePercent(item) {
   if (!item.memoryTotal) {
     return 0;
@@ -173,7 +183,9 @@ function render(snapshot, connected) {
   nodes.serverName.textContent = snapshot.rest?.serverInfo?.servername || 'Palworld';
   nodes.serverDescription.textContent = snapshot.rest?.serverInfo?.description || 'Esperando datos REST.';
   nodes.serverVersion.textContent = snapshot.rest?.serverInfo?.version || '--';
-  nodes.worldGuid.textContent = snapshot.rest?.serverInfo?.worldguid || '--';
+  const worldGuid = snapshot.rest?.serverInfo?.worldguid || '';
+  nodes.worldGuid.textContent = abbreviateId(worldGuid);
+  nodes.worldGuid.title = worldGuid || 'Sin world GUID';
   nodes.playersList.innerHTML = renderPlayers(snapshot.rest?.players || []);
   renderHistory();
 }
@@ -198,8 +210,8 @@ function renderPlayers(players) {
           <div class="player-main">
             <div class="player-avatar ${platform.key}" aria-hidden="true">${platform.glyph}</div>
             <div class="player-copy">
-              <strong>${escapeHtml(player.name)}</strong>
-              <span>${escapeHtml(player.accountName || player.name)}</span>
+              <strong title="${escapeHtml(player.name)}">${escapeHtml(player.name)}</strong>
+              <span title="${escapeHtml(player.accountName || player.name)}">${escapeHtml(player.accountName || player.name)}</span>
             </div>
           </div>
           <div class="player-meta">

@@ -338,6 +338,12 @@ body.light .notes li {
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
+.world-meta > div,
+.player-copy,
+.player-meta {
+  min-width: 0;
+}
+
 .world-label {
   color: #94a3b8;
   display: block;
@@ -354,6 +360,7 @@ body.light .notes li {
   gap: 1rem;
   justify-content: space-between;
   margin-bottom: 1rem;
+  min-width: 0;
 }
 
 .players-pill,
@@ -395,6 +402,7 @@ body.light .player-row {
   align-items: center;
   display: flex;
   gap: 0.8rem;
+  min-width: 0;
 }
 
 .player-avatar {
@@ -425,27 +433,41 @@ body.light .player-row {
 
 .player-copy {
   display: grid;
+  min-width: 0;
 }
 
 .player-copy strong {
   font-size: 1rem;
   margin-bottom: 0.15rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .player-copy span {
   color: #94a3b8;
   font-size: 0.88rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .player-meta {
   display: flex;
   flex-wrap: wrap;
   gap: 0.5rem;
+  min-width: 0;
 }
 
 .player-meta span {
   color: #cbd5e1;
   font-size: 0.84rem;
+}
+
+.world-meta strong {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .platform-badge {
