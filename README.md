@@ -9,6 +9,17 @@ Panel simple para monitorear un servidor Palworld con snapshots cada 5 segundos 
 - `ws`
 - HTML, CSS y JavaScript
 
+## Arquitectura
+
+El backend está separado por contexto:
+
+- `src/application`: orquestación y casos de uso
+- `src/domain`: reglas y modelos puros
+- `src/infrastructure`: Redis, REST API de Palworld, probe de red y métricas del host
+- `public/`: UI estática
+
+La idea es mantener el dashboard como un monolito modular, no como un archivo gigante.
+
 ## Desarrollo local
 
 ```bash
