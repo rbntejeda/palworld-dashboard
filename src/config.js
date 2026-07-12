@@ -3,7 +3,36 @@ function parseNumber(value, fallback) {
   return Number.isFinite(parsed) ? parsed : fallback;
 }
 
+function parseBoolean(value, fallback = false) {
+  if (value === undefined || value === null || value === '') {
+    return fallback;
+  }
+
+  const normalized = String(value).trim().toLowerCase();
+  if (['1', 'true', 'yes', 'on'].includes(normalized)) {
+    return true;
+  }
+
+  if (['0', 'false', 'no', 'off'].includes(normalized)) {
+    return false;
+  }
+
+  return fallback;
+}
+
+function parseCoordinate(value, fallback) {
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : fallback;
+}
+
 function loadConfig() {
+  const mapBounds = {
+    xMin: parseCoordinate(process.env.PALWORLD_MAP_X_MIN, -500000),
+    xMax: parseCoordinate(process.env.PALWORLD_MAP_X_MAX, 500000),
+    yMin: parseCoordinate(process.env.PALWORLD_MAP_Y_MIN, -500000),
+    yMax: parseCoordinate(process.env.PALWORLD_MAP_Y_MAX, 500000)
+  };
+
   return {
     port: parseNumber(process.env.PORT || 3000, 3000),
     hostname: process.env.HOSTNAME || '0.0.0.0',
@@ -16,7 +45,11 @@ function loadConfig() {
     redisUrl: process.env.REDIS_URL || '',
     redisHistoryKey: process.env.REDIS_HISTORY_KEY || 'palworld:history',
     historyRetentionDays: parseNumber(process.env.HISTORY_RETENTION_DAYS || 30, 30),
-    refreshIntervalMs: parseNumber(process.env.REFRESH_INTERVAL_MS || 5000, 5000)
+    refreshIntervalMs: parseNumber(process.env.REFRESH_INTERVAL_MS || 5000, 5000),
+    mapImageUrl: process.env.PALWORLD_MAP_IMAGE || '/palworld-map.webp',
+    mapCaption: process.env.PALWORLD_MAP_CAPTION || 'Mapa del mundo de Palworld',
+    mapInvertY: parseBoolean(process.env.PALWORLD_MAP_INVERT_Y, true),
+    mapBounds
   };
 }
 

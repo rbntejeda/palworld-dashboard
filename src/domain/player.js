@@ -15,6 +15,8 @@ function normalizePlayer(player) {
   const accountName = String(player?.accountName || '').trim();
   const name = String(player?.name || accountName || 'Unknown').trim();
   const platform = detectPlatform(userId, accountName);
+  const hasLocationX = player?.location_x !== undefined && player?.location_x !== null || player?.locationX !== undefined && player?.locationX !== null;
+  const hasLocationY = player?.location_y !== undefined && player?.location_y !== null || player?.locationY !== undefined && player?.locationY !== null;
   const locationX = Number(player?.location_x ?? player?.locationX ?? 0);
   const locationY = Number(player?.location_y ?? player?.locationY ?? 0);
 
@@ -27,6 +29,9 @@ function normalizePlayer(player) {
     ping: Number(player?.ping || 0),
     locationX,
     locationY,
+    hasLocationX,
+    hasLocationY,
+    hasCoordinates: hasLocationX && hasLocationY,
     level: Number(player?.level || 0),
     buildingCount: Number(player?.building_count ?? player?.buildingCount ?? 0),
     platform

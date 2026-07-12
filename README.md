@@ -65,6 +65,7 @@ PALWORLD_REST_PASSWORD=clave
 - Lee CPU y memoria reales desde `/proc`.
 - Puede probar el puerto del servidor de Palworld si configuras `PALWORLD_HOST` y `PALWORLD_PORT`.
 - Si configuras la REST API de Palworld, muestra nombre del servidor, descripción, world GUID, jugadores conectados y métricas del mundo.
+- Puede dibujar los jugadores sobre un mapa con una imagen incluida o con otra que le pases, y ajusta los bounds del mundo por variables.
 - Mantiene una base lista para conectar pub/sub real y leer métricas del host o del contenedor.
 
 ## Variables de entorno
@@ -78,6 +79,13 @@ PALWORLD_REST_PASSWORD=clave
 - `PALWORLD_REST_URL`: URL base de la REST API de Palworld
 - `PALWORLD_REST_USER`: usuario de la REST API
 - `PALWORLD_REST_PASSWORD`: contraseña de la REST API
+- `PALWORLD_MAP_IMAGE`: URL o ruta pública de la imagen del mapa, por ejemplo `/palworld-map.jpg`. Si no la defines, usa la imagen incluida en `public/palworld-map.webp`
+- `PALWORLD_MAP_CAPTION`: texto de ayuda que se muestra sobre el mapa
+- `PALWORLD_MAP_X_MIN`: límite mínimo X del mundo, por defecto `-500000`
+- `PALWORLD_MAP_X_MAX`: límite máximo X del mundo, por defecto `500000`
+- `PALWORLD_MAP_Y_MIN`: límite mínimo Y del mundo, por defecto `-500000`
+- `PALWORLD_MAP_Y_MAX`: límite máximo Y del mundo, por defecto `500000`
+- `PALWORLD_MAP_INVERT_Y`: invierte el eje Y al pintar el mapa, por defecto `true`
 - `REDIS_URL`: URL opcional para persistir y leer histórico
 - `REDIS_HISTORY_KEY`: clave opcional para la serie histórica, por defecto `palworld:history`
 - `HISTORY_RETENTION_DAYS`: cuántos días conservar en Redis, por defecto `30`

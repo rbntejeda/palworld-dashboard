@@ -80,6 +80,17 @@ function createDashboardRuntime(config) {
       note,
       probeTarget: rest.configured ? config.restBaseUrl : probe.target,
       memoryUsagePercent: round(memory.usagePercent),
+      map: {
+        imageUrl: config.mapImageUrl,
+        caption: config.mapCaption,
+        invertY: config.mapInvertY,
+        bounds: {
+          xMin: config.mapBounds.xMin,
+          xMax: config.mapBounds.xMax,
+          yMin: config.mapBounds.yMin,
+          yMax: config.mapBounds.yMax
+        }
+      },
       rest: {
         configured: rest.configured,
         baseUrl: rest.baseUrl,
@@ -155,6 +166,17 @@ function createEmptySnapshot(config, startedAt) {
     note: 'Waiting for first system sample.',
     probeTarget: config.gameHost && config.gamePort ? `${config.gameHost}:${config.gamePort}` : 'not configured',
     memoryUsagePercent: 0,
+    map: {
+      imageUrl: config.mapImageUrl,
+      caption: config.mapCaption,
+      invertY: config.mapInvertY,
+      bounds: {
+        xMin: config.mapBounds.xMin,
+        xMax: config.mapBounds.xMax,
+        yMin: config.mapBounds.yMin,
+        yMax: config.mapBounds.yMax
+      }
+    },
     rest: {
       configured: false,
       baseUrl: config.restBaseUrl || 'not configured',

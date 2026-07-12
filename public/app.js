@@ -39,6 +39,11 @@ const nodes = {
   playerCount: el('player-count'),
   playersPill: el('players-pill'),
   playersList: el('players-list'),
+  mapNote: el('map-note'),
+  mapPill: el('map-pill'),
+  mapImage: el('map-image'),
+  mapMarkers: el('map-markers'),
+  mapLegend: el('map-legend'),
   history: el('history'),
   themeToggle: el('theme-toggle'),
   historyNote: el('history-note'),
@@ -136,6 +141,54 @@ function platformMeta(player) {
   return { label: 'PC', glyph: 'P', key: 'pc' };
 }
 
+function clamp(value, min, max) {
+  return Math.min(Math.max(value, min), max);
+}
+
+function normalizeMapBounds(bounds) {
+  const xMin = Number(bounds?.xMin);
+  const xMax = Number(bounds?.xMax);
+  const yMin = Number(bounds?.yMin);
+  const yMax = Number(bounds?.yMax);
+
+  return {
+    xMin: Number.isFinite(xMin) ? xMin : -500000,
+    xMax: Number.isFinite(xMax) ? xMax : 500000,
+    yMin: Number.isFinite(yMin) ? yMin : -500000,
+    yMax: Number.isFinite(yMax) ? yMax : 500000
+  };
+}
+
+function normalizePlayerPosition(player, mapConfig) {
+  if (!player?.hasCoordinates) {
+    return null;
+  }
+
+  const bounds = normalizeMapBounds(mapConfig?.bounds);
+  const xSpan = bounds.xMax - bounds.xMin;
+  const ySpan = bounds.yMax - bounds.yMin;
+
+  if (xSpan === 0 || ySpan === 0) {
+    return null;
+  }
+
+  const xRatio = clamp((player.locationX - bounds.xMin) / xSpan, 0, 1);
+  const yRatio = clamp((player.locationY - bounds.yMin) / ySpan, 0, 1);
+
+  return {
+    x: xRatio * 100,
+    y: mapConfig?.invertY === false ? yRatio * 100 : (1 - yRatio) * 100
+  };
+}
+
+function formatMapLocation(player) {
+  if (!player?.hasCoordinates) {
+    return 'Sin coordenadas';
+  }
+
+  return `${formatWorldCoord(player.locationX)}, ${formatWorldCoord(player.locationY)}`;
+}
+
 function renderHistory() {
   nodes.history.innerHTML = state.history
     .slice(-5)
@@ -199,6 +252,7 @@ function render(snapshot, connected) {
   nodes.worldGuid.textContent = abbreviateId(worldGuid);
   nodes.worldGuid.title = worldGuid || 'Sin world GUID';
   nodes.playersList.innerHTML = renderPlayers(snapshot.rest?.players || []);
+  renderMap(snapshot.rest?.players || [], snapshot.map);
   renderHistory();
 }
 
@@ -215,7 +269,7 @@ function renderPlayers(players) {
   return players
     .map((player) => {
       const platform = platformMeta(player);
-      const coords = `${formatWorldCoord(player.locationX)}, ${formatWorldCoord(player.locationY)}`;
+      const coords = formatMapLocation(player);
 
       return `
         <article class="player-row">
@@ -234,6 +288,81 @@ function renderPlayers(players) {
             <span>Bld ${player.buildingCount || 0}</span>
           </div>
         </article>
+      `;
+    })
+    .join('');
+}
+
+function renderMap(players, mapConfig) {
+  const imageUrl = mapConfig?.imageUrl || '';
+  const visiblePlayers = players.filter((player) => player?.hasCoordinates);
+
+  if (nodes.mapImage) {
+    if (imageUrl) {
+      nodes.mapImage.src = imageUrl;
+      nodes.mapImage.style.display = 'block';
+    } else {
+      nodes.mapImage.removeAttribute('src');
+      nodes.mapImage.style.display = 'none';
+    }
+    nodes.mapImage.alt = mapConfig?.caption || 'Mapa de Palworld';
+  }
+
+  if (nodes.mapPill) {
+    nodes.mapPill.textContent = `${visiblePlayers.length} marker${visiblePlayers.length === 1 ? '' : 's'}`;
+  }
+
+  if (nodes.mapNote) {
+    nodes.mapNote.textContent = imageUrl
+      ? mapConfig?.caption || 'Mapa de jugadores'
+      : 'El mapa incluido no está disponible. Define PALWORLD_MAP_IMAGE si quieres usar otro archivo.';
+  }
+
+  const markers = visiblePlayers
+    .map((player) => {
+      const platform = platformMeta(player);
+      const position = normalizePlayerPosition(player, mapConfig);
+
+      if (!position) {
+        return '';
+      }
+
+      const tooltip = [
+        player.name,
+        platform.label,
+        `Loc ${formatMapLocation(player)}`,
+        `Lvl ${player.level || 0}`
+      ].join(' · ');
+
+      return `
+        <button
+          type="button"
+          class="map-marker ${platform.key}"
+          style="left: ${position.x.toFixed(2)}%; top: ${position.y.toFixed(2)}%;"
+          title="${escapeHtml(tooltip)}"
+          aria-label="${escapeHtml(tooltip)}"
+        >
+          <span class="map-marker-main">
+            <strong>${escapeHtml(player.name)}</strong>
+            <span>${escapeHtml(formatMapLocation(player))}</span>
+          </span>
+        </button>
+      `;
+    })
+    .filter(Boolean)
+    .join('');
+
+  nodes.mapMarkers.innerHTML = markers;
+
+  const legendPlayers = visiblePlayers.slice(0, 4);
+  nodes.mapLegend.innerHTML = legendPlayers
+    .map((player) => {
+      const platform = platformMeta(player);
+      return `
+        <div class="map-legend-item">
+          <span class="map-legend-dot ${platform.key}"></span>
+          <span>${escapeHtml(player.name)}</span>
+        </div>
       `;
     })
     .join('');
