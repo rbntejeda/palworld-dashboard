@@ -6,7 +6,8 @@ const state = {
   mapAnno: null,
   mapImageUrl: '',
   mapPlayers: [],
-  mapConfig: null
+  mapConfig: null,
+  mapResizeRaf: 0
 };
 
 const el = (id) => document.getElementById(id);
@@ -644,6 +645,17 @@ function connect() {
 nodes.themeToggle.addEventListener('click', () => {
   document.body.classList.toggle('light');
   nodes.themeToggle.textContent = document.body.classList.contains('light') ? 'Modo noche' : 'Modo día';
+});
+
+window.addEventListener('resize', () => {
+  if (!state.mapViewer) {
+    return;
+  }
+
+  cancelAnimationFrame(state.mapResizeRaf);
+  state.mapResizeRaf = requestAnimationFrame(() => {
+    state.mapViewer.forceResize();
+  });
 });
 
 nodes.historyButtons.forEach((button) => {

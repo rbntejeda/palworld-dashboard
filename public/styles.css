@@ -28,8 +28,9 @@ body.light {
 
 .shell {
   margin: 0 auto;
-  max-width: 1280px;
-  padding: clamp(1rem, 3vw, 2rem);
+  max-width: none;
+  padding: clamp(0.85rem, 2vw, 1.75rem);
+  width: min(100%, 1680px);
 }
 
 .hero,
@@ -317,12 +318,27 @@ body.light .notes li {
 .world-section {
   display: grid;
   gap: 1rem;
-  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+  grid-template-columns: minmax(320px, 0.72fr) minmax(0, 1.28fr);
+  align-items: stretch;
   margin-top: 1rem;
 }
 
+.world-card {
+  grid-column: 1;
+  grid-row: 1;
+}
+
+.players-card {
+  grid-column: 1;
+  grid-row: 2;
+}
+
 .map-card {
-  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  grid-column: 2;
+  grid-row: 1 / span 2;
+  min-height: clamp(44rem, 72vh, 60rem);
 }
 
 .map-header {
@@ -353,17 +369,19 @@ body.light .notes li {
 }
 
 .map-frame {
+  flex: 1;
   border: 1px solid rgb(148 163 184 / 12%);
   border-radius: 1.4rem;
+  min-height: clamp(28rem, 60vh, 48rem);
   overflow: hidden;
 }
 
 .map-surface {
-  aspect-ratio: 1 / 1;
+  aspect-ratio: 16 / 9;
   background:
     radial-gradient(circle at center, rgb(110 231 183 / 10%), transparent 38%),
     linear-gradient(180deg, rgb(7 14 22 / 90%), rgb(7 14 22 / 70%));
-  min-height: 24rem;
+  min-height: 100%;
   position: relative;
 }
 
@@ -798,8 +816,12 @@ body.light .summary-card {
     grid-template-columns: 1fr;
   }
 
+  .world-card,
+  .players-card,
   .map-card {
     grid-column: auto;
+    grid-row: auto;
+    min-height: auto;
   }
 
   .status-grid {
