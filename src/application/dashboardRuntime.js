@@ -24,7 +24,7 @@ function createDashboardRuntime(config) {
   let refreshInFlight = false;
 
   async function buildSnapshot() {
-    const [cpuLoad, memory, temperatureC, probe, rest] = await Promise.all([
+    const [cpuLoad, memory, temperatureReading, probe, rest] = await Promise.all([
       readCpuUsage(),
       readMemoryUsage(),
       readTemperature(),
@@ -75,7 +75,8 @@ function createDashboardRuntime(config) {
       cpuLoad: round(cpuLoad),
       memoryUsed: round(memory.usedGb),
       memoryTotal: round(memory.totalGb),
-      serverTemperatureC: temperatureC === null ? null : round(temperatureC),
+      serverTemperatureC: temperatureReading.value === null ? null : round(temperatureReading.value),
+      serverTemperatureSource: temperatureReading.source,
       latency: rest.configured ? restLatency : probe.latencyMs,
       note,
       probeTarget: rest.configured ? config.restBaseUrl : probe.target,
@@ -163,6 +164,7 @@ function createEmptySnapshot(config, startedAt) {
     memoryUsed: 0,
     memoryTotal: 1,
     serverTemperatureC: null,
+    serverTemperatureSource: null,
     latency: 0,
     note: 'Waiting for first system sample.',
     probeTarget: config.gameHost && config.gamePort ? `${config.gameHost}:${config.gamePort}` : 'not configured',

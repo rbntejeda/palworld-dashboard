@@ -36,6 +36,13 @@ docker build -t palworld-dashboard .
 docker run --rm -p 3000:3000 palworld-dashboard
 ```
 
+Si quieres que el panel lea temperatura del host dentro de Docker, monta también:
+
+```bash
+-v /sys/class/hwmon:/sys/class/hwmon:ro \
+-v /sys/class/thermal:/sys/class/thermal:ro
+```
+
 ## API
 
 - `GET /api/snapshot`

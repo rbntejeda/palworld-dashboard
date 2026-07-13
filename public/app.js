@@ -107,6 +107,18 @@ function formatTemperature(value) {
   return `${Number(value).toFixed(1)}°C`;
 }
 
+function formatTemperatureSource(source) {
+  if (source === 'thermal') {
+    return 'Sensor thermal';
+  }
+
+  if (source === 'hwmon') {
+    return 'Sensor hwmon';
+  }
+
+  return 'Sin sensor';
+}
+
 function abbreviateId(value, head = 8, tail = 6) {
   const text = String(value || '').trim();
 
@@ -272,7 +284,9 @@ function render(snapshot, connected) {
   nodes.serverFps.textContent = snapshot.rest?.metrics?.serverfps ?? '--';
   nodes.serverFpsNote.textContent = snapshot.rest?.configured ? 'REST metrics' : 'No REST';
   nodes.serverTemp.textContent = formatTemperature(snapshot.serverTemperatureC);
-  nodes.serverTempNote.textContent = snapshot.serverTemperatureC === null ? 'Sin sensor' : 'Sensor del host';
+  nodes.serverTempNote.textContent = snapshot.serverTemperatureC === null
+    ? 'Monta /sys/class/thermal y /sys/class/hwmon en Docker'
+    : formatTemperatureSource(snapshot.serverTemperatureSource);
   nodes.gameDays.textContent = formatGameDays(snapshot.rest?.metrics?.days);
   nodes.gameDaysNote.textContent = snapshot.rest?.configured ? 'In-game calendar' : 'No REST';
   nodes.baseCamps.textContent = snapshot.rest?.metrics?.basecampnum ?? '--';
@@ -669,6 +683,7 @@ fetch('/api/snapshot')
       memoryUsed: 0,
       memoryTotal: 8,
       serverTemperatureC: null,
+      serverTemperatureSource: null,
       latency: 0,
       uptimeSeconds: 0,
       note: 'No se pudo leer el backend.'

@@ -89,10 +89,24 @@ async function readMemoryUsage() {
 async function readTemperature() {
   const thermalZoneTemperature = await readTemperatureFromThermalZones();
   if (thermalZoneTemperature !== null) {
-    return thermalZoneTemperature;
+    return {
+      value: thermalZoneTemperature,
+      source: 'thermal'
+    };
   }
 
-  return readTemperatureFromHwmon();
+  const hwmonTemperature = await readTemperatureFromHwmon();
+  if (hwmonTemperature !== null) {
+    return {
+      value: hwmonTemperature,
+      source: 'hwmon'
+    };
+  }
+
+  return {
+    value: null,
+    source: null
+  };
 }
 
 async function readTemperatureFromThermalZones() {
