@@ -1,7 +1,11 @@
 const state = {
   history: [],
   historyMode: 'hour',
-  historySeries: []
+  historySeries: [],
+  mapViewer: null,
+  mapImageUrl: '',
+  mapPlayers: [],
+  mapConfig: null
 };
 
 const el = (id) => document.getElementById(id);
@@ -42,8 +46,6 @@ const nodes = {
   mapNote: el('map-note'),
   mapPill: el('map-pill'),
   mapSurface: el('map-surface'),
-  mapImage: el('map-image'),
-  mapMarkers: el('map-markers'),
   mapLegend: el('map-legend'),
   history: el('history'),
   themeToggle: el('theme-toggle'),
@@ -246,6 +248,7 @@ function renderHistory() {
 
 function render(snapshot, connected) {
   state.history.push(snapshot);
+  state.lastSnapshot = snapshot;
   nodes.updatedAt.textContent = formatTime(snapshot.updatedAt);
   nodes.servicePill.textContent = statusLabel(snapshot.serviceState);
   nodes.serviceState.textContent = snapshot.serviceState.toUpperCase();
@@ -324,21 +327,10 @@ function renderPlayers(players) {
 function renderMap(players, mapConfig) {
   const imageUrl = mapConfig?.imageUrl || '';
   const visiblePlayers = players.filter((player) => player?.hasCoordinates);
+  state.mapPlayers = visiblePlayers;
+  state.mapConfig = mapConfig;
 
-  if (nodes.mapImage) {
-    const nextSrc = imageUrl || '';
-    const currentSrc = nodes.mapImage.getAttribute('src') || '';
-
-    if (imageUrl && currentSrc !== nextSrc) {
-      nodes.mapImage.src = imageUrl;
-      nodes.mapImage.style.display = 'block';
-    } else if (!imageUrl) {
-      nodes.mapImage.removeAttribute('src');
-      nodes.mapImage.style.display = 'none';
-    }
-    nodes.mapImage.alt = mapConfig?.caption || 'Mapa de Palworld';
-    syncMapAspectRatio();
-  }
+  const viewer = ensureMapViewer(imageUrl);
 
   if (nodes.mapPill) {
     nodes.mapPill.textContent = `${visiblePlayers.length} marker${visiblePlayers.length === 1 ? '' : 's'}`;
@@ -347,45 +339,12 @@ function renderMap(players, mapConfig) {
   if (nodes.mapNote) {
     const transformLabel = mapConfig?.transform === 'bounds' ? 'bounds' : 'reference';
     nodes.mapNote.textContent = imageUrl
-      ? `${mapConfig?.caption || 'Mapa de jugadores'} · transform ${transformLabel}`
+      ? `${mapConfig?.caption || 'Mapa de jugadores'} · transform ${transformLabel} · zoom con rueda/pinch`
       : 'El mapa incluido no está disponible. Define PALWORLD_MAP_IMAGE si quieres usar otro archivo.';
   }
-
-  const markers = visiblePlayers
-    .map((player) => {
-      const platform = platformMeta(player);
-      const position = normalizePlayerPosition(player, mapConfig);
-
-      if (!position) {
-        return '';
-      }
-
-      const tooltip = [
-        player.name,
-        platform.label,
-        `Loc ${formatMapLocation(player)}`,
-        `Lvl ${player.level || 0}`
-      ].join(' · ');
-
-      return `
-        <button
-          type="button"
-          class="map-marker ${platform.key}"
-          style="left: ${position.x.toFixed(2)}%; top: ${position.y.toFixed(2)}%;"
-          title="${escapeHtml(tooltip)}"
-          aria-label="${escapeHtml(tooltip)}"
-        >
-          <span class="map-marker-main">
-            <strong>${escapeHtml(player.name)}</strong>
-            <span>${escapeHtml(formatMapLocation(player))}</span>
-          </span>
-        </button>
-      `;
-    })
-    .filter(Boolean)
-    .join('');
-
-  nodes.mapMarkers.innerHTML = markers;
+  if (viewer && viewer.isOpen()) {
+    renderMapOverlays();
+  }
 
   const legendPlayers = visiblePlayers.slice(0, 4);
   nodes.mapLegend.innerHTML = legendPlayers
@@ -401,24 +360,107 @@ function renderMap(players, mapConfig) {
     .join('');
 }
 
-function syncMapAspectRatio() {
-  if (!nodes.mapImage || !nodes.mapSurface) {
-    return;
+function ensureMapViewer(imageUrl) {
+  if (!nodes.mapSurface || typeof OpenSeadragon === 'undefined' || !imageUrl) {
+    return null;
   }
 
-  if (!nodes.mapImage.complete || !nodes.mapImage.naturalWidth || !nodes.mapImage.naturalHeight) {
-    return;
+  if (!state.mapViewer) {
+    state.mapViewer = OpenSeadragon({
+      element: nodes.mapSurface,
+      tileSources: {
+        type: 'image',
+        url: imageUrl
+      },
+      crossOriginPolicy: 'Anonymous',
+      gestureSettingsMouse: {
+        clickToZoom: true,
+        dblClickToZoom: true,
+        dragToPan: true,
+        scrollToZoom: true,
+        pinchToZoom: true
+      },
+      gestureSettingsTouch: {
+        clickToZoom: true,
+        dblClickToZoom: true,
+        dragToPan: true,
+        scrollToZoom: true,
+        pinchToZoom: true
+      },
+      showNavigationControl: false,
+      preserveViewport: true,
+      visibilityRatio: 1,
+      constrainDuringPan: true,
+      minZoomLevel: 0.75
+    });
+
+    state.mapViewer.addHandler('open', () => {
+      renderMapOverlays();
+    });
   }
 
-  nodes.mapSurface.style.setProperty(
-    '--map-aspect-ratio',
-    `${nodes.mapImage.naturalWidth} / ${nodes.mapImage.naturalHeight}`
-  );
+  if (state.mapImageUrl !== imageUrl) {
+    state.mapImageUrl = imageUrl;
+    state.mapViewer.open({ type: 'image', url: imageUrl });
+  }
+
+  return state.mapViewer;
 }
 
-if (nodes.mapImage) {
-  nodes.mapImage.addEventListener('load', syncMapAspectRatio);
-  syncMapAspectRatio();
+function renderMapOverlays() {
+  const viewer = state.mapViewer;
+
+  if (!viewer || !viewer.isOpen()) {
+    return;
+  }
+
+  viewer.clearOverlays();
+
+  const item = viewer.world.getItemAt(0);
+  if (!item) {
+    return;
+  }
+
+  const size = item.getContentSize();
+
+  for (const player of state.mapPlayers) {
+    const platform = platformMeta(player);
+    const position = normalizePlayerPosition(player, state.mapConfig);
+
+    if (!position) {
+      continue;
+    }
+
+    const imagePoint = new OpenSeadragon.Point(
+      (position.x / 100) * size.x,
+      (position.y / 100) * size.y
+    );
+
+    const tooltip = [
+      player.name,
+      platform.label,
+      `Loc ${formatMapLocation(player)}`,
+      `Lvl ${player.level || 0}`
+    ].join(' · ');
+
+    const marker = document.createElement('button');
+    marker.type = 'button';
+    marker.className = `map-marker ${platform.key}`;
+    marker.title = tooltip;
+    marker.setAttribute('aria-label', tooltip);
+    marker.innerHTML = `
+      <span class="map-marker-main">
+        <strong>${escapeHtml(player.name)}</strong>
+        <span>${escapeHtml(formatMapLocation(player))}</span>
+      </span>
+    `;
+
+    viewer.addOverlay({
+      element: marker,
+      location: viewer.viewport.imageToViewportCoordinates(imagePoint.x, imagePoint.y),
+      placement: OpenSeadragon.Placement.CENTER
+    });
+  }
 }
 
 function escapeHtml(value) {

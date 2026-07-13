@@ -65,7 +65,7 @@ PALWORLD_REST_PASSWORD=clave
 - Lee CPU y memoria reales desde `/proc`.
 - Puede probar el puerto del servidor de Palworld si configuras `PALWORLD_HOST` y `PALWORLD_PORT`.
 - Si configuras la REST API de Palworld, muestra nombre del servidor, descripción, world GUID, jugadores conectados y métricas del mundo.
-- Puede dibujar los jugadores sobre un mapa con una imagen incluida o con otra que le pases, y ajusta los bounds del mundo por variables.
+- Puede dibujar los jugadores sobre un mapa OpenSeadragon con zoom sobre una imagen de alta resolución incluida o con otra que le pases, y ajusta los bounds del mundo por variables.
 - Mantiene una base lista para conectar pub/sub real y leer métricas del host o del contenedor.
 
 ## Variables de entorno

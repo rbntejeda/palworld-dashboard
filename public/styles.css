@@ -359,10 +359,11 @@ body.light .notes li {
 }
 
 .map-surface {
-  aspect-ratio: var(--map-aspect-ratio, 1 / 1);
+  aspect-ratio: 1 / 1;
   background:
     radial-gradient(circle at center, rgb(110 231 183 / 10%), transparent 38%),
     linear-gradient(180deg, rgb(7 14 22 / 90%), rgb(7 14 22 / 70%));
+  min-height: 24rem;
   position: relative;
 }
 
@@ -372,27 +373,21 @@ body.light .map-surface {
     linear-gradient(180deg, rgb(255 255 255 / 96%), rgb(241 245 249 / 88%));
 }
 
-.map-image {
-  height: 100%;
-  object-fit: contain;
-  position: absolute;
+.map-surface .openseadragon-container,
+.map-surface .openseadragon-canvas,
+.map-surface .openseadragon-canvas > div {
   inset: 0;
+  position: absolute;
   width: 100%;
+  height: 100%;
 }
 
-.map-grid {
-  background-image:
-    linear-gradient(rgb(148 163 184 / 10%) 1px, transparent 1px),
-    linear-gradient(90deg, rgb(148 163 184 / 10%) 1px, transparent 1px);
-  background-size: 12.5% 12.5%;
-  inset: 0;
-  opacity: 0.6;
-  position: absolute;
+.map-surface .openseadragon-container {
+  background: transparent !important;
 }
 
-.map-markers {
-  inset: 0;
-  position: absolute;
+.map-surface .openseadragon-canvas {
+  background: transparent !important;
 }
 
 .map-marker {
