@@ -41,6 +41,7 @@ const nodes = {
   playersList: el('players-list'),
   mapNote: el('map-note'),
   mapPill: el('map-pill'),
+  mapSurface: el('map-surface'),
   mapImage: el('map-image'),
   mapMarkers: el('map-markers'),
   mapLegend: el('map-legend'),
@@ -325,14 +326,18 @@ function renderMap(players, mapConfig) {
   const visiblePlayers = players.filter((player) => player?.hasCoordinates);
 
   if (nodes.mapImage) {
-    if (imageUrl) {
+    const nextSrc = imageUrl || '';
+    const currentSrc = nodes.mapImage.getAttribute('src') || '';
+
+    if (imageUrl && currentSrc !== nextSrc) {
       nodes.mapImage.src = imageUrl;
       nodes.mapImage.style.display = 'block';
-    } else {
+    } else if (!imageUrl) {
       nodes.mapImage.removeAttribute('src');
       nodes.mapImage.style.display = 'none';
     }
     nodes.mapImage.alt = mapConfig?.caption || 'Mapa de Palworld';
+    syncMapAspectRatio();
   }
 
   if (nodes.mapPill) {
@@ -394,6 +399,26 @@ function renderMap(players, mapConfig) {
       `;
     })
     .join('');
+}
+
+function syncMapAspectRatio() {
+  if (!nodes.mapImage || !nodes.mapSurface) {
+    return;
+  }
+
+  if (!nodes.mapImage.complete || !nodes.mapImage.naturalWidth || !nodes.mapImage.naturalHeight) {
+    return;
+  }
+
+  nodes.mapSurface.style.setProperty(
+    '--map-aspect-ratio',
+    `${nodes.mapImage.naturalWidth} / ${nodes.mapImage.naturalHeight}`
+  );
+}
+
+if (nodes.mapImage) {
+  nodes.mapImage.addEventListener('load', syncMapAspectRatio);
+  syncMapAspectRatio();
 }
 
 function escapeHtml(value) {

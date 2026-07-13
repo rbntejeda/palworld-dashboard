@@ -359,7 +359,7 @@ body.light .notes li {
 }
 
 .map-surface {
-  aspect-ratio: 16 / 10;
+  aspect-ratio: var(--map-aspect-ratio, 1 / 1);
   background:
     radial-gradient(circle at center, rgb(110 231 183 / 10%), transparent 38%),
     linear-gradient(180deg, rgb(7 14 22 / 90%), rgb(7 14 22 / 70%));
@@ -374,7 +374,7 @@ body.light .map-surface {
 
 .map-image {
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
   position: absolute;
   inset: 0;
   width: 100%;
