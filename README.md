@@ -79,8 +79,9 @@ PALWORLD_REST_PASSWORD=clave
 - `PALWORLD_REST_URL`: URL base de la REST API de Palworld
 - `PALWORLD_REST_USER`: usuario de la REST API
 - `PALWORLD_REST_PASSWORD`: contraseña de la REST API
-- `PALWORLD_MAP_IMAGE`: URL o ruta pública de la imagen del mapa, por ejemplo `/palworld-map.jpg`. Si no la defines, usa la imagen incluida en `public/palworld-map.webp`
+- `PALWORLD_MAP_IMAGE`: URL o ruta pública de la imagen del mapa, por ejemplo `/map.jpg`. Si no la defines, usa la imagen incluida en `public/map.jpg`
 - `PALWORLD_MAP_CAPTION`: texto de ayuda que se muestra sobre el mapa
+- `PALWORLD_MAP_TRANSFORM`: `reference` para usar la misma proyección del mapa online de referencia, o `bounds` para usar límites configurables
 - `PALWORLD_MAP_X_MIN`: límite mínimo X del mundo, por defecto `-500000`
 - `PALWORLD_MAP_X_MAX`: límite máximo X del mundo, por defecto `500000`
 - `PALWORLD_MAP_Y_MIN`: límite mínimo Y del mundo, por defecto `-500000`

@@ -33,6 +33,9 @@ function loadConfig() {
     yMax: parseCoordinate(process.env.PALWORLD_MAP_Y_MAX, 500000)
   };
 
+  const mapTransform = (process.env.PALWORLD_MAP_TRANSFORM || 'reference').trim().toLowerCase();
+  const normalizedMapTransform = mapTransform === 'bounds' ? 'bounds' : 'reference';
+
   return {
     port: parseNumber(process.env.PORT || 3000, 3000),
     hostname: process.env.HOSTNAME || '0.0.0.0',
@@ -46,10 +49,11 @@ function loadConfig() {
     redisHistoryKey: process.env.REDIS_HISTORY_KEY || 'palworld:history',
     historyRetentionDays: parseNumber(process.env.HISTORY_RETENTION_DAYS || 30, 30),
     refreshIntervalMs: parseNumber(process.env.REFRESH_INTERVAL_MS || 5000, 5000),
-    mapImageUrl: process.env.PALWORLD_MAP_IMAGE || '/palworld-map.webp',
+    mapImageUrl: process.env.PALWORLD_MAP_IMAGE || '/map.jpg',
     mapCaption: process.env.PALWORLD_MAP_CAPTION || 'Mapa del mundo de Palworld',
     mapInvertY: parseBoolean(process.env.PALWORLD_MAP_INVERT_Y, true),
-    mapBounds
+    mapBounds,
+    mapTransform: normalizedMapTransform
   };
 }
 

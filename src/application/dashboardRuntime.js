@@ -83,6 +83,7 @@ function createDashboardRuntime(config) {
       map: {
         imageUrl: config.mapImageUrl,
         caption: config.mapCaption,
+        transform: config.mapTransform,
         invertY: config.mapInvertY,
         bounds: {
           xMin: config.mapBounds.xMin,
@@ -169,6 +170,7 @@ function createEmptySnapshot(config, startedAt) {
     map: {
       imageUrl: config.mapImageUrl,
       caption: config.mapCaption,
+      transform: config.mapTransform,
       invertY: config.mapInvertY,
       bounds: {
         xMin: config.mapBounds.xMin,

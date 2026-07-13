@@ -159,9 +159,36 @@ function normalizeMapBounds(bounds) {
   };
 }
 
+function normalizeMapTransform(mapConfig) {
+  const transform = String(mapConfig?.transform || 'reference').toLowerCase();
+
+  if (transform === 'bounds') {
+    return { type: 'bounds' };
+  }
+
+  return {
+    type: 'reference',
+    xOffset: 157664.55791065,
+    yOffset: -123467.1611767,
+    scale: 462.962962963
+  };
+}
+
 function normalizePlayerPosition(player, mapConfig) {
   if (!player?.hasCoordinates) {
     return null;
+  }
+
+  const transform = normalizeMapTransform(mapConfig);
+
+  if (transform.type === 'reference') {
+    const x = ((player.locationY - transform.xOffset) / transform.scale + 1000) / 2000;
+    const y = ((1000 - ((player.locationX - transform.yOffset) / transform.scale)) / 2000);
+
+    return {
+      x: clamp(x * 100, 0, 100),
+      y: clamp(y * 100, 0, 100)
+    };
   }
 
   const bounds = normalizeMapBounds(mapConfig?.bounds);
@@ -313,8 +340,9 @@ function renderMap(players, mapConfig) {
   }
 
   if (nodes.mapNote) {
+    const transformLabel = mapConfig?.transform === 'bounds' ? 'bounds' : 'reference';
     nodes.mapNote.textContent = imageUrl
-      ? mapConfig?.caption || 'Mapa de jugadores'
+      ? `${mapConfig?.caption || 'Mapa de jugadores'} · transform ${transformLabel}`
       : 'El mapa incluido no está disponible. Define PALWORLD_MAP_IMAGE si quieres usar otro archivo.';
   }
 
