@@ -3,6 +3,7 @@ const state = {
   historyMode: 'hour',
   historySeries: [],
   mapViewer: null,
+  mapAnno: null,
   mapImageUrl: '',
   mapPlayers: [],
   mapConfig: null
@@ -339,7 +340,7 @@ function renderMap(players, mapConfig) {
   if (nodes.mapNote) {
     const transformLabel = mapConfig?.transform === 'bounds' ? 'bounds' : 'reference';
     nodes.mapNote.textContent = imageUrl
-      ? `${mapConfig?.caption || 'Mapa de jugadores'} · transform ${transformLabel} · zoom con rueda/pinch`
+      ? `${mapConfig?.caption || 'Mapa de jugadores'} · transform ${transformLabel} · zoom, pinch y anotaciones`
       : 'El mapa incluido no está disponible. Define PALWORLD_MAP_IMAGE si quieres usar otro archivo.';
   }
   if (viewer && viewer.isOpen()) {
@@ -395,6 +396,7 @@ function ensureMapViewer(imageUrl) {
     });
 
     state.mapViewer.addHandler('open', () => {
+      ensureMapAnno();
       renderMapOverlays();
     });
   }
@@ -405,6 +407,18 @@ function ensureMapViewer(imageUrl) {
   }
 
   return state.mapViewer;
+}
+
+function ensureMapAnno() {
+  if (state.mapAnno || !state.mapViewer || typeof OpenSeadragon.Annotorious !== 'function') {
+    return state.mapAnno;
+  }
+
+  state.mapAnno = OpenSeadragon.Annotorious(state.mapViewer, {
+    allowEmpty: true
+  });
+
+  return state.mapAnno;
 }
 
 function renderMapOverlays() {
