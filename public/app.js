@@ -453,7 +453,6 @@ function renderMapOverlays() {
     const tooltip = [
       player.name,
       platform.label,
-      `Loc ${formatMapLocation(player)}`,
       `Lvl ${player.level || 0}`
     ].join(' · ');
 
@@ -465,7 +464,6 @@ function renderMapOverlays() {
     marker.innerHTML = `
       <span class="map-marker-main">
         <strong>${escapeHtml(player.name)}</strong>
-        <span>${escapeHtml(formatMapLocation(player))}</span>
       </span>
     `;
 
