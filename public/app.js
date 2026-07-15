@@ -60,6 +60,13 @@ const nodes = {
   historyPoints: el('history-points'),
   historyLabels: el('history-labels'),
   historySummary: el('history-summary'),
+  availabilityAverage: el('availability-average'),
+  availabilityAverageNote: el('availability-average-note'),
+  availabilityDowntime: el('availability-downtime'),
+  availabilityDowntimeNote: el('availability-downtime-note'),
+  availabilityCurrent: el('availability-current'),
+  availabilityCurrentNote: el('availability-current-note'),
+  availabilityTimeline: el('availability-timeline'),
   historyButtons: Array.from(document.querySelectorAll('.history-toggle'))
 };
 
@@ -78,9 +85,19 @@ function statusLabel(stateValue) {
 }
 
 function availabilityValue(stateValue) {
-  if (stateValue === 'online') return 99.9;
-  if (stateValue === 'degraded') return 97.4;
+  return availabilityScore(stateValue);
+}
+
+function availabilityScore(stateValue) {
+  if (stateValue === 'online') return 100;
+  if (stateValue === 'degraded') return 65;
   return 0;
+}
+
+function availabilityStateLabel(stateValue) {
+  if (stateValue === 'online') return 'En línea';
+  if (stateValue === 'degraded') return 'Degradado';
+  return 'Caído';
 }
 
 function formatWorldCoord(value) {
@@ -255,6 +272,45 @@ function renderHistory() {
           </div>
         </div>
       `;
+    })
+    .join('');
+}
+
+function renderAvailability(points) {
+  if (!nodes.availabilityAverage || !nodes.availabilityTimeline) {
+    return;
+  }
+
+  if (!points.length) {
+    nodes.availabilityAverage.textContent = '--%';
+    nodes.availabilityAverageNote.textContent = 'Esperando puntos';
+    nodes.availabilityDowntime.textContent = '--';
+    nodes.availabilityDowntimeNote.textContent = 'Sin historial';
+    nodes.availabilityCurrent.textContent = '--';
+    nodes.availabilityCurrentNote.textContent = 'Sin snapshot';
+    nodes.availabilityTimeline.innerHTML = '';
+    return;
+  }
+
+  const total = points.length;
+  const onlineCount = points.filter((point) => point.serviceState === 'online').length;
+  const degradedCount = points.filter((point) => point.serviceState === 'degraded').length;
+  const offlineCount = points.filter((point) => point.serviceState === 'offline').length;
+  const averageAvailability = points.reduce((sum, point) => sum + availabilityScore(point.serviceState), 0) / total;
+  const lastPoint = points.at(-1);
+  const downtimePercent = (offlineCount / total) * 100;
+
+  nodes.availabilityAverage.textContent = `${averageAvailability.toFixed(1)}%`;
+  nodes.availabilityAverageNote.textContent = `${onlineCount}/${total} buckets estables`;
+  nodes.availabilityDowntime.textContent = `${downtimePercent.toFixed(1)}%`;
+  nodes.availabilityDowntimeNote.textContent = `${offlineCount} offline · ${degradedCount} degradados`;
+  nodes.availabilityCurrent.textContent = availabilityStateLabel(lastPoint.serviceState);
+  nodes.availabilityCurrentNote.textContent = `Último punto ${lastPoint.label}`;
+
+  nodes.availabilityTimeline.innerHTML = points
+    .map((point) => {
+      const label = `${point.label} · ${availabilityStateLabel(point.serviceState)} · ${point.count} snapshot${point.count === 1 ? '' : 's'}`;
+      return `<span class="availability-segment ${point.serviceState}" title="${escapeHtml(label)}" aria-label="${escapeHtml(label)}"></span>`;
     })
     .join('');
 }
@@ -540,10 +596,12 @@ function renderHistoryChart(points) {
     nodes.memoryArea.setAttribute('d', '');
     nodes.historyPoints.innerHTML = '';
     nodes.historyLabels.innerHTML = '';
+    renderAvailability([]);
     return;
   }
 
   nodes.historyNote.textContent = `Mostrando ${points.length} bucket(s) por ${state.historyMode === 'day' ? 'día' : 'hora'} desde Redis o memoria.`;
+  renderAvailability(points);
 
   const cpuPath = buildChartPath(points, 'cpuLoad', width, height, padding);
   const memoryPath = buildChartPath(points, 'memoryUsagePercent', width, height, padding);

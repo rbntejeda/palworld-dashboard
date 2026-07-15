@@ -186,6 +186,37 @@
             </div>
           </div>
           <p class="history-note" id="history-note">Cargando histórico...</p>
+          <div class="availability-panel">
+            <div class="availability-header">
+              <div>
+                <p class="eyebrow">Availability</p>
+                <h3>Estado del servicio en el tiempo</h3>
+              </div>
+              <div class="availability-legend" aria-label="Leyenda de disponibilidad">
+                <span class="availability-chip online">Online</span>
+                <span class="availability-chip degraded">Degraded</span>
+                <span class="availability-chip offline">Offline</span>
+              </div>
+            </div>
+            <div class="availability-stats">
+              <div class="availability-stat">
+                <span class="availability-label">Disponibilidad media</span>
+                <strong id="availability-average">--%</strong>
+                <p id="availability-average-note">Esperando puntos</p>
+              </div>
+              <div class="availability-stat">
+                <span class="availability-label">Tiempo caído</span>
+                <strong id="availability-downtime">--</strong>
+                <p id="availability-downtime-note">Sin historial</p>
+              </div>
+              <div class="availability-stat">
+                <span class="availability-label">Estado actual</span>
+                <strong id="availability-current">--</strong>
+                <p id="availability-current-note">Sin snapshot</p>
+              </div>
+            </div>
+            <div class="availability-timeline" id="availability-timeline" aria-label="Línea temporal de disponibilidad"></div>
+          </div>
           <svg id="history-chart" class="history-chart" viewBox="0 0 1200 360" preserveAspectRatio="none" aria-label="Gráfico de carga histórica">
             <defs>
               <linearGradient id="cpu-gradient" x1="0" x2="0" y1="0" y2="1">
