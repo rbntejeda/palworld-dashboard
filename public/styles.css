@@ -321,6 +321,87 @@ body.light .notes li {
   margin-top: 1rem;
 }
 
+.elemental-section {
+  margin-top: 1rem;
+}
+
+.elemental-card {
+  align-items: center;
+  background:
+    radial-gradient(circle at top left, rgb(110 231 183 / 12%), transparent 30%),
+    radial-gradient(circle at bottom right, rgb(255 190 93 / 10%), transparent 28%),
+    linear-gradient(180deg, rgb(8 19 30 / 86%), rgb(8 19 30 / 66%));
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+  padding: 1.4rem;
+}
+
+body.light .elemental-card {
+  background:
+    radial-gradient(circle at top left, rgb(110 231 183 / 10%), transparent 30%),
+    radial-gradient(circle at bottom right, rgb(255 190 93 / 8%), transparent 28%),
+    linear-gradient(180deg, rgb(255 255 255 / 88%), rgb(241 245 249 / 84%));
+}
+
+.elemental-copy h3 {
+  font-size: clamp(1.7rem, 2.6vw, 2.5rem);
+  letter-spacing: -0.06em;
+  margin-bottom: 0.6rem;
+}
+
+.elemental-note {
+  color: #94a3b8;
+  line-height: 1.65;
+  margin-bottom: 1rem;
+  max-width: 56ch;
+}
+
+.elemental-list {
+  display: grid;
+  gap: 0.65rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.elemental-list li {
+  background: rgb(15 23 42 / 40%);
+  border: 1px solid rgb(148 163 184 / 12%);
+  border-radius: 0.95rem;
+  color: #dbeafe;
+  line-height: 1.45;
+  padding: 0.8rem 0.9rem;
+}
+
+body.light .elemental-list li {
+  background: rgb(255 255 255 / 66%);
+  color: #0f172a;
+}
+
+.elemental-figure {
+  background:
+    radial-gradient(circle at center, rgb(110 231 183 / 12%), transparent 34%),
+    linear-gradient(180deg, rgb(7 14 22 / 96%), rgb(7 14 22 / 72%));
+  border: 1px solid rgb(148 163 184 / 14%);
+  border-radius: 1.4rem;
+  margin: 0;
+  overflow: hidden;
+  padding: 0.5rem;
+}
+
+body.light .elemental-figure {
+  background:
+    radial-gradient(circle at center, rgb(110 231 183 / 10%), transparent 34%),
+    linear-gradient(180deg, rgb(255 255 255 / 96%), rgb(241 245 249 / 88%));
+}
+
+.elemental-figure img {
+  display: block;
+  height: auto;
+  width: 100%;
+}
+
 .map-card {
   grid-column: 1 / -1;
 }
@@ -923,6 +1004,7 @@ body.light .summary-card {
   .hero,
   .metrics,
   .content-grid,
+  .elemental-card,
   .world-section,
   .history-summary,
   .availability-stats {

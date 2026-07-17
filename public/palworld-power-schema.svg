@@ -1,0 +1,136 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 780" role="img" aria-labelledby="title desc">
+  <title id="title">Esquema de poder elemental de Palworld</title>
+  <desc id="desc">Diagrama visual con relaciones elementales entre agua, fuego, hielo, dragón, oscuridad, no elemental, planta, tierra y rayo.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0%" stop-color="#0d2134"/>
+      <stop offset="100%" stop-color="#07111b"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="50%" cy="45%" r="60%">
+      <stop offset="0%" stop-color="#6ee7b7" stop-opacity="0.16"/>
+      <stop offset="55%" stop-color="#6ee7b7" stop-opacity="0.04"/>
+      <stop offset="100%" stop-color="#6ee7b7" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="10" stdDeviation="14" flood-color="#020617" flood-opacity="0.45"/>
+    </filter>
+    <marker id="arrow" markerWidth="12" markerHeight="12" refX="9" refY="6" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L12,6 L0,12 Z" fill="#9dd7ff" fill-opacity="0.9"/>
+    </marker>
+    <style>
+      .grid { stroke: rgba(148, 163, 184, 0.08); stroke-width: 1; }
+      .arrow { stroke: rgba(157, 215, 255, 0.72); stroke-width: 4.5; fill: none; marker-end: url(#arrow); stroke-linecap: round; }
+      .label { fill: #dbeafe; font: 700 28px "Inter", "Segoe UI", Arial, sans-serif; letter-spacing: 0.04em; }
+      .subtle { fill: #94a3b8; font: 600 16px "Inter", "Segoe UI", Arial, sans-serif; letter-spacing: 0.18em; text-transform: uppercase; }
+      .node-title { fill: #f8fafc; font: 800 20px "Inter", "Segoe UI", Arial, sans-serif; }
+      .node-letter { fill: #ffffff; font: 900 32px "Inter", "Segoe UI", Arial, sans-serif; }
+      .node-ring { fill: rgba(8, 17, 26, 0.84); stroke: rgba(255, 255, 255, 0.12); stroke-width: 2; }
+      .water { fill: #2f80ed; }
+      .fire { fill: #f97316; }
+      .ice { fill: #22c1dc; }
+      .dragon { fill: #a855f7; }
+      .dark { fill: #6b21a8; }
+      .neutral { fill: #c4a69a; }
+      .plant { fill: #84cc16; }
+      .earth { fill: #a16207; }
+      .lightning { fill: #facc15; }
+    </style>
+  </defs>
+
+  <rect width="1200" height="780" fill="url(#bg)"/>
+  <rect width="1200" height="780" fill="url(#glow)"/>
+
+  <g opacity="0.85">
+    <path class="grid" d="M60 60H1140"/>
+    <path class="grid" d="M60 180H1140"/>
+    <path class="grid" d="M60 300H1140"/>
+    <path class="grid" d="M60 420H1140"/>
+    <path class="grid" d="M60 540H1140"/>
+    <path class="grid" d="M60 660H1140"/>
+    <path class="grid" d="M120 40V720"/>
+    <path class="grid" d="M280 40V720"/>
+    <path class="grid" d="M440 40V720"/>
+    <path class="grid" d="M600 40V720"/>
+    <path class="grid" d="M760 40V720"/>
+    <path class="grid" d="M920 40V720"/>
+    <path class="grid" d="M1080 40V720"/>
+  </g>
+
+  <g filter="url(#shadow)">
+    <circle cx="600" cy="390" r="128" fill="rgba(8, 17, 26, 0.76)" stroke="rgba(255, 255, 255, 0.10)" stroke-width="2"/>
+    <text class="subtle" x="600" y="360" text-anchor="middle">Palworld</text>
+    <text class="label" x="600" y="408" text-anchor="middle">Rueda</text>
+    <text class="label" x="600" y="440" text-anchor="middle">de afinidades</text>
+  </g>
+
+  <g>
+    <path class="arrow" d="M600 156 C690 176, 716 202, 742 240"/>
+    <path class="arrow" d="M790 260 C826 304, 836 330, 832 350"/>
+    <path class="arrow" d="M836 410 C820 476, 806 500, 786 520"/>
+    <path class="arrow" d="M736 556 C688 598, 636 616, 596 620"/>
+    <path class="arrow" d="M500 620 C452 610, 412 592, 384 562"/>
+    <path class="arrow" d="M362 510 C330 454, 318 418, 316 372"/>
+    <path class="arrow" d="M322 300 C340 250, 366 220, 392 196"/>
+    <path class="arrow" d="M438 156 C486 130, 534 124, 580 130"/>
+    <path class="arrow" d="M484 148 C430 176, 394 214, 366 262"/>
+    <path class="arrow" d="M478 168 C536 178, 580 186, 626 204"/>
+    <path class="arrow" d="M682 294 C676 362, 666 398, 648 442"/>
+    <path class="arrow" d="M444 474 C480 424, 508 390, 548 362"/>
+  </g>
+
+  <g filter="url(#shadow)">
+    <g transform="translate(600 128)">
+      <polygon class="node-ring water" points="0,-48 48,0 0,48 -48,0"/>
+      <text class="node-letter" x="0" y="2" text-anchor="middle">A</text>
+      <text class="node-title" x="0" y="84" text-anchor="middle">Agua</text>
+    </g>
+
+    <g transform="translate(780 220)">
+      <polygon class="node-ring fire" points="0,-48 48,0 0,48 -48,0"/>
+      <text class="node-letter" x="0" y="2" text-anchor="middle">F</text>
+      <text class="node-title" x="0" y="84" text-anchor="middle">Fuego</text>
+    </g>
+
+    <g transform="translate(858 360)">
+      <polygon class="node-ring ice" points="0,-48 48,0 0,48 -48,0"/>
+      <text class="node-letter" x="0" y="2" text-anchor="middle">H</text>
+      <text class="node-title" x="0" y="84" text-anchor="middle">Hielo</text>
+    </g>
+
+    <g transform="translate(780 500)">
+      <polygon class="node-ring dragon" points="0,-48 48,0 0,48 -48,0"/>
+      <text class="node-letter" x="0" y="2" text-anchor="middle">D</text>
+      <text class="node-title" x="0" y="84" text-anchor="middle">Dragón</text>
+    </g>
+
+    <g transform="translate(600 592)">
+      <polygon class="node-ring dark" points="0,-48 48,0 0,48 -48,0"/>
+      <text class="node-letter" x="0" y="2" text-anchor="middle">O</text>
+      <text class="node-title" x="0" y="84" text-anchor="middle">Oscuridad</text>
+    </g>
+
+    <g transform="translate(420 500)">
+      <polygon class="node-ring neutral" points="0,-48 48,0 0,48 -48,0"/>
+      <text class="node-letter" x="0" y="2" text-anchor="middle">N</text>
+      <text class="node-title" x="0" y="84" text-anchor="middle">No elemental</text>
+    </g>
+
+    <g transform="translate(342 360)">
+      <polygon class="node-ring plant" points="0,-48 48,0 0,48 -48,0"/>
+      <text class="node-letter" x="0" y="2" text-anchor="middle">P</text>
+      <text class="node-title" x="0" y="84" text-anchor="middle">Planta</text>
+    </g>
+
+    <g transform="translate(420 220)">
+      <polygon class="node-ring earth" points="0,-48 48,0 0,48 -48,0"/>
+      <text class="node-letter" x="0" y="2" text-anchor="middle">T</text>
+      <text class="node-title" x="0" y="84" text-anchor="middle">Tierra</text>
+    </g>
+
+    <g transform="translate(520 128)">
+      <polygon class="node-ring lightning" points="0,-48 48,0 0,48 -48,0"/>
+      <text class="node-letter" x="0" y="2" text-anchor="middle">R</text>
+      <text class="node-title" x="0" y="84" text-anchor="middle">Rayo</text>
+    </g>
+  </g>
+</svg>
