@@ -17,6 +17,7 @@ async function runPrismaMigrations(databaseUrl) {
     return false;
   }
 
+  console.log('Running Prisma migrations...');
   await execFileAsync(prismaBinary, ['migrate', 'deploy', '--schema', schemaPath], {
     cwd: projectRoot,
     env: {
@@ -25,6 +26,7 @@ async function runPrismaMigrations(databaseUrl) {
     },
     maxBuffer: 10 * 1024 * 1024
   });
+  console.log('Prisma migrations completed.');
 
   return true;
 }

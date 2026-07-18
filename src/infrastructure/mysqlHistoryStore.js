@@ -50,15 +50,16 @@ function createMysqlHistoryStore({ databaseUrl }) {
     if (!readinessPromise) {
       readinessPromise = (async () => {
         await runPrismaMigrations(databaseUrl);
-        return Boolean(await getPrismaClient());
-      })()
-        .catch((error) => {
-          console.error(`Prisma migrations failed: ${error.message}`);
-          return false;
-        })
-        .finally(() => {
-          readinessPromise = null;
-        });
+        const client = await getPrismaClient();
+
+        if (!client) {
+          throw new Error('Prisma client could not connect after migrations.');
+        }
+
+        return true;
+      })().finally(() => {
+        readinessPromise = null;
+      });
     }
 
     return readinessPromise;
