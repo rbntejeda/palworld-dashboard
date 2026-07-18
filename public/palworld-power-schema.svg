@@ -1,136 +1,234 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 780" role="img" aria-labelledby="title desc">
-  <title id="title">Esquema de poder elemental de Palworld</title>
-  <desc id="desc">Diagrama visual con relaciones elementales entre agua, fuego, hielo, dragón, oscuridad, no elemental, planta, tierra y rayo.</desc>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1400 900" role="img" aria-labelledby="title desc">
+  <title id="title">Tabla de fortalezas y debilidades de Palworld</title>
+  <desc id="desc">Tarjeta visual con la tabla compacta de elementos, fortalezas y debilidades de Palworld.</desc>
   <defs>
     <linearGradient id="bg" x1="0" x2="1" y1="0" y2="1">
-      <stop offset="0%" stop-color="#0d2134"/>
-      <stop offset="100%" stop-color="#07111b"/>
+      <stop offset="0%" stop-color="#07101b"/>
+      <stop offset="55%" stop-color="#091420"/>
+      <stop offset="100%" stop-color="#04080e"/>
     </linearGradient>
-    <radialGradient id="glow" cx="50%" cy="45%" r="60%">
+    <radialGradient id="glow" cx="35%" cy="18%" r="85%">
       <stop offset="0%" stop-color="#6ee7b7" stop-opacity="0.16"/>
-      <stop offset="55%" stop-color="#6ee7b7" stop-opacity="0.04"/>
-      <stop offset="100%" stop-color="#6ee7b7" stop-opacity="0"/>
+      <stop offset="30%" stop-color="#ffbe5d" stop-opacity="0.08"/>
+      <stop offset="60%" stop-color="#60a5fa" stop-opacity="0.05"/>
+      <stop offset="100%" stop-color="#000000" stop-opacity="0"/>
     </radialGradient>
+    <linearGradient id="panel" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0%" stop-color="#132131"/>
+      <stop offset="100%" stop-color="#08111b"/>
+    </linearGradient>
+    <linearGradient id="tableRow" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0%" stop-color="#0f1b2a"/>
+      <stop offset="100%" stop-color="#0b1521"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0" x2="1" y1="0" y2="0">
+      <stop offset="0%" stop-color="#6ee7b7"/>
+      <stop offset="100%" stop-color="#ffbe5d"/>
+    </linearGradient>
+    <linearGradient id="bad" x1="0" x2="1" y1="0" y2="0">
+      <stop offset="0%" stop-color="#ff8a95"/>
+      <stop offset="100%" stop-color="#ff5f6d"/>
+    </linearGradient>
     <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
-      <feDropShadow dx="0" dy="10" stdDeviation="14" flood-color="#020617" flood-opacity="0.45"/>
+      <feDropShadow dx="0" dy="18" stdDeviation="20" flood-color="#020617" flood-opacity="0.58"/>
     </filter>
-    <marker id="arrow" markerWidth="12" markerHeight="12" refX="9" refY="6" orient="auto" markerUnits="strokeWidth">
-      <path d="M0,0 L12,6 L0,12 Z" fill="#9dd7ff" fill-opacity="0.9"/>
-    </marker>
+    <filter id="softGlow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="0" stdDeviation="10" flood-color="#6ee7b7" flood-opacity="0.18"/>
+    </filter>
     <style>
-      .grid { stroke: rgba(148, 163, 184, 0.08); stroke-width: 1; }
-      .arrow { stroke: rgba(157, 215, 255, 0.72); stroke-width: 4.5; fill: none; marker-end: url(#arrow); stroke-linecap: round; }
-      .label { fill: #dbeafe; font: 700 28px "Inter", "Segoe UI", Arial, sans-serif; letter-spacing: 0.04em; }
-      .subtle { fill: #94a3b8; font: 600 16px "Inter", "Segoe UI", Arial, sans-serif; letter-spacing: 0.18em; text-transform: uppercase; }
-      .node-title { fill: #f8fafc; font: 800 20px "Inter", "Segoe UI", Arial, sans-serif; }
-      .node-letter { fill: #ffffff; font: 900 32px "Inter", "Segoe UI", Arial, sans-serif; }
-      .node-ring { fill: rgba(8, 17, 26, 0.84); stroke: rgba(255, 255, 255, 0.12); stroke-width: 2; }
-      .water { fill: #2f80ed; }
-      .fire { fill: #f97316; }
-      .ice { fill: #22c1dc; }
-      .dragon { fill: #a855f7; }
-      .dark { fill: #6b21a8; }
-      .neutral { fill: #c4a69a; }
-      .plant { fill: #84cc16; }
-      .earth { fill: #a16207; }
-      .lightning { fill: #facc15; }
+      .grid { stroke: rgba(148, 163, 184, 0.06); stroke-width: 1; }
+      .frame { fill: rgba(6, 11, 18, 0.74); stroke: rgba(255, 255, 255, 0.08); stroke-width: 1.5; }
+      .tag { fill: #8fe8c1; font: 800 16px "Inter", "Segoe UI", Arial, sans-serif; letter-spacing: 0.28em; }
+      .headline { fill: #f8fafc; font: 900 56px "Inter", "Segoe UI", Arial, sans-serif; letter-spacing: -0.07em; }
+      .subhead { fill: #93a4bb; font: 600 18px "Inter", "Segoe UI", Arial, sans-serif; }
+      .small { fill: #94a3b8; font: 700 14px "Inter", "Segoe UI", Arial, sans-serif; letter-spacing: 0.18em; text-transform: uppercase; }
+      .label { fill: #e2e8f0; font: 700 16px "Inter", "Segoe UI", Arial, sans-serif; }
+      .body { fill: #cbd5e1; font: 600 17px "Inter", "Segoe UI", Arial, sans-serif; }
+      .muted { fill: #94a3b8; font: 600 15px "Inter", "Segoe UI", Arial, sans-serif; }
+      .table-head { fill: #dbeafe; font: 800 15px "Inter", "Segoe UI", Arial, sans-serif; letter-spacing: 0.16em; text-transform: uppercase; }
+      .row-line { stroke: rgba(148, 163, 184, 0.11); stroke-width: 1; }
+      .chip-text { fill: #08111a; font: 800 14px "Inter", "Segoe UI", Arial, sans-serif; }
+      .chip { rx: 16; ry: 16; }
+      .chip.fire { fill: #ffb45f; }
+      .chip.water { fill: #63c7ff; }
+      .chip.grass { fill: #8ad85d; }
+      .chip.ice { fill: #9de5f3; }
+      .chip.electric { fill: #ffe36d; }
+      .chip.ground { fill: #d7a047; }
+      .chip.dark { fill: #9d7cff; }
+      .chip.neutral { fill: #d7b59f; }
+      .chip.dragon { fill: #d5a0ff; }
+      .chip.good { fill: url(#accent); }
+      .chip.bad { fill: url(#bad); }
+      .row-bg { fill: url(#tableRow); }
+      .row-bg.highlight { fill: rgba(110, 231, 183, 0.11); }
+      .note-card { fill: url(#panel); stroke: rgba(255,255,255,0.08); stroke-width: 1; }
     </style>
   </defs>
 
-  <rect width="1200" height="780" fill="url(#bg)"/>
-  <rect width="1200" height="780" fill="url(#glow)"/>
+  <rect width="1400" height="900" fill="url(#bg)"/>
+  <rect width="1400" height="900" fill="url(#glow)"/>
 
   <g opacity="0.85">
-    <path class="grid" d="M60 60H1140"/>
-    <path class="grid" d="M60 180H1140"/>
-    <path class="grid" d="M60 300H1140"/>
-    <path class="grid" d="M60 420H1140"/>
-    <path class="grid" d="M60 540H1140"/>
-    <path class="grid" d="M60 660H1140"/>
-    <path class="grid" d="M120 40V720"/>
-    <path class="grid" d="M280 40V720"/>
-    <path class="grid" d="M440 40V720"/>
-    <path class="grid" d="M600 40V720"/>
-    <path class="grid" d="M760 40V720"/>
-    <path class="grid" d="M920 40V720"/>
-    <path class="grid" d="M1080 40V720"/>
+    <path class="grid" d="M80 82H1320"/>
+    <path class="grid" d="M80 202H1320"/>
+    <path class="grid" d="M80 322H1320"/>
+    <path class="grid" d="M80 442H1320"/>
+    <path class="grid" d="M80 562H1320"/>
+    <path class="grid" d="M80 682H1320"/>
+    <path class="grid" d="M80 802H1320"/>
+    <path class="grid" d="M160 40V840"/>
+    <path class="grid" d="M320 40V840"/>
+    <path class="grid" d="M480 40V840"/>
+    <path class="grid" d="M640 40V840"/>
+    <path class="grid" d="M800 40V840"/>
+    <path class="grid" d="M960 40V840"/>
+    <path class="grid" d="M1120 40V840"/>
+    <path class="grid" d="M1280 40V840"/>
   </g>
 
   <g filter="url(#shadow)">
-    <circle cx="600" cy="390" r="128" fill="rgba(8, 17, 26, 0.76)" stroke="rgba(255, 255, 255, 0.10)" stroke-width="2"/>
-    <text class="subtle" x="600" y="360" text-anchor="middle">Palworld</text>
-    <text class="label" x="600" y="408" text-anchor="middle">Rueda</text>
-    <text class="label" x="600" y="440" text-anchor="middle">de afinidades</text>
-  </g>
-
-  <g>
-    <path class="arrow" d="M600 156 C690 176, 716 202, 742 240"/>
-    <path class="arrow" d="M790 260 C826 304, 836 330, 832 350"/>
-    <path class="arrow" d="M836 410 C820 476, 806 500, 786 520"/>
-    <path class="arrow" d="M736 556 C688 598, 636 616, 596 620"/>
-    <path class="arrow" d="M500 620 C452 610, 412 592, 384 562"/>
-    <path class="arrow" d="M362 510 C330 454, 318 418, 316 372"/>
-    <path class="arrow" d="M322 300 C340 250, 366 220, 392 196"/>
-    <path class="arrow" d="M438 156 C486 130, 534 124, 580 130"/>
-    <path class="arrow" d="M484 148 C430 176, 394 214, 366 262"/>
-    <path class="arrow" d="M478 168 C536 178, 580 186, 626 204"/>
-    <path class="arrow" d="M682 294 C676 362, 666 398, 648 442"/>
-    <path class="arrow" d="M444 474 C480 424, 508 390, 548 362"/>
+    <rect class="frame" x="74" y="72" width="1252" height="756" rx="42"/>
+    <text class="tag" x="134" y="134">PALWORLD / ELEMENT TABLE</text>
+    <text class="headline" x="134" y="206">Fortalezas y debilidades</text>
+    <text class="subhead" x="134" y="248">Tabla compacta para leer combates sin llenar el dashboard de texto.</text>
+    <g transform="translate(1128 146)">
+      <rect x="-96" y="-28" width="192" height="56" rx="18" fill="rgba(14, 25, 39, 0.92)" stroke="rgba(110, 231, 183, 0.2)"/>
+      <circle cx="-60" cy="0" r="8" fill="#6ee7b7"/>
+      <text class="label" x="-40" y="6">Palworld</text>
+      <text class="small" x="18" y="6">REFERENCE</text>
+    </g>
   </g>
 
   <g filter="url(#shadow)">
-    <g transform="translate(600 128)">
-      <polygon class="node-ring water" points="0,-48 48,0 0,48 -48,0"/>
-      <text class="node-letter" x="0" y="2" text-anchor="middle">A</text>
-      <text class="node-title" x="0" y="84" text-anchor="middle">Agua</text>
+    <rect x="84" y="292" width="820" height="494" rx="30" fill="rgba(8, 17, 26, 0.76)" stroke="rgba(255,255,255,0.08)"/>
+    <rect x="102" y="310" width="784" height="58" rx="20" fill="rgba(110, 231, 183, 0.08)" stroke="rgba(110, 231, 183, 0.16)"/>
+    <text class="table-head" x="128" y="347">Elemento</text>
+    <text class="table-head" x="404" y="347">Eficaz contra</text>
+    <text class="table-head" x="680" y="347">Vulnerable a</text>
+
+    <g transform="translate(102 382)">
+      <rect class="row-bg highlight" width="784" height="38" rx="16"/>
+      <circle cx="26" cy="19" r="9" fill="#63c7ff"/>
+      <text class="label" x="48" y="24">Agua</text>
+      <rect class="chip fire" x="314" y="5" width="100" height="28"/>
+      <text class="chip-text" x="364" y="24" text-anchor="middle">Fuego</text>
+      <rect class="chip electric" x="590" y="5" width="100" height="28"/>
+      <text class="chip-text" x="640" y="24" text-anchor="middle">Rayo</text>
     </g>
 
-    <g transform="translate(780 220)">
-      <polygon class="node-ring fire" points="0,-48 48,0 0,48 -48,0"/>
-      <text class="node-letter" x="0" y="2" text-anchor="middle">F</text>
-      <text class="node-title" x="0" y="84" text-anchor="middle">Fuego</text>
+    <g transform="translate(102 427)">
+      <rect class="row-bg" width="784" height="38" rx="16"/>
+      <circle cx="26" cy="19" r="9" fill="#d5a0ff"/>
+      <text class="label" x="48" y="24">Dragón</text>
+      <rect class="chip dark" x="314" y="5" width="120" height="28"/>
+      <text class="chip-text" x="374" y="24" text-anchor="middle">Oscuridad</text>
+      <rect class="chip ice" x="590" y="5" width="100" height="28"/>
+      <text class="chip-text" x="640" y="24" text-anchor="middle">Hielo</text>
     </g>
 
-    <g transform="translate(858 360)">
-      <polygon class="node-ring ice" points="0,-48 48,0 0,48 -48,0"/>
-      <text class="node-letter" x="0" y="2" text-anchor="middle">H</text>
-      <text class="node-title" x="0" y="84" text-anchor="middle">Hielo</text>
+    <g transform="translate(102 472)">
+      <rect class="row-bg highlight" width="784" height="38" rx="16"/>
+      <circle cx="26" cy="19" r="9" fill="#ffb45f"/>
+      <text class="label" x="48" y="24">Fuego</text>
+      <rect class="chip ice" x="314" y="5" width="100" height="28"/>
+      <text class="chip-text" x="364" y="24" text-anchor="middle">Hielo</text>
+      <rect class="chip grass" x="424" y="5" width="102" height="28"/>
+      <text class="chip-text" x="475" y="24" text-anchor="middle">Planta</text>
+      <rect class="chip water" x="590" y="5" width="100" height="28"/>
+      <text class="chip-text" x="640" y="24" text-anchor="middle">Agua</text>
     </g>
 
-    <g transform="translate(780 500)">
-      <polygon class="node-ring dragon" points="0,-48 48,0 0,48 -48,0"/>
-      <text class="node-letter" x="0" y="2" text-anchor="middle">D</text>
-      <text class="node-title" x="0" y="84" text-anchor="middle">Dragón</text>
+    <g transform="translate(102 517)">
+      <rect class="row-bg" width="784" height="38" rx="16"/>
+      <circle cx="26" cy="19" r="9" fill="#9de5f3"/>
+      <text class="label" x="48" y="24">Hielo</text>
+      <rect class="chip dragon" x="314" y="5" width="110" height="28"/>
+      <text class="chip-text" x="369" y="24" text-anchor="middle">Dragón</text>
+      <rect class="chip fire" x="590" y="5" width="100" height="28"/>
+      <text class="chip-text" x="640" y="24" text-anchor="middle">Fuego</text>
     </g>
 
-    <g transform="translate(600 592)">
-      <polygon class="node-ring dark" points="0,-48 48,0 0,48 -48,0"/>
-      <text class="node-letter" x="0" y="2" text-anchor="middle">O</text>
-      <text class="node-title" x="0" y="84" text-anchor="middle">Oscuridad</text>
+    <g transform="translate(102 562)">
+      <rect class="row-bg" width="784" height="38" rx="16"/>
+      <circle cx="26" cy="19" r="9" fill="#d7b59f"/>
+      <text class="label" x="48" y="24">No elemental</text>
+      <rect class="chip neutral" x="314" y="5" width="84" height="28"/>
+      <text class="chip-text" x="356" y="24" text-anchor="middle">Ninguno</text>
+      <rect class="chip dark" x="590" y="5" width="120" height="28"/>
+      <text class="chip-text" x="650" y="24" text-anchor="middle">Oscuridad</text>
     </g>
 
-    <g transform="translate(420 500)">
-      <polygon class="node-ring neutral" points="0,-48 48,0 0,48 -48,0"/>
-      <text class="node-letter" x="0" y="2" text-anchor="middle">N</text>
-      <text class="node-title" x="0" y="84" text-anchor="middle">No elemental</text>
+    <g transform="translate(102 607)">
+      <rect class="row-bg" width="784" height="38" rx="16"/>
+      <circle cx="26" cy="19" r="9" fill="#9d7cff"/>
+      <text class="label" x="48" y="24">Oscuridad</text>
+      <rect class="chip neutral" x="314" y="5" width="108" height="28"/>
+      <text class="chip-text" x="368" y="24" text-anchor="middle">No elemental</text>
+      <rect class="chip dragon" x="590" y="5" width="100" height="28"/>
+      <text class="chip-text" x="640" y="24" text-anchor="middle">Dragón</text>
     </g>
 
-    <g transform="translate(342 360)">
-      <polygon class="node-ring plant" points="0,-48 48,0 0,48 -48,0"/>
-      <text class="node-letter" x="0" y="2" text-anchor="middle">P</text>
-      <text class="node-title" x="0" y="84" text-anchor="middle">Planta</text>
+    <g transform="translate(102 652)">
+      <rect class="row-bg" width="784" height="38" rx="16"/>
+      <circle cx="26" cy="19" r="9" fill="#8ad85d"/>
+      <text class="label" x="48" y="24">Planta</text>
+      <rect class="chip ground" x="314" y="5" width="100" height="28"/>
+      <text class="chip-text" x="364" y="24" text-anchor="middle">Tierra</text>
+      <rect class="chip fire" x="590" y="5" width="100" height="28"/>
+      <text class="chip-text" x="640" y="24" text-anchor="middle">Fuego</text>
     </g>
 
-    <g transform="translate(420 220)">
-      <polygon class="node-ring earth" points="0,-48 48,0 0,48 -48,0"/>
-      <text class="node-letter" x="0" y="2" text-anchor="middle">T</text>
-      <text class="node-title" x="0" y="84" text-anchor="middle">Tierra</text>
+    <g transform="translate(102 697)">
+      <rect class="row-bg" width="784" height="38" rx="16"/>
+      <circle cx="26" cy="19" r="9" fill="#ffe36d"/>
+      <text class="label" x="48" y="24">Rayo</text>
+      <rect class="chip water" x="314" y="5" width="100" height="28"/>
+      <text class="chip-text" x="364" y="24" text-anchor="middle">Agua</text>
+      <rect class="chip ground" x="590" y="5" width="100" height="28"/>
+      <text class="chip-text" x="640" y="24" text-anchor="middle">Tierra</text>
     </g>
 
-    <g transform="translate(520 128)">
-      <polygon class="node-ring lightning" points="0,-48 48,0 0,48 -48,0"/>
-      <text class="node-letter" x="0" y="2" text-anchor="middle">R</text>
-      <text class="node-title" x="0" y="84" text-anchor="middle">Rayo</text>
+    <g transform="translate(102 742)">
+      <rect class="row-bg" width="784" height="38" rx="16"/>
+      <circle cx="26" cy="19" r="9" fill="#d7a047"/>
+      <text class="label" x="48" y="24">Tierra</text>
+      <rect class="chip electric" x="314" y="5" width="100" height="28"/>
+      <text class="chip-text" x="364" y="24" text-anchor="middle">Rayo</text>
+      <rect class="chip grass" x="590" y="5" width="100" height="28"/>
+      <text class="chip-text" x="640" y="24" text-anchor="middle">Planta</text>
+    </g>
+  </g>
+
+  <g filter="url(#shadow)">
+    <rect class="note-card" x="932" y="292" width="384" height="494" rx="30"/>
+    <text class="small" x="964" y="338">LECTURA RÁPIDA</text>
+    <text class="label" x="964" y="384" font-size="28">Cómo leer la tabla</text>
+
+    <g transform="translate(964 416)">
+      <rect x="0" y="0" width="320" height="86" rx="22" fill="rgba(110, 231, 183, 0.10)" stroke="rgba(110, 231, 183, 0.16)"/>
+      <text class="body" x="18" y="32">Fuego es el más flexible:</text>
+      <text class="muted" x="18" y="58">pega fuerte a Hielo y Planta.</text>
+    </g>
+
+    <g transform="translate(964 516)">
+      <rect x="0" y="0" width="320" height="86" rx="22" fill="rgba(255, 95, 109, 0.10)" stroke="rgba(255, 95, 109, 0.16)"/>
+      <text class="body" x="18" y="32">No elemental no gana por tipo:</text>
+      <text class="muted" x="18" y="58">siempre queda expuesto a Oscuridad.</text>
+    </g>
+
+    <g transform="translate(964 616)">
+      <rect x="0" y="0" width="320" height="86" rx="22" fill="rgba(255, 190, 93, 0.10)" stroke="rgba(255, 190, 93, 0.16)"/>
+      <text class="body" x="18" y="32">Usa el contraelemento correcto:</text>
+      <text class="muted" x="18" y="58">Rayo contra Agua, Tierra contra Rayo.</text>
+    </g>
+
+    <g transform="translate(964 724)">
+      <rect x="0" y="0" width="320" height="44" rx="16" fill="rgba(15, 23, 42, 0.58)" stroke="rgba(255,255,255,0.08)"/>
+      <circle cx="24" cy="22" r="6" fill="#6ee7b7"/>
+      <circle cx="92" cy="22" r="6" fill="#ffbe5d"/>
+      <circle cx="160" cy="22" r="6" fill="#ff5f6d"/>
+      <text class="muted" x="188" y="27">Ventaja, neutralidad y castigo</text>
     </g>
   </g>
 </svg>
