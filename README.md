@@ -15,7 +15,7 @@ El backend está separado por contexto:
 
 - `src/application`: orquestación y casos de uso
 - `src/domain`: reglas y modelos puros
-- `src/infrastructure`: Redis, REST API de Palworld, probe de red y métricas del host
+- `src/infrastructure`: MySQL/Prisma, Redis, REST API de Palworld, probe de red y métricas del host
 - `public/`: UI estática
 
 La idea es mantener el dashboard como un monolito modular, no como un archivo gigante.
@@ -28,6 +28,28 @@ npm start
 ```
 
 Luego abre `http://localhost:3000`.
+
+## Persistencia con MySQL
+
+Si defines `DATABASE_URL`, el dashboard usa Prisma para guardar snapshots en MySQL 8 y ejecuta las migraciones al arrancar.
+
+Ejemplo:
+
+```bash
+DATABASE_URL="mysql://usuario:clave@localhost:3306/palworld_dashboard"
+```
+
+Con esa variable activa:
+
+- el arranque corre `prisma migrate deploy`
+- se conecta el cliente Prisma
+- los snapshots se guardan en la tabla `snapshots`
+
+También puedes ejecutar las migraciones manualmente:
+
+```bash
+npm run db:migrate
+```
 
 ## Despliegue automático
 
@@ -77,6 +99,7 @@ Si quieres leer el mundo y los jugadores desde la API oficial, configura:
 - `PALWORLD_REST_URL`
 - `PALWORLD_REST_USER`
 - `PALWORLD_REST_PASSWORD`
+- `DATABASE_URL`: cadena de conexión MySQL para Prisma
 
 Ejemplo:
 
@@ -106,6 +129,7 @@ PALWORLD_REST_PASSWORD=clave
 - `PALWORLD_REST_URL`: URL base de la REST API de Palworld
 - `PALWORLD_REST_USER`: usuario de la REST API
 - `PALWORLD_REST_PASSWORD`: contraseña de la REST API
+- `DATABASE_URL`: cadena de conexión MySQL para Prisma
 - `PALWORLD_MAP_IMAGE`: URL o ruta pública de la imagen del mapa, por ejemplo `/map.jpg`. Si no la defines, usa la imagen incluida en `public/map.jpg`
 - `PALWORLD_MAP_CAPTION`: texto de ayuda que se muestra sobre el mapa
 - `PALWORLD_MAP_TRANSFORM`: `reference` para usar la misma proyección del mapa online de referencia, o `bounds` para usar límites configurables

@@ -1,0 +1,35 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Snapshot {
+  id                      String   @id
+  snapshotAt              DateTime
+  createdAt               DateTime @default(now())
+  uptimeSeconds           Int
+  wsState                 String   @db.VarChar(32)
+  serviceState            String   @db.VarChar(16)
+  players                 Int
+  maxPlayers              Int
+  cpuLoad                 Float
+  memoryUsed              Float
+  memoryTotal             Float
+  memoryUsagePercent      Float
+  serverTemperatureC      Float?
+  serverTemperatureSource String?  @db.VarChar(64)
+  latency                 Float
+  note                    String   @db.Text
+  probeTarget             String   @db.VarChar(255)
+  map                     Json
+  rest                    Json
+
+  @@map("snapshots")
+  @@index([snapshotAt])
+  @@index([serviceState])
+  @@index([createdAt])
+}

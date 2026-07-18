@@ -56,13 +56,20 @@ async function refreshAndBroadcast() {
   broadcastSnapshot(snapshot);
 }
 
-void refreshAndBroadcast();
-void runtime.ensureHistoryBackend();
-
 setInterval(() => {
   void refreshAndBroadcast();
 }, config.refreshIntervalMs);
 
-server.listen(config.port, config.hostname, () => {
-  console.log(`palworld-dashboard listening on http://${config.hostname}:${config.port}`);
+async function start() {
+  await runtime.ensureHistoryBackend();
+  await refreshAndBroadcast();
+
+  server.listen(config.port, config.hostname, () => {
+    console.log(`palworld-dashboard listening on http://${config.hostname}:${config.port}`);
+  });
+}
+
+void start().catch((error) => {
+  console.error(`Startup failed: ${error.message}`);
+  process.exit(1);
 });

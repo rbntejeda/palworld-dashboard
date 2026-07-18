@@ -1,6 +1,15 @@
 const { createClient } = require('redis');
+const { createMysqlHistoryStore } = require('./mysqlHistoryStore');
 
-function createHistoryStore({ redisUrl, redisHistoryKey, historyRetentionDays, refreshIntervalMs, samples }) {
+function createHistoryStore({
+  databaseUrl,
+  redisUrl,
+  redisHistoryKey,
+  historyRetentionDays,
+  refreshIntervalMs,
+  samples
+}) {
+  const mysqlStore = createMysqlHistoryStore({ databaseUrl });
   let redisClient = null;
   let redisConnectPromise = null;
 
@@ -45,6 +54,15 @@ function createHistoryStore({ redisUrl, redisHistoryKey, historyRetentionDays, r
       samples.splice(0, samples.length - maxSamples);
     }
 
+    if (databaseUrl) {
+      try {
+        await mysqlStore.persistSnapshot(snapshot);
+        return;
+      } catch (error) {
+        console.error(`MySQL persist failed: ${error.message}`);
+      }
+    }
+
     const client = await getRedisClient();
     if (!client) {
       return;
@@ -64,6 +82,17 @@ function createHistoryStore({ redisUrl, redisHistoryKey, historyRetentionDays, r
   }
 
   async function loadRawHistory(since) {
+    if (databaseUrl) {
+      try {
+        const rows = await mysqlStore.loadRawHistory(since);
+        if (rows.length > 0) {
+          return rows;
+        }
+      } catch (error) {
+        console.error(`MySQL history load failed: ${error.message}`);
+      }
+    }
+
     const client = await getRedisClient();
     if (client) {
       const entries = await client.zRangeByScore(redisHistoryKey, since, '+inf');
@@ -84,14 +113,23 @@ function createHistoryStore({ redisUrl, redisHistoryKey, historyRetentionDays, r
   }
 
   async function ensureHistoryBackend() {
+    if (databaseUrl) {
+      await mysqlStore.ensureHistoryBackend();
+    }
+
     await getRedisClient();
   }
 
   function getSource() {
+    if (databaseUrl) {
+      return 'mysql';
+    }
+
     return redisUrl ? 'redis-or-memory' : 'memory';
   }
 
   return {
+    close: mysqlStore.close,
     ensureHistoryBackend,
     getSource,
     loadRawHistory,

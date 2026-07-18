@@ -45,6 +45,7 @@ function loadConfig() {
     restBaseUrl: (process.env.PALWORLD_REST_URL || process.env.PALWORLD_API_URL || '').replace(/\/$/, ''),
     restUsername: process.env.PALWORLD_REST_USER || process.env.PALWORLD_REST_USERNAME || '',
     restPassword: process.env.PALWORLD_REST_PASSWORD || process.env.PALWORLD_REST_PASS || '',
+    databaseUrl: process.env.DATABASE_URL || '',
     redisUrl: process.env.REDIS_URL || '',
     redisHistoryKey: process.env.REDIS_HISTORY_KEY || 'palworld:history',
     historyRetentionDays: parseNumber(process.env.HISTORY_RETENTION_DAYS || 30, 30),

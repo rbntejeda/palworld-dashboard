@@ -14,6 +14,7 @@ function createDashboardRuntime(config) {
   };
 
   const historyStore = createHistoryStore({
+    databaseUrl: config.databaseUrl,
     redisUrl: config.redisUrl,
     redisHistoryKey: config.redisHistoryKey,
     historyRetentionDays: config.historyRetentionDays,
@@ -145,6 +146,7 @@ function createDashboardRuntime(config) {
 
   return {
     state,
+    close: historyStore.close,
     ensureHistoryBackend,
     getHistorySummary,
     refreshSnapshot
