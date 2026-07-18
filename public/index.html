@@ -176,23 +176,83 @@
       <section class="elemental-section">
         <article class="panel elemental-card">
           <div class="elemental-copy">
-            <p class="eyebrow">Guía visual</p>
+            <p class="eyebrow">Guía elemental</p>
             <h3>Tabla de fortalezas y debilidades</h3>
             <p class="elemental-note">
-              Una lectura compacta de la tabla oficial de elementos para ver, de un vistazo, qué tipo pega mejor y qué tipo lo castiga.
+              Una lectura compacta de la tabla oficial de Palworld para ver, de un vistazo, qué tipo pega mejor y qué tipo lo castiga.
             </p>
             <ul class="elemental-list">
               <li>Fuego es el único tipo eficaz contra dos elementos: Hielo y Planta.</li>
               <li>No elemental no tiene ventaja ofensiva y Oscuridad lo castiga.</li>
             </ul>
           </div>
-          <figure class="elemental-figure">
-            <img
-              src="/palworld-power-schema.svg"
-              alt="Esquema de poder elemental de Palworld"
-              loading="lazy"
-            >
-          </figure>
+          <div class="elemental-table-wrap">
+            <div class="elemental-table-head">
+              <div>
+                <p class="eyebrow">Sección</p>
+                <h4>Referencia elemental</h4>
+              </div>
+              <span class="elemental-table-pill">Tabla real</span>
+            </div>
+            <div class="elemental-table-scroll" role="region" aria-label="Tabla de fortalezas y debilidades de Palworld" tabindex="0">
+              <table class="elemental-table">
+                <thead>
+                  <tr>
+                    <th scope="col">Elemento</th>
+                    <th scope="col">Eficaz contra</th>
+                    <th scope="col">Vulnerable a</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <th scope="row"><span class="elemental-dot water"></span>Agua</th>
+                    <td><span class="elemental-chip fire">Fuego</span></td>
+                    <td><span class="elemental-chip electric">Rayo</span></td>
+                  </tr>
+                  <tr>
+                    <th scope="row"><span class="elemental-dot dragon"></span>Dragón</th>
+                    <td><span class="elemental-chip dark">Oscuridad</span></td>
+                    <td><span class="elemental-chip ice">Hielo</span></td>
+                  </tr>
+                  <tr>
+                    <th scope="row"><span class="elemental-dot fire"></span>Fuego</th>
+                    <td><span class="elemental-chip ice">Hielo</span> <span class="elemental-chip grass">Planta</span></td>
+                    <td><span class="elemental-chip water">Agua</span></td>
+                  </tr>
+                  <tr>
+                    <th scope="row"><span class="elemental-dot ice"></span>Hielo</th>
+                    <td><span class="elemental-chip dragon">Dragón</span></td>
+                    <td><span class="elemental-chip fire">Fuego</span></td>
+                  </tr>
+                  <tr>
+                    <th scope="row"><span class="elemental-dot neutral"></span>No elemental</th>
+                    <td><span class="elemental-chip neutral">Ninguno</span></td>
+                    <td><span class="elemental-chip dark">Oscuridad</span></td>
+                  </tr>
+                  <tr>
+                    <th scope="row"><span class="elemental-dot dark"></span>Oscuridad</th>
+                    <td><span class="elemental-chip neutral">No elemental</span></td>
+                    <td><span class="elemental-chip dragon">Dragón</span></td>
+                  </tr>
+                  <tr>
+                    <th scope="row"><span class="elemental-dot grass"></span>Planta</th>
+                    <td><span class="elemental-chip ground">Tierra</span></td>
+                    <td><span class="elemental-chip fire">Fuego</span></td>
+                  </tr>
+                  <tr>
+                    <th scope="row"><span class="elemental-dot electric"></span>Rayo</th>
+                    <td><span class="elemental-chip water">Agua</span></td>
+                    <td><span class="elemental-chip ground">Tierra</span></td>
+                  </tr>
+                  <tr>
+                    <th scope="row"><span class="elemental-dot ground"></span>Tierra</th>
+                    <td><span class="elemental-chip electric">Rayo</span></td>
+                    <td><span class="elemental-chip grass">Planta</span></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
         </article>
       </section>
 

@@ -379,30 +379,151 @@ body.light .elemental-list li {
   color: #0f172a;
 }
 
-.elemental-figure {
+.elemental-table-wrap {
   background:
-    radial-gradient(circle at center, rgb(110 231 183 / 12%), transparent 34%),
+    radial-gradient(circle at top right, rgb(110 231 183 / 12%), transparent 28%),
     linear-gradient(180deg, rgb(7 14 22 / 96%), rgb(7 14 22 / 72%));
   border: 1px solid rgb(148 163 184 / 14%);
   border-radius: 1.4rem;
-  margin: 0;
-  overflow: hidden;
-  aspect-ratio: 16 / 9;
-  padding: 0.6rem;
+  min-width: 0;
+  padding: 1rem;
 }
 
-body.light .elemental-figure {
+body.light .elemental-table-wrap {
   background:
-    radial-gradient(circle at center, rgb(110 231 183 / 10%), transparent 34%),
+    radial-gradient(circle at top right, rgb(110 231 183 / 10%), transparent 28%),
     linear-gradient(180deg, rgb(255 255 255 / 96%), rgb(241 245 249 / 88%));
 }
 
-.elemental-figure img {
-  display: block;
-  height: auto;
-  object-fit: contain;
+.elemental-table-head {
+  align-items: flex-start;
+  display: flex;
+  gap: 1rem;
+  justify-content: space-between;
+  margin-bottom: 0.85rem;
+}
+
+.elemental-table-head h4 {
+  color: #f8fafc;
+  font-size: clamp(1.15rem, 1.55vw, 1.5rem);
+  letter-spacing: -0.05em;
+  margin-top: 0.2rem;
+}
+
+body.light .elemental-table-head h4 {
+  color: #0f172a;
+}
+
+.elemental-table-pill {
+  align-items: center;
+  background: rgb(110 231 183 / 14%);
+  border-radius: 999px;
+  color: #6ee7b7;
+  display: inline-flex;
+  font-size: 0.74rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  padding: 0.35rem 0.7rem;
+  text-transform: uppercase;
+}
+
+.elemental-table-scroll {
+  overflow-x: auto;
+}
+
+.elemental-table {
+  border-collapse: collapse;
+  min-width: 700px;
   width: 100%;
 }
+
+.elemental-table thead th {
+  background: rgb(110 231 183 / 10%);
+  color: #dbeafe;
+  font-size: 0.74rem;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  padding: 0.95rem 1rem;
+  text-align: left;
+  text-transform: uppercase;
+}
+
+.elemental-table thead th:first-child {
+  border-radius: 0.95rem 0 0 0.95rem;
+}
+
+.elemental-table thead th:last-child {
+  border-radius: 0 0.95rem 0.95rem 0;
+}
+
+.elemental-table tbody tr + tr {
+  border-top: 1px solid rgb(148 163 184 / 10%);
+}
+
+.elemental-table tbody th,
+.elemental-table tbody td {
+  color: #dbeafe;
+  font-size: 0.96rem;
+  font-weight: 600;
+  line-height: 1.4;
+  padding: 0.95rem 1rem;
+  text-align: left;
+  vertical-align: middle;
+}
+
+body.light .elemental-table thead th {
+  color: #0f172a;
+}
+
+body.light .elemental-table tbody th,
+body.light .elemental-table tbody td {
+  color: #0f172a;
+}
+
+.elemental-table tbody th {
+  white-space: nowrap;
+}
+
+.elemental-chip {
+  border-radius: 999px;
+  color: #08111a;
+  display: inline-flex;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  margin: 0.12rem 0.18rem 0.12rem 0;
+  padding: 0.38rem 0.72rem;
+  text-transform: uppercase;
+}
+
+.elemental-chip.fire { background: #ffb45f; }
+.elemental-chip.water { background: #63c7ff; }
+.elemental-chip.grass { background: #8ad85d; }
+.elemental-chip.ice { background: #9de5f3; }
+.elemental-chip.electric { background: #ffe36d; }
+.elemental-chip.ground { background: #d7a047; }
+.elemental-chip.dark { background: #9d7cff; }
+.elemental-chip.dragon { background: #d5a0ff; }
+.elemental-chip.neutral { background: #d7b59f; }
+
+.elemental-dot {
+  border-radius: 999px;
+  display: inline-flex;
+  height: 0.72rem;
+  margin-right: 0.55rem;
+  vertical-align: middle;
+  width: 0.72rem;
+}
+
+.elemental-dot.fire { background: #ffb45f; }
+.elemental-dot.water { background: #63c7ff; }
+.elemental-dot.grass { background: #8ad85d; }
+.elemental-dot.ice { background: #9de5f3; }
+.elemental-dot.electric { background: #ffe36d; }
+.elemental-dot.ground { background: #d7a047; }
+.elemental-dot.dark { background: #9d7cff; }
+.elemental-dot.dragon { background: #d5a0ff; }
+.elemental-dot.neutral { background: #d7b59f; }
 
 .map-card {
   grid-column: 1 / -1;
@@ -1032,10 +1153,6 @@ body.light .summary-card {
 
   .availability-legend {
     justify-content: flex-start;
-  }
-
-  .elemental-figure {
-    aspect-ratio: auto;
   }
 }
 
