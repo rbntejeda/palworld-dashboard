@@ -5,6 +5,8 @@ RUN apk add --no-cache openssl libc6-compat
 
 FROM base AS deps
 COPY package.json package-lock.json ./
+COPY scripts ./scripts
+COPY prisma ./prisma
 RUN npm ci --omit=dev
 
 FROM base AS runtime
@@ -17,6 +19,8 @@ COPY --from=deps /app/node_modules ./node_modules
 COPY package.json server.js ./
 COPY src ./src
 COPY public ./public
+COPY scripts ./scripts
+COPY prisma ./prisma
 
 RUN chown -R app:app /app
 USER app
