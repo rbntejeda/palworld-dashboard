@@ -285,6 +285,38 @@ body.light .notes li {
   margin-bottom: 1rem;
 }
 
+.service-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+  margin-bottom: 1rem;
+}
+
+.service-tab {
+  background: rgb(15 23 42 / 40%);
+  border: 1px solid rgb(148 163 184 / 16%);
+  border-radius: 999px;
+  color: #cbd5e1;
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.8rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  padding: 0.55rem 0.85rem;
+  text-transform: uppercase;
+}
+
+.service-tab.is-active {
+  background: linear-gradient(135deg, #2eec7b, #89f7b1);
+  border-color: transparent;
+  color: #04110b;
+}
+
+body.light .service-tab {
+  background: rgb(255 255 255 / 72%);
+  color: #0f172a;
+}
+
 .service-pill {
   background: rgb(110 231 183 / 12%);
   border: 1px solid rgb(110 231 183 / 18%);
@@ -488,6 +520,14 @@ body.light .paldex-empty {
   padding: 0.85rem;
 }
 
+.paldex-card.items {
+  grid-template-columns: minmax(84px, 96px) minmax(0, 1fr);
+}
+
+.paldex-card.gear {
+  grid-template-columns: minmax(84px, 96px) minmax(0, 1fr);
+}
+
 body.light .paldex-card {
   background: rgb(255 255 255 / 64%);
 }
@@ -597,6 +637,49 @@ body.light .paldex-card {
   color: #f8fafc;
 }
 
+.paldex-tier-grid {
+  display: grid;
+  gap: 0.5rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin-top: 0.7rem;
+}
+
+.paldex-tier-card {
+  background: rgb(8 17 26 / 62%);
+  border: 1px solid rgb(148 163 184 / 12%);
+  border-radius: 0.9rem;
+  padding: 0.65rem;
+}
+
+.paldex-tier-card strong {
+  display: block;
+  font-size: 0.8rem;
+  letter-spacing: 0.12em;
+  margin-bottom: 0.25rem;
+  text-transform: uppercase;
+}
+
+.paldex-tier-card span {
+  color: #94a3b8;
+  display: block;
+  font-size: 0.8rem;
+  line-height: 1.45;
+}
+
+.paldex-item-badge {
+  align-items: center;
+  background: rgb(110 231 183 / 12%);
+  border: 1px solid rgb(110 231 183 / 18%);
+  border-radius: 999px;
+  color: #86efac;
+  display: inline-flex;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  padding: 0.33rem 0.6rem;
+  text-transform: uppercase;
+}
+
 body.light .paldex-type-chip {
   background: rgb(255 255 255 / 76%);
   color: #0f172a;
@@ -609,6 +692,14 @@ body.light .paldex-mini-chip {
 
 body.light .paldex-mini-chip strong {
   color: #0f172a;
+}
+
+body.light .paldex-tier-card {
+  background: rgb(255 255 255 / 72%);
+}
+
+body.light .paldex-tier-card span {
+  color: #334155;
 }
 
 .panel {

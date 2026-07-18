@@ -3,6 +3,7 @@ const state = {
   historyMode: 'hour',
   historySeries: [],
   paldex: {
+    section: 'pals',
     query: '',
     loading: false,
     configured: false,
@@ -81,6 +82,9 @@ const nodes = {
   paldexNote: el('paldex-note'),
   paldexCount: el('paldex-count'),
   paldexSource: el('paldex-source'),
+  paldexRoute: el('paldex-route'),
+  paldexSectionPill: el('paldex-section-pill'),
+  paldexTabs: Array.from(document.querySelectorAll('[data-paldex-section]')),
   historyButtons: Array.from(document.querySelectorAll('.history-toggle'))
 };
 
@@ -272,18 +276,112 @@ function renderPaldexEmpty(message, hint) {
   `;
 }
 
-function renderPaldexResults(results) {
+function paldexSectionLabel(section) {
+  if (section === 'items') return 'Items';
+  if (section === 'gear') return 'Gear';
+  return 'Pals';
+}
+
+function paldexCountLabel(section, count) {
+  if (section === 'items') {
+    return count === 1 ? 'item' : 'items';
+  }
+
+  if (section === 'gear') {
+    return 'gear';
+  }
+
+  return count === 1 ? 'pal' : 'pals';
+}
+
+function paldexRouteLabel(section) {
+  if (section === 'items' || section === 'gear') {
+    return `/api/paldex/${section}/search`;
+  }
+
+  return '/api/paldex/search';
+}
+
+function paldexPlaceholder(section) {
+  if (section === 'items') {
+    return 'Gold Coin, saddle, pal sphere...';
+  }
+
+  if (section === 'gear') {
+    return 'Cloth Outfit, Metal Helm, Pal Metal Armor...';
+  }
+
+  return 'Relaxaurus, fire, lightning, aqua...';
+}
+
+function renderPaldexResults(section, results) {
   if (!results.length) {
     return renderPaldexEmpty(
-      state.paldex.configured ? 'Sin resultados todavía' : 'Paldex desactivado',
-      state.paldex.configured
+      'Sin resultados todavía',
+      section === 'pals'
         ? 'Prueba con Relaxaurus, Fire, Dragon o una habilidad.'
-        : 'Define PALDEX_API_URL para activar la búsqueda.'
+        : section === 'items'
+          ? 'Prueba con gold, saddle, armor o material.'
+          : 'Prueba con Outfit, Helm, Armor o Saddle.'
     );
   }
 
   return results
     .map((item) => {
+      if (section === 'items') {
+        return `
+          <article class="paldex-card items">
+            <div class="paldex-thumb">
+              ${item.imageUrl ? `<img src="${escapeHtml(item.imageUrl)}" alt="${escapeHtml(item.name)}">` : '<div class="paldex-thumb-fallback">Sin imagen</div>'}
+            </div>
+            <div class="paldex-body">
+              <div class="paldex-topline">
+                <strong>${escapeHtml(item.name)}</strong>
+                <span class="paldex-key">${escapeHtml(item.type || 'item')}</span>
+              </div>
+              <p class="paldex-description">${escapeHtml(item.key || 'Sin key')}</p>
+              <div class="paldex-mini-list">
+                <span class="paldex-item-badge">Gold ${escapeHtml(item.gold || 0)}</span>
+                <span class="paldex-mini-chip"><strong>Weight</strong> ${escapeHtml(item.weight || 0)}</span>
+                <span class="paldex-mini-chip"><strong>Type</strong> ${escapeHtml(item.type || 'unknown')}</span>
+              </div>
+            </div>
+          </article>
+        `;
+      }
+
+      if (section === 'gear') {
+        const tiers = Array.isArray(item.tiers) ? item.tiers : [];
+
+        return `
+          <article class="paldex-card gear">
+            <div class="paldex-thumb">
+              ${item.imageUrl ? `<img src="${escapeHtml(item.imageUrl)}" alt="${escapeHtml(item.name)}">` : '<div class="paldex-thumb-fallback">Sin imagen</div>'}
+            </div>
+            <div class="paldex-body">
+              <div class="paldex-topline">
+                <strong>${escapeHtml(item.name)}</strong>
+                <span class="paldex-key">${escapeHtml(item.key || 'gear')}</span>
+              </div>
+              <p class="paldex-description">Equipo y variantes por rareza.</p>
+              <div class="paldex-tier-grid">
+                ${tiers
+                  .map(
+                    (tier) => `
+                      <div class="paldex-tier-card">
+                        <strong>${escapeHtml(tier.tier)}</strong>
+                        <span>HP ${escapeHtml(tier.hp)} · DEF ${escapeHtml(tier.defense)}</span>
+                        <span>Durability ${escapeHtml(tier.durability)} · Price ${escapeHtml(tier.price)}</span>
+                      </div>
+                    `
+                  )
+                  .join('')}
+              </div>
+            </div>
+          </article>
+        `;
+      }
+
       const types = Array.isArray(item.types) ? item.types : [];
       const suitabilities = Array.isArray(item.suitabilities) ? item.suitabilities : [];
       const drops = Array.isArray(item.drops) ? item.drops : [];
@@ -329,7 +427,7 @@ function renderPaldexResults(results) {
     .join('');
 }
 
-function renderPaldexState(payload, query) {
+function renderPaldexState(payload, query, section = state.paldex.section) {
   const results = Array.isArray(payload?.content) ? payload.content : [];
   const count = Number(payload?.total ?? results.length ?? 0);
   const configured = Boolean(payload?.configured);
@@ -339,44 +437,66 @@ function renderPaldexState(payload, query) {
   state.paldex.baseUrl = payload?.baseUrl || '';
   state.paldex.results = results;
   state.paldex.query = query;
+  state.paldex.section = section;
 
   if (nodes.paldexSearch) {
     nodes.paldexSearch.disabled = false;
+    nodes.paldexSearch.textContent = state.paldex.loading ? 'Buscando...' : 'Buscar';
   }
 
   if (nodes.paldexCount) {
-    nodes.paldexCount.textContent = `${count} resultado${count === 1 ? '' : 's'}`;
+    nodes.paldexCount.textContent = `${count} ${paldexCountLabel(section, count)}`;
   }
 
   if (nodes.paldexSource) {
-    nodes.paldexSource.textContent = configured ? (payload.baseUrl || 'Paldex API') : 'PALDEX_API_URL';
+    nodes.paldexSource.textContent = payload?.baseUrl || 'Paldex module';
+  }
+
+  if (nodes.paldexRoute) {
+    nodes.paldexRoute.textContent = paldexRouteLabel(section);
+  }
+
+  if (nodes.paldexSectionPill) {
+    nodes.paldexSectionPill.textContent = paldexSectionLabel(section);
+  }
+
+  if (nodes.paldexTabs) {
+    nodes.paldexTabs.forEach((button) => {
+      button.classList.toggle('is-active', button.dataset.paldexSection === section);
+    });
   }
 
   if (nodes.paldexNote) {
-    if (!configured) {
-      nodes.paldexNote.textContent = payload?.note || 'Define PALDEX_API_URL para activar la búsqueda.';
+    if (payload?.note) {
+      nodes.paldexNote.textContent = payload.note;
+    } else if (!configured && section === 'pals') {
+      nodes.paldexNote.textContent = 'El catálogo usa el dataset público del repo y puede apuntar a tu propia API si defines PALDEX_API_URL.';
     } else if (Array.isArray(payload?.errors) && payload.errors.length > 0) {
       nodes.paldexNote.textContent = payload.errors.join(' · ');
-    } else if (payload?.note) {
-      nodes.paldexNote.textContent = payload.note;
     } else {
       nodes.paldexNote.textContent = query
         ? `Mostrando resultados para "${query}".`
-        : 'Escribe un término para buscar.';
+        : `Escribe un término para buscar ${paldexSectionLabel(section).toLowerCase()}.`;
     }
   }
 
   if (nodes.paldexResults) {
-    nodes.paldexResults.innerHTML = renderPaldexResults(results);
+    nodes.paldexResults.innerHTML = renderPaldexResults(section, results);
+  }
+
+  if (nodes.paldexQuery) {
+    nodes.paldexQuery.placeholder = paldexPlaceholder(section);
   }
 }
 
-function setPaldexLoading(query) {
+function setPaldexLoading(query, section = state.paldex.section) {
   state.paldex.loading = true;
   state.paldex.query = query;
+  state.paldex.section = section;
 
   if (nodes.paldexSearch) {
     nodes.paldexSearch.disabled = true;
+    nodes.paldexSearch.textContent = 'Buscando...';
   }
 
   if (nodes.paldexCount) {
@@ -384,18 +504,20 @@ function setPaldexLoading(query) {
   }
 
   if (nodes.paldexNote) {
-    nodes.paldexNote.textContent = query ? `Buscando "${query}"...` : 'Escribe un término para buscar.';
+    nodes.paldexNote.textContent = query
+      ? `Buscando "${query}" en ${paldexSectionLabel(section).toLowerCase()}...`
+      : `Escribe un término para buscar ${paldexSectionLabel(section).toLowerCase()}.`;
   }
 
   if (nodes.paldexResults) {
     nodes.paldexResults.innerHTML = renderPaldexEmpty(
       query ? `Buscando "${query}"` : 'Escribe un término',
-      'El dashboard consulta el API desde backend y pinta las cards cuando llegan los resultados.'
+      'El dashboard consulta el catálogo desde backend y pinta las cards cuando llegan los resultados.'
     );
   }
 }
 
-async function fetchPaldex(query) {
+async function fetchPaldex(query, section = state.paldex.section) {
   const normalizedQuery = String(query || '').trim();
 
   if (!normalizedQuery) {
@@ -405,26 +527,25 @@ async function fetchPaldex(query) {
         baseUrl: state.paldex.baseUrl,
         content: [],
         total: 0,
-        note: state.paldex.configured
-          ? 'Escribe un nombre, tipo o habilidad para buscar.'
-          : 'Define PALDEX_API_URL para activar la búsqueda.'
+        note: 'Escribe un término para buscar.'
       },
-      ''
+      '',
+      section
     );
     return;
   }
 
-  setPaldexLoading(normalizedQuery);
+  setPaldexLoading(normalizedQuery, section);
 
   try {
     const params = new URLSearchParams({
       term: normalizedQuery,
-      limit: '12'
+      limit: section === 'gear' ? '6' : '12'
     });
 
-    const response = await fetch(`/api/paldex/search?${params.toString()}`);
+    const response = await fetch(`/api/paldex/${encodeURIComponent(section)}/search?${params.toString()}`);
     const payload = await response.json();
-    renderPaldexState(payload, normalizedQuery);
+    renderPaldexState(payload, normalizedQuery, section);
   } catch (error) {
     renderPaldexState(
       {
@@ -434,7 +555,8 @@ async function fetchPaldex(query) {
         content: [],
         total: 0
       },
-      normalizedQuery
+      normalizedQuery,
+      section
     );
   }
 }
@@ -916,7 +1038,7 @@ nodes.historyButtons.forEach((button) => {
 
 if (nodes.paldexSearch) {
   nodes.paldexSearch.addEventListener('click', () => {
-    void fetchPaldex(nodes.paldexQuery?.value || '');
+    void fetchPaldex(nodes.paldexQuery?.value || '', state.paldex.section);
   });
 }
 
@@ -928,7 +1050,7 @@ if (nodes.paldexQuery) {
     }
 
     state.paldexSearchTimer = setTimeout(() => {
-      void fetchPaldex(query);
+      void fetchPaldex(query, state.paldex.section);
     }, 350);
   });
 
@@ -938,20 +1060,38 @@ if (nodes.paldexQuery) {
       if (state.paldexSearchTimer) {
         clearTimeout(state.paldexSearchTimer);
       }
-      void fetchPaldex(nodes.paldexQuery.value);
+      void fetchPaldex(nodes.paldexQuery.value, state.paldex.section);
     }
+  });
+}
+
+if (nodes.paldexTabs) {
+  nodes.paldexTabs.forEach((button) => {
+    button.addEventListener('click', () => {
+      const section = button.dataset.paldexSection || 'pals';
+      if (section === state.paldex.section) {
+        return;
+      }
+
+      state.paldex.section = section;
+      if (state.paldexSearchTimer) {
+        clearTimeout(state.paldexSearchTimer);
+      }
+      void fetchPaldex(nodes.paldexQuery?.value || '', section);
+    });
   });
 }
 
 renderPaldexState(
   {
-    configured: false,
-    baseUrl: '',
+    configured: true,
+    baseUrl: 'Paldex module',
     content: [],
     total: 0,
-    note: 'Define PALDEX_API_URL para activar la búsqueda.'
+    note: 'El catálogo Paldex usa el dataset público del repo y también puede apuntar a tu propia instancia.'
   },
-  ''
+  '',
+  'pals'
 );
 
 fetch('/api/snapshot')

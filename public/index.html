@@ -188,8 +188,13 @@
               <span class="service-pill">suitabilities</span>
               <span class="service-pill">drops</span>
             </div>
+            <div class="service-tabs" role="tablist" aria-label="Catálogo Paldex">
+              <button class="service-tab is-active" type="button" data-paldex-section="pals">Pals</button>
+              <button class="service-tab" type="button" data-paldex-section="items">Items</button>
+              <button class="service-tab" type="button" data-paldex-section="gear">Gear</button>
+            </div>
             <label class="search-field" for="paldex-query">
-              <span class="search-label">Buscar pal</span>
+              <span class="search-label">Buscar catálogo</span>
               <div class="search-row">
                 <input
                   id="paldex-query"
@@ -201,15 +206,15 @@
                 <button id="paldex-search" class="search-button" type="button">Buscar</button>
               </div>
             </label>
-            <p class="services-status" id="paldex-note">Define <code>PALDEX_API_URL</code> para activar la búsqueda.</p>
+            <p class="services-status" id="paldex-note">El catálogo Paldex está listo para buscar pals, items y gear.</p>
             <div class="services-meta">
               <div>
                 <span class="services-meta-label">Origen</span>
-                <strong id="paldex-source">Palworld Paldex API</strong>
+                <strong id="paldex-source">Paldex module</strong>
               </div>
               <div>
                 <span class="services-meta-label">Ruta</span>
-                <strong>/api/paldex/search</strong>
+                <strong id="paldex-route">/api/paldex/catalog</strong>
               </div>
             </div>
           </div>
@@ -220,7 +225,7 @@
                 <p class="eyebrow">Resultados</p>
                 <h4 id="paldex-count">0 resultados</h4>
               </div>
-              <span class="paldex-results-pill">Pal cards</span>
+              <span class="paldex-results-pill" id="paldex-section-pill">Pals</span>
             </div>
             <div class="paldex-results" id="paldex-results"></div>
           </div>

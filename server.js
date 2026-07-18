@@ -5,7 +5,7 @@ const { WebSocketServer } = require('ws');
 const { loadConfig } = require('./src/config');
 const { createDashboardRuntime } = require('./src/application/dashboardRuntime');
 const { normalizeBucket, normalizeLimit } = require('./src/domain/history');
-const { fetchPaldexSearch } = require('./src/infrastructure/paldexClient');
+const { searchPaldexCatalog } = require('./src/infrastructure/paldexCatalog');
 
 const config = loadConfig();
 const runtime = createDashboardRuntime(config);
@@ -26,10 +26,39 @@ app.get('/api/history', async (req, res) => {
 });
 
 app.get('/api/paldex/search', async (req, res) => {
-  const result = await fetchPaldexSearch({
-    baseUrl: config.paldexApiUrl,
-    timeoutMs: config.paldexApiTimeoutMs,
-    query: req.query
+  const result = await searchPaldexCatalog({
+    section: 'pals',
+    query: req.query,
+    apiBaseUrl: config.paldexApiUrl,
+    assetBaseUrl: config.paldexAssetBaseUrl,
+    dataBaseUrl: config.paldexDataBaseUrl,
+    timeoutMs: config.paldexApiTimeoutMs
+  });
+
+  res.status(result.ok || !result.configured ? 200 : 502).json(result);
+});
+
+app.get('/api/paldex/catalog', async (req, res) => {
+  const result = await searchPaldexCatalog({
+    section: req.query.section || 'pals',
+    query: req.query,
+    apiBaseUrl: config.paldexApiUrl,
+    assetBaseUrl: config.paldexAssetBaseUrl,
+    dataBaseUrl: config.paldexDataBaseUrl,
+    timeoutMs: config.paldexApiTimeoutMs
+  });
+
+  res.status(result.ok || !result.configured ? 200 : 502).json(result);
+});
+
+app.get('/api/paldex/:section/search', async (req, res) => {
+  const result = await searchPaldexCatalog({
+    section: req.params.section,
+    query: req.query,
+    apiBaseUrl: config.paldexApiUrl,
+    assetBaseUrl: config.paldexAssetBaseUrl,
+    dataBaseUrl: config.paldexDataBaseUrl,
+    timeoutMs: config.paldexApiTimeoutMs
   });
 
   res.status(result.ok || !result.configured ? 200 : 502).json(result);

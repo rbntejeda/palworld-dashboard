@@ -90,7 +90,9 @@ Si quieres que el panel lea temperatura del host dentro de Docker, monta tambié
 
 - `GET /api/snapshot`
 - `GET /api/history?bucket=hour|day&limit=24`
+- `GET /api/paldex/catalog?section=pals|items|gear&term=Relaxaurus`
 - `GET /api/paldex/search?term=Relaxaurus&limit=12`
+- `GET /api/paldex/:section/search`
 - `GET /healthz`
 - `WS /ws`
 
@@ -113,16 +115,18 @@ PALWORLD_REST_PASSWORD=clave
 
 ## Palworld Paldex API
 
-El dashboard también puede consultar el API de Paldex para buscar pals y mostrar sus imágenes e iconos de elementos.
+El dashboard también puede consultar el catálogo de Paldex para buscar pals, items y gear, mostrando imágenes e iconos de elementos.
 
 Configura:
 
-- `PALDEX_API_URL`: base URL del API de Paldex, por ejemplo `http://paldex-api:3000`
-- `PALDEX_API_TIMEOUT_MS`: timeout en milisegundos para la búsqueda, por defecto `8000`
+- `PALDEX_API_URL`: base URL del API de Paldex para la sección de pals, por ejemplo `http://paldex-api:3000`
+- `PALDEX_ASSET_BASE_URL`: base URL para resolver imágenes del catálogo, por defecto usa la URL de la API o el repo público
+- `PALDEX_DATA_BASE_URL`: base URL de los JSON públicos del catálogo, por defecto usa el repo de Paldex en GitHub
+- `PALDEX_API_TIMEOUT_MS`: timeout en milisegundos para la búsqueda remota, por defecto `8000`
 
-El dashboard no llama a ese origen directamente desde el navegador: lo hace por backend a través de `GET /api/paldex/search`.
+El dashboard no llama al origen directamente desde el navegador: lo hace por backend a través de `GET /api/paldex/catalog` y sus aliases.
 
-El API de Paldex expone filtros como:
+El catálogo expone filtros como:
 
 - `term`
 - `name`
@@ -131,10 +135,11 @@ El API de Paldex expone filtros como:
 - `drops`
 - `key`
 
-Y el repo incluye assets en:
+El repo incluye assets en:
 
 - `public/images/paldeck`
 - `public/images/elements`
+- `public/images/items`
 
 ## Qué hace
 
@@ -143,7 +148,7 @@ Y el repo incluye assets en:
 - Puede probar el puerto del servidor de Palworld si configuras `PALWORLD_HOST` y `PALWORLD_PORT`.
 - Si configuras la REST API de Palworld, muestra nombre del servidor, descripción, world GUID, jugadores conectados y métricas del mundo.
 - Puede dibujar los jugadores sobre un mapa OpenSeadragon con zoom y anotaciones sobre una imagen de alta resolución incluida o con otra que le pases, y ajusta los bounds del mundo por variables.
-- Puede buscar pals desde Paldex y mostrar cards con imagen, tipos e iconos elementales.
+- Puede buscar pals, items y gear desde el catálogo de Paldex y mostrar cards con imagen, tipos e iconos elementales.
 - Mantiene una base lista para conectar pub/sub real y leer métricas del host o del contenedor.
 
 ## Variables de entorno
@@ -158,6 +163,8 @@ Y el repo incluye assets en:
 - `PALWORLD_REST_USER`: usuario de la REST API
 - `PALWORLD_REST_PASSWORD`: contraseña de la REST API
 - `PALDEX_API_URL`: URL base del API de Palworld Paldex
+- `PALDEX_ASSET_BASE_URL`: base URL para resolver imágenes del catálogo de Paldex
+- `PALDEX_DATA_BASE_URL`: base URL de los JSON del catálogo de Paldex
 - `PALDEX_API_TIMEOUT_MS`: timeout en milisegundos para consultas al Paldex API, por defecto `8000`
 - `DATABASE_URL`: cadena de conexión MySQL para Prisma
 - `PALWORLD_MAP_IMAGE`: URL o ruta pública de la imagen del mapa, por ejemplo `/map.jpg`. Si no la defines, usa la imagen incluida en `public/map.jpg`

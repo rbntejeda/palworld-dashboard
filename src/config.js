@@ -47,6 +47,8 @@ function loadConfig() {
     restPassword: process.env.PALWORLD_REST_PASSWORD || process.env.PALWORLD_REST_PASS || '',
     databaseUrl: process.env.DATABASE_URL || '',
     paldexApiUrl: (process.env.PALDEX_API_URL || '').replace(/\/$/, ''),
+    paldexAssetBaseUrl: (process.env.PALDEX_ASSET_BASE_URL || process.env.PALDEX_API_URL || 'https://raw.githubusercontent.com/mlg404/palworld-paldex-api/main').replace(/\/$/, ''),
+    paldexDataBaseUrl: (process.env.PALDEX_DATA_BASE_URL || 'https://raw.githubusercontent.com/mlg404/palworld-paldex-api/main/src').replace(/\/$/, ''),
     paldexApiTimeoutMs: parseNumber(process.env.PALDEX_API_TIMEOUT_MS || 8000, 8000),
     redisUrl: process.env.REDIS_URL || '',
     redisHistoryKey: process.env.REDIS_HISTORY_KEY || 'palworld:history',
