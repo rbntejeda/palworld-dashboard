@@ -333,7 +333,7 @@ body.light .notes li {
     linear-gradient(180deg, rgb(8 19 30 / 86%), rgb(8 19 30 / 66%));
   display: grid;
   gap: 1rem;
-  grid-template-columns: minmax(0, 0.72fr) minmax(0, 1.28fr);
+  grid-template-columns: minmax(0, 0.58fr) minmax(0, 1.42fr);
   padding: 1.35rem;
 }
 
@@ -354,7 +354,7 @@ body.light .elemental-card {
   color: #94a3b8;
   line-height: 1.65;
   margin-bottom: 1rem;
-  max-width: 50ch;
+  max-width: 46ch;
 }
 
 .elemental-list {
@@ -387,8 +387,8 @@ body.light .elemental-list li {
   border-radius: 1.4rem;
   margin: 0;
   overflow: hidden;
-  aspect-ratio: 14 / 9;
-  padding: 0.45rem;
+  aspect-ratio: 16 / 9;
+  padding: 0.6rem;
 }
 
 body.light .elemental-figure {
@@ -1036,5 +1036,15 @@ body.light .summary-card {
 
   .elemental-figure {
     aspect-ratio: auto;
+  }
+}
+
+@media (min-width: 1280px) {
+  .elemental-card {
+    gap: 1.2rem;
+  }
+
+  .elemental-copy h3 {
+    font-size: clamp(1.7rem, 2.1vw, 2.35rem);
   }
 }

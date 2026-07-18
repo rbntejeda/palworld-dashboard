@@ -29,6 +29,26 @@ npm start
 
 Luego abre `http://localhost:3000`.
 
+## Despliegue automático
+
+Hay un workflow de GitHub Actions en `.github/workflows/deploy-palworld-dashboard.yml` que:
+
+- Se dispara en `push` a `main` cuando cambia este proyecto.
+- Entra por SSH y ejecuta `/home/ruben/scripts/deploy-palworld-dashboard.sh`.
+
+Necesitas definir estos secrets en el repositorio:
+
+- `DEPLOY_HOST`
+- `DEPLOY_USER`
+- `DEPLOY_SSH_KEY`
+- `DEPLOY_PORT` opcional, por defecto `22`
+
+El servidor debe tener:
+
+- El script en `/home/ruben/scripts/deploy-palworld-dashboard.sh`.
+- Permisos de ejecución sobre ese script.
+- `git`, `npm` y todo lo que use tu script instalados en el servidor.
+
 ## Docker
 
 ```bash

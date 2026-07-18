@@ -1,0 +1,24 @@
+name: Deploy Palworld Dashboard
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "**"
+      - ".github/workflows/deploy-palworld-dashboard.yml"
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Run remote deploy script
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.DEPLOY_HOST }}
+          username: ${{ secrets.DEPLOY_USER }}
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          port: ${{ secrets.DEPLOY_PORT || 22 }}
+          script: |
+            set -euo pipefail
+            /home/ruben/scripts/deploy-palworld-dashboard.sh
