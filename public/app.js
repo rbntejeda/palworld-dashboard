@@ -2,11 +2,19 @@ const state = {
   history: [],
   historyMode: 'hour',
   historySeries: [],
+  paldex: {
+    query: '',
+    loading: false,
+    configured: false,
+    baseUrl: '',
+    results: []
+  },
   mapViewer: null,
   mapAnno: null,
   mapImageUrl: '',
   mapPlayers: [],
-  mapConfig: null
+  mapConfig: null,
+  paldexSearchTimer: null
 };
 
 const el = (id) => document.getElementById(id);
@@ -67,6 +75,12 @@ const nodes = {
   availabilityCurrent: el('availability-current'),
   availabilityCurrentNote: el('availability-current-note'),
   availabilityTimeline: el('availability-timeline'),
+  paldexQuery: el('paldex-query'),
+  paldexSearch: el('paldex-search'),
+  paldexResults: el('paldex-results'),
+  paldexNote: el('paldex-note'),
+  paldexCount: el('paldex-count'),
+  paldexSource: el('paldex-source'),
   historyButtons: Array.from(document.querySelectorAll('.history-toggle'))
 };
 
@@ -247,6 +261,182 @@ function formatMapLocation(player) {
   }
 
   return `${formatWorldCoord(player.locationX)}, ${formatWorldCoord(player.locationY)}`;
+}
+
+function renderPaldexEmpty(message, hint) {
+  return `
+    <div class="paldex-empty">
+      <strong>${escapeHtml(message)}</strong>
+      <span>${escapeHtml(hint)}</span>
+    </div>
+  `;
+}
+
+function renderPaldexResults(results) {
+  if (!results.length) {
+    return renderPaldexEmpty(
+      state.paldex.configured ? 'Sin resultados todavía' : 'Paldex desactivado',
+      state.paldex.configured
+        ? 'Prueba con Relaxaurus, Fire, Dragon o una habilidad.'
+        : 'Define PALDEX_API_URL para activar la búsqueda.'
+    );
+  }
+
+  return results
+    .map((item) => {
+      const types = Array.isArray(item.types) ? item.types : [];
+      const suitabilities = Array.isArray(item.suitabilities) ? item.suitabilities : [];
+      const drops = Array.isArray(item.drops) ? item.drops : [];
+      const suitabilityLabels = suitabilities
+        .map((suitability) => suitability?.name || suitability?.type || suitability?.level || suitability)
+        .map((value) => String(value).trim())
+        .filter(Boolean);
+
+      return `
+        <article class="paldex-card">
+          <div class="paldex-thumb">
+            ${item.imageUrl ? `<img src="${escapeHtml(item.imageUrl)}" alt="${escapeHtml(item.name)}">` : '<div class="paldex-thumb-fallback">Sin imagen</div>'}
+          </div>
+          <div class="paldex-body">
+            <div class="paldex-topline">
+              <strong>${escapeHtml(item.name)}</strong>
+              <span class="paldex-key">#${escapeHtml(item.key || item.id || '--')}</span>
+            </div>
+            <p class="paldex-description">${escapeHtml(item.description || 'Sin descripción')}</p>
+            <div class="paldex-type-list">
+              ${types
+                .map(
+                  (type) => `
+                    <span class="paldex-type-chip">
+                      ${type.imageUrl ? `<img class="paldex-type-icon" src="${escapeHtml(type.imageUrl)}" alt="${escapeHtml(type.name)}">` : ''}
+                      <span>${escapeHtml(type.name)}</span>
+                    </span>
+                  `
+                )
+                .join('')}
+            </div>
+            <div class="paldex-mini-list">
+              ${item.genus ? `<span class="paldex-mini-chip"><strong>Genus</strong> ${escapeHtml(item.genus)}</span>` : ''}
+              ${Number.isFinite(item.rarity) ? `<span class="paldex-mini-chip"><strong>Rareza</strong> ${escapeHtml(item.rarity)}</span>` : ''}
+              ${Number.isFinite(item.price) ? `<span class="paldex-mini-chip"><strong>Precio</strong> ${escapeHtml(item.price)}</span>` : ''}
+              ${drops.length ? `<span class="paldex-mini-chip"><strong>Drops</strong> ${escapeHtml(drops.slice(0, 2).join(', '))}</span>` : ''}
+              ${suitabilityLabels.length ? `<span class="paldex-mini-chip"><strong>Skills</strong> ${escapeHtml(suitabilityLabels.slice(0, 2).join(', '))}</span>` : ''}
+            </div>
+          </div>
+        </article>
+      `;
+    })
+    .join('');
+}
+
+function renderPaldexState(payload, query) {
+  const results = Array.isArray(payload?.content) ? payload.content : [];
+  const count = Number(payload?.total ?? results.length ?? 0);
+  const configured = Boolean(payload?.configured);
+
+  state.paldex.loading = false;
+  state.paldex.configured = configured;
+  state.paldex.baseUrl = payload?.baseUrl || '';
+  state.paldex.results = results;
+  state.paldex.query = query;
+
+  if (nodes.paldexSearch) {
+    nodes.paldexSearch.disabled = false;
+  }
+
+  if (nodes.paldexCount) {
+    nodes.paldexCount.textContent = `${count} resultado${count === 1 ? '' : 's'}`;
+  }
+
+  if (nodes.paldexSource) {
+    nodes.paldexSource.textContent = configured ? (payload.baseUrl || 'Paldex API') : 'PALDEX_API_URL';
+  }
+
+  if (nodes.paldexNote) {
+    if (!configured) {
+      nodes.paldexNote.textContent = payload?.note || 'Define PALDEX_API_URL para activar la búsqueda.';
+    } else if (Array.isArray(payload?.errors) && payload.errors.length > 0) {
+      nodes.paldexNote.textContent = payload.errors.join(' · ');
+    } else if (payload?.note) {
+      nodes.paldexNote.textContent = payload.note;
+    } else {
+      nodes.paldexNote.textContent = query
+        ? `Mostrando resultados para "${query}".`
+        : 'Escribe un término para buscar.';
+    }
+  }
+
+  if (nodes.paldexResults) {
+    nodes.paldexResults.innerHTML = renderPaldexResults(results);
+  }
+}
+
+function setPaldexLoading(query) {
+  state.paldex.loading = true;
+  state.paldex.query = query;
+
+  if (nodes.paldexSearch) {
+    nodes.paldexSearch.disabled = true;
+  }
+
+  if (nodes.paldexCount) {
+    nodes.paldexCount.textContent = 'Buscando...';
+  }
+
+  if (nodes.paldexNote) {
+    nodes.paldexNote.textContent = query ? `Buscando "${query}"...` : 'Escribe un término para buscar.';
+  }
+
+  if (nodes.paldexResults) {
+    nodes.paldexResults.innerHTML = renderPaldexEmpty(
+      query ? `Buscando "${query}"` : 'Escribe un término',
+      'El dashboard consulta el API desde backend y pinta las cards cuando llegan los resultados.'
+    );
+  }
+}
+
+async function fetchPaldex(query) {
+  const normalizedQuery = String(query || '').trim();
+
+  if (!normalizedQuery) {
+    renderPaldexState(
+      {
+        configured: state.paldex.configured,
+        baseUrl: state.paldex.baseUrl,
+        content: [],
+        total: 0,
+        note: state.paldex.configured
+          ? 'Escribe un nombre, tipo o habilidad para buscar.'
+          : 'Define PALDEX_API_URL para activar la búsqueda.'
+      },
+      ''
+    );
+    return;
+  }
+
+  setPaldexLoading(normalizedQuery);
+
+  try {
+    const params = new URLSearchParams({
+      term: normalizedQuery,
+      limit: '12'
+    });
+
+    const response = await fetch(`/api/paldex/search?${params.toString()}`);
+    const payload = await response.json();
+    renderPaldexState(payload, normalizedQuery);
+  } catch (error) {
+    renderPaldexState(
+      {
+        configured: state.paldex.configured,
+        baseUrl: state.paldex.baseUrl,
+        errors: [error.message || String(error)],
+        content: [],
+        total: 0
+      },
+      normalizedQuery
+    );
+  }
 }
 
 function renderHistory() {
@@ -723,6 +913,46 @@ nodes.historyButtons.forEach((button) => {
     void fetchHistory(button.dataset.bucket);
   });
 });
+
+if (nodes.paldexSearch) {
+  nodes.paldexSearch.addEventListener('click', () => {
+    void fetchPaldex(nodes.paldexQuery?.value || '');
+  });
+}
+
+if (nodes.paldexQuery) {
+  nodes.paldexQuery.addEventListener('input', () => {
+    const query = nodes.paldexQuery.value;
+    if (state.paldexSearchTimer) {
+      clearTimeout(state.paldexSearchTimer);
+    }
+
+    state.paldexSearchTimer = setTimeout(() => {
+      void fetchPaldex(query);
+    }, 350);
+  });
+
+  nodes.paldexQuery.addEventListener('keydown', (event) => {
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      if (state.paldexSearchTimer) {
+        clearTimeout(state.paldexSearchTimer);
+      }
+      void fetchPaldex(nodes.paldexQuery.value);
+    }
+  });
+}
+
+renderPaldexState(
+  {
+    configured: false,
+    baseUrl: '',
+    content: [],
+    total: 0,
+    note: 'Define PALDEX_API_URL para activar la búsqueda.'
+  },
+  ''
+);
 
 fetch('/api/snapshot')
   .then((response) => response.json())

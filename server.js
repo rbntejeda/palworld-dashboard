@@ -5,6 +5,7 @@ const { WebSocketServer } = require('ws');
 const { loadConfig } = require('./src/config');
 const { createDashboardRuntime } = require('./src/application/dashboardRuntime');
 const { normalizeBucket, normalizeLimit } = require('./src/domain/history');
+const { fetchPaldexSearch } = require('./src/infrastructure/paldexClient');
 
 const config = loadConfig();
 const runtime = createDashboardRuntime(config);
@@ -22,6 +23,16 @@ app.get('/api/history', async (req, res) => {
   const limit = normalizeLimit(req.query.limit, bucket);
   const summary = await runtime.getHistorySummary(bucket, limit);
   res.json(summary);
+});
+
+app.get('/api/paldex/search', async (req, res) => {
+  const result = await fetchPaldexSearch({
+    baseUrl: config.paldexApiUrl,
+    timeoutMs: config.paldexApiTimeoutMs,
+    query: req.query
+  });
+
+  res.status(result.ok || !result.configured ? 200 : 502).json(result);
 });
 
 app.get('/healthz', (_req, res) => {

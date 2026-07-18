@@ -173,6 +173,60 @@
         </article>
       </section>
 
+      <section class="services-section">
+        <article class="panel services-card">
+          <div class="services-copy">
+            <p class="eyebrow">Servicios</p>
+            <h3>Palworld Paldex API</h3>
+            <p class="services-note">
+              Busca pals por nombre, tipo, drops o habilidad y muestra sus imágenes e iconos de elementos dentro del dashboard.
+            </p>
+            <div class="services-pills">
+              <span class="service-pill">term</span>
+              <span class="service-pill">name</span>
+              <span class="service-pill">types</span>
+              <span class="service-pill">suitabilities</span>
+              <span class="service-pill">drops</span>
+            </div>
+            <label class="search-field" for="paldex-query">
+              <span class="search-label">Buscar pal</span>
+              <div class="search-row">
+                <input
+                  id="paldex-query"
+                  class="search-input"
+                  type="search"
+                  placeholder="Relaxaurus, fire, lightning, aqua..."
+                  autocomplete="off"
+                >
+                <button id="paldex-search" class="search-button" type="button">Buscar</button>
+              </div>
+            </label>
+            <p class="services-status" id="paldex-note">Define <code>PALDEX_API_URL</code> para activar la búsqueda.</p>
+            <div class="services-meta">
+              <div>
+                <span class="services-meta-label">Origen</span>
+                <strong id="paldex-source">Palworld Paldex API</strong>
+              </div>
+              <div>
+                <span class="services-meta-label">Ruta</span>
+                <strong>/api/paldex/search</strong>
+              </div>
+            </div>
+          </div>
+
+          <div class="paldex-results-panel">
+            <div class="paldex-results-header">
+              <div>
+                <p class="eyebrow">Resultados</p>
+                <h4 id="paldex-count">0 resultados</h4>
+              </div>
+              <span class="paldex-results-pill">Pal cards</span>
+            </div>
+            <div class="paldex-results" id="paldex-results"></div>
+          </div>
+        </article>
+      </section>
+
       <section class="elemental-section">
         <article class="panel elemental-card">
           <div class="elemental-copy">

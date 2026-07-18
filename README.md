@@ -7,6 +7,7 @@ Panel simple para monitorear un servidor Palworld con snapshots cada 5 segundos 
 - Node.js
 - Express
 - `ws`
+- Palworld Paldex API proxy
 - HTML, CSS y JavaScript
 
 ## Arquitectura
@@ -89,6 +90,7 @@ Si quieres que el panel lea temperatura del host dentro de Docker, monta tambié
 
 - `GET /api/snapshot`
 - `GET /api/history?bucket=hour|day&limit=24`
+- `GET /api/paldex/search?term=Relaxaurus&limit=12`
 - `GET /healthz`
 - `WS /ws`
 
@@ -109,6 +111,31 @@ PALWORLD_REST_USER=usuario
 PALWORLD_REST_PASSWORD=clave
 ```
 
+## Palworld Paldex API
+
+El dashboard también puede consultar el API de Paldex para buscar pals y mostrar sus imágenes e iconos de elementos.
+
+Configura:
+
+- `PALDEX_API_URL`: base URL del API de Paldex, por ejemplo `http://paldex-api:3000`
+- `PALDEX_API_TIMEOUT_MS`: timeout en milisegundos para la búsqueda, por defecto `8000`
+
+El dashboard no llama a ese origen directamente desde el navegador: lo hace por backend a través de `GET /api/paldex/search`.
+
+El API de Paldex expone filtros como:
+
+- `term`
+- `name`
+- `types`
+- `suitabilities`
+- `drops`
+- `key`
+
+Y el repo incluye assets en:
+
+- `public/images/paldeck`
+- `public/images/elements`
+
 ## Qué hace
 
 - Sirve un dashboard visual.
@@ -116,6 +143,7 @@ PALWORLD_REST_PASSWORD=clave
 - Puede probar el puerto del servidor de Palworld si configuras `PALWORLD_HOST` y `PALWORLD_PORT`.
 - Si configuras la REST API de Palworld, muestra nombre del servidor, descripción, world GUID, jugadores conectados y métricas del mundo.
 - Puede dibujar los jugadores sobre un mapa OpenSeadragon con zoom y anotaciones sobre una imagen de alta resolución incluida o con otra que le pases, y ajusta los bounds del mundo por variables.
+- Puede buscar pals desde Paldex y mostrar cards con imagen, tipos e iconos elementales.
 - Mantiene una base lista para conectar pub/sub real y leer métricas del host o del contenedor.
 
 ## Variables de entorno
@@ -129,6 +157,8 @@ PALWORLD_REST_PASSWORD=clave
 - `PALWORLD_REST_URL`: URL base de la REST API de Palworld
 - `PALWORLD_REST_USER`: usuario de la REST API
 - `PALWORLD_REST_PASSWORD`: contraseña de la REST API
+- `PALDEX_API_URL`: URL base del API de Palworld Paldex
+- `PALDEX_API_TIMEOUT_MS`: timeout en milisegundos para consultas al Paldex API, por defecto `8000`
 - `DATABASE_URL`: cadena de conexión MySQL para Prisma
 - `PALWORLD_MAP_IMAGE`: URL o ruta pública de la imagen del mapa, por ejemplo `/map.jpg`. Si no la defines, usa la imagen incluida en `public/map.jpg`
 - `PALWORLD_MAP_CAPTION`: texto de ayuda que se muestra sobre el mapa
