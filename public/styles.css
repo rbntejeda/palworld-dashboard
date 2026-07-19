@@ -1022,14 +1022,14 @@ body.light .paldex-multiselect-option:hover {
 }
 
 .elemental-card {
-  align-items: center;
+  align-items: stretch;
   background:
     radial-gradient(circle at top left, rgb(110 231 183 / 12%), transparent 30%),
     radial-gradient(circle at bottom right, rgb(255 190 93 / 10%), transparent 28%),
     linear-gradient(180deg, rgb(8 19 30 / 86%), rgb(8 19 30 / 66%));
   display: grid;
   gap: 1rem;
-  grid-template-columns: minmax(0, 0.58fr) minmax(0, 1.42fr);
+  grid-template-columns: 1fr;
   padding: 1.35rem;
 }
 
@@ -1200,6 +1200,88 @@ body.light .elemental-table tbody td {
   height: 1.1rem;
   width: 1.1rem;
   flex: 0 0 auto;
+}
+
+.elemental-reference-wrap {
+  background:
+    radial-gradient(circle at top left, rgb(110 231 183 / 10%), transparent 32%),
+    linear-gradient(180deg, rgb(7 14 22 / 84%), rgb(7 14 22 / 64%));
+  border: 1px solid rgb(148 163 184 / 14%);
+  border-radius: 1.4rem;
+  min-width: 0;
+  padding: 1rem;
+}
+
+body.light .elemental-reference-wrap {
+  background:
+    radial-gradient(circle at top left, rgb(110 231 183 / 8%), transparent 32%),
+    linear-gradient(180deg, rgb(255 255 255 / 92%), rgb(241 245 249 / 84%));
+}
+
+.elemental-reference-head {
+  align-items: flex-start;
+  display: flex;
+  gap: 1rem;
+  justify-content: space-between;
+  margin-bottom: 0.85rem;
+}
+
+.elemental-reference-head h4 {
+  color: #f8fafc;
+  font-size: clamp(1.15rem, 1.55vw, 1.5rem);
+  letter-spacing: -0.05em;
+  margin-top: 0.2rem;
+}
+
+body.light .elemental-reference-head h4 {
+  color: #0f172a;
+}
+
+.elemental-reference-grid {
+  display: grid;
+  gap: 0.75rem;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.elemental-reference-item {
+  align-items: center;
+  background: rgb(15 23 42 / 40%);
+  border: 1px solid rgb(148 163 184 / 12%);
+  border-radius: 1rem;
+  display: flex;
+  gap: 0.9rem;
+  min-width: 0;
+  padding: 0.85rem;
+}
+
+body.light .elemental-reference-item {
+  background: rgb(255 255 255 / 66%);
+}
+
+.elemental-reference-item strong {
+  color: #f8fafc;
+  display: block;
+  font-size: 0.98rem;
+  line-height: 1.2;
+}
+
+.elemental-reference-item span {
+  color: #94a3b8;
+  display: block;
+  font-size: 0.8rem;
+  line-height: 1.35;
+  margin-top: 0.22rem;
+}
+
+body.light .elemental-reference-item strong,
+body.light .elemental-reference-item span {
+  color: #0f172a;
+}
+
+.elemental-reference-icon {
+  height: 48px;
+  width: 48px;
+  flex: 0 0 48px;
 }
 
 .map-card {
@@ -1849,13 +1931,19 @@ body.light .summary-card {
   .paldex-card {
     grid-template-columns: 1fr;
   }
+
+  .elemental-reference-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 720px) {
+  .elemental-reference-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 @media (min-width: 1280px) {
-  .elemental-card {
-    gap: 1.2rem;
-  }
-
   .elemental-copy h3 {
     font-size: clamp(1.7rem, 2.1vw, 2.35rem);
   }
