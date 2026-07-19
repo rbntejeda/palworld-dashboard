@@ -206,6 +206,21 @@
                 <button id="paldex-search" class="search-button" type="button">Buscar</button>
               </div>
             </label>
+            <div class="paldex-filter-row" id="paldex-filter-row">
+              <label class="search-field" for="paldex-type">
+                <span class="search-label">Type</span>
+                <input id="paldex-type" class="search-input" type="search" placeholder="fire, water, grass..." autocomplete="off">
+              </label>
+              <label class="search-field" for="paldex-suitabilities">
+                <span class="search-label">Suitabilities</span>
+                <input id="paldex-suitabilities" class="search-input" type="search" placeholder="mining, watering, farming..." autocomplete="off">
+              </label>
+              <label class="search-field" for="paldex-drops">
+                <span class="search-label">Drops</span>
+                <input id="paldex-drops" class="search-input" type="search" placeholder="cloth, meat, leather..." autocomplete="off">
+              </label>
+              <button id="paldex-clear" class="search-button paldex-clear-button" type="button">Limpiar</button>
+            </div>
             <p class="services-status" id="paldex-note">El catálogo Paldex está listo para buscar pals, items y gear.</p>
             <div class="services-meta">
               <div>
@@ -228,6 +243,17 @@
               <span class="paldex-results-pill" id="paldex-section-pill">Pals</span>
             </div>
             <div class="paldex-results" id="paldex-results"></div>
+            <div class="paldex-pagination" id="paldex-pagination">
+              <button id="paldex-prev" class="paldex-pagination-button" type="button">Anterior</button>
+              <span id="paldex-page" class="paldex-pagination-label">Página 1 de 1</span>
+              <button id="paldex-next" class="paldex-pagination-button" type="button">Siguiente</button>
+            </div>
+            <div class="paldex-detail" id="paldex-detail">
+              <div class="paldex-detail-empty">
+                <strong>Haz click en una card</strong>
+                <span>Verás un detalle compacto del resultado en esta zona.</span>
+              </div>
+            </div>
           </div>
         </article>
       </section>

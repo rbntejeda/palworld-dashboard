@@ -67,19 +67,22 @@ async function searchPals({ query, apiBaseUrl, assetBaseUrl, dataBaseUrl, timeou
   const remoteAvailable = Boolean(apiBaseUrl);
 
   if (!hasSearchCriteria) {
+    const pals = await loadJsonCatalog('pals', `${dataBaseUrl}/pals.json`);
+    const sliced = paginate(pals, query.page, query.limit);
+
     return {
       configured: remoteAvailable,
-      baseUrl: apiBaseUrl || dataBaseUrl,
+      baseUrl: dataBaseUrl,
       section: 'pals',
       ok: true,
       errors: [],
-      page: query.page,
-      limit: query.limit,
-      count: 0,
-      total: 0,
+      page: sliced.page,
+      limit: sliced.limit,
+      count: sliced.content.length,
+      total: pals.length,
       query,
-      content: [],
-      note: 'Escribe un nombre, tipo, habilidad o término para buscar.'
+      content: sliced.content.map((pal) => normalizePal(assetBaseUrl, pal)),
+      note: 'Mostrando el catálogo completo desde el dataset público.'
     };
   }
 
@@ -160,23 +163,6 @@ async function fetchRemotePals({ apiBaseUrl, query, timeoutMs, assetBaseUrl }) {
 }
 
 async function searchItems({ query, assetBaseUrl, dataBaseUrl }) {
-  if (!hasQuery(query, ['term', 'name', 'key', 'type'])) {
-    return {
-      configured: true,
-      baseUrl: dataBaseUrl,
-      section: 'items',
-      ok: true,
-      errors: [],
-      page: query.page,
-      limit: query.limit,
-      count: 0,
-      total: 0,
-      query,
-      content: [],
-      note: 'Escribe un nombre, tipo o key para buscar items.'
-    };
-  }
-
   const items = await loadJsonCatalog('items', `${dataBaseUrl}/item.json`);
   const filtered = items.filter((item) => matchesItemQuery(item, query));
   const sliced = paginate(filtered, query.page, query.limit);
@@ -198,23 +184,6 @@ async function searchItems({ query, assetBaseUrl, dataBaseUrl }) {
 }
 
 async function searchGear({ query, assetBaseUrl, dataBaseUrl }) {
-  if (!hasQuery(query, ['term', 'name', 'key'])) {
-    return {
-      configured: true,
-      baseUrl: dataBaseUrl,
-      section: 'gear',
-      ok: true,
-      errors: [],
-      page: query.page,
-      limit: query.limit,
-      count: 0,
-      total: 0,
-      query,
-      content: [],
-      note: 'Escribe un nombre para buscar gear.'
-    };
-  }
-
   const gear = await loadJsonCatalog('gear', `${dataBaseUrl}/gear.json`);
   const filtered = gear.filter((item) => matchesGearQuery(item, query));
   const sliced = paginate(filtered, query.page, query.limit);
@@ -260,7 +229,11 @@ async function loadJsonCatalog(section, url) {
 
 function normalizePal(assetBaseUrl, pal) {
   const types = Array.isArray(pal?.types) ? pal.types : [];
-  const suitability = Array.isArray(pal?.suitability) ? pal.suitability : [];
+  const suitability = Array.isArray(pal?.suitabilities)
+    ? pal.suitabilities
+    : Array.isArray(pal?.suitability)
+      ? pal.suitability
+      : [];
 
   return {
     id: Number(pal?.id || 0),
@@ -441,7 +414,11 @@ function matchesPalQuery(pal, query) {
     pal?.genus,
     Array.isArray(pal?.drops) ? pal.drops.join(' ') : '',
     Array.isArray(pal?.types) ? pal.types.map((type) => type?.name || type).join(' ') : '',
-    Array.isArray(pal?.suitability) ? pal.suitability.map((item) => item?.type || item?.name || '').join(' ') : ''
+    Array.isArray(pal?.suitabilities)
+      ? pal.suitabilities.map((item) => item?.type || item?.name || '').join(' ')
+      : Array.isArray(pal?.suitability)
+        ? pal.suitability.map((item) => item?.type || item?.name || '').join(' ')
+        : ''
   ]
     .join(' ')
     .toLowerCase();

@@ -90,7 +90,7 @@ Si quieres que el panel lea temperatura del host dentro de Docker, monta tambié
 
 - `GET /api/snapshot`
 - `GET /api/history?bucket=hour|day&limit=24`
-- `GET /api/paldex/catalog?section=pals|items|gear&term=Relaxaurus`
+- `GET /api/paldex/catalog?section=pals|items|gear&term=Relaxaurus&page=1&limit=12`
 - `GET /api/paldex/search?term=Relaxaurus&limit=12`
 - `GET /api/paldex/:section/search`
 - `GET /healthz`
@@ -126,14 +126,27 @@ Configura:
 
 El dashboard no llama al origen directamente desde el navegador: lo hace por backend a través de `GET /api/paldex/catalog` y sus aliases.
 
+La vista del dashboard incluye:
+
+- pestañas para `pals`, `items` y `gear`
+- filtros para `types`, `suitabilities` y `drops` en la sección de pals
+- paginación visual en el catálogo
+- detalle compacto al hacer click en una card
+
 El catálogo expone filtros como:
 
 - `term`
 - `name`
+- `type`
 - `types`
 - `suitabilities`
 - `drops`
 - `key`
+
+Y soporta paginación con:
+
+- `page`
+- `limit`
 
 El repo incluye assets en:
 

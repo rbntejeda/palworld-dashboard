@@ -5,10 +5,13 @@ const state = {
   paldex: {
     section: 'pals',
     query: '',
+    page: 1,
     loading: false,
     configured: false,
     baseUrl: '',
-    results: []
+    results: [],
+    selectedSignature: '',
+    selectedItem: null
   },
   mapViewer: null,
   mapAnno: null,
@@ -78,12 +81,22 @@ const nodes = {
   availabilityTimeline: el('availability-timeline'),
   paldexQuery: el('paldex-query'),
   paldexSearch: el('paldex-search'),
+  paldexType: el('paldex-type'),
+  paldexSuitabilities: el('paldex-suitabilities'),
+  paldexDrops: el('paldex-drops'),
+  paldexClear: el('paldex-clear'),
+  paldexPagination: el('paldex-pagination'),
+  paldexPage: el('paldex-page'),
+  paldexPrev: el('paldex-prev'),
+  paldexNext: el('paldex-next'),
   paldexResults: el('paldex-results'),
+  paldexDetail: el('paldex-detail'),
   paldexNote: el('paldex-note'),
   paldexCount: el('paldex-count'),
   paldexSource: el('paldex-source'),
   paldexRoute: el('paldex-route'),
   paldexSectionPill: el('paldex-section-pill'),
+  paldexFilterRow: el('paldex-filter-row'),
   paldexTabs: Array.from(document.querySelectorAll('[data-paldex-section]')),
   historyButtons: Array.from(document.querySelectorAll('.history-toggle'))
 };
@@ -295,11 +308,7 @@ function paldexCountLabel(section, count) {
 }
 
 function paldexRouteLabel(section) {
-  if (section === 'items' || section === 'gear') {
-    return `/api/paldex/${section}/search`;
-  }
-
-  return '/api/paldex/search';
+  return `/api/paldex/catalog?section=${section}`;
 }
 
 function paldexPlaceholder(section) {
@@ -314,7 +323,199 @@ function paldexPlaceholder(section) {
   return 'Relaxaurus, fire, lightning, aqua...';
 }
 
-function renderPaldexResults(section, results) {
+function paldexLimit(section) {
+  if (section === 'gear') return 6;
+  if (section === 'items') return 8;
+  return 12;
+}
+
+function paldexSignature(section, item, index) {
+  return `${section}:${String(item?.key || item?.id || item?.name || index)}`;
+}
+
+function normalizePaldexSearchValue(value) {
+  return String(value || '').trim();
+}
+
+function buildPaldexRequestParams(section, query, page) {
+  const params = new URLSearchParams();
+  params.set('term', normalizePaldexSearchValue(query));
+  params.set('page', String(page));
+  params.set('limit', String(paldexLimit(section)));
+
+  if (section === 'pals') {
+    if (nodes.paldexType?.value.trim()) {
+      params.set('types', nodes.paldexType.value.trim());
+    }
+
+    if (nodes.paldexSuitabilities?.value.trim()) {
+      params.set('suitabilities', nodes.paldexSuitabilities.value.trim());
+    }
+
+    if (nodes.paldexDrops?.value.trim()) {
+      params.set('drops', nodes.paldexDrops.value.trim());
+    }
+  }
+
+  return params;
+}
+
+function paldexFilterValues(section) {
+  if (section !== 'pals') {
+    return {};
+  }
+
+  return {
+    types: normalizePaldexSearchValue(nodes.paldexType?.value),
+    suitabilities: normalizePaldexSearchValue(nodes.paldexSuitabilities?.value),
+    drops: normalizePaldexSearchValue(nodes.paldexDrops?.value)
+  };
+}
+
+function syncPaldexFilterVisibility(section) {
+  if (nodes.paldexFilterRow) {
+    nodes.paldexFilterRow.hidden = section !== 'pals';
+  }
+}
+
+function renderPaldexDetail(section, item) {
+  if (!nodes.paldexDetail) {
+    return;
+  }
+
+  if (!item) {
+    nodes.paldexDetail.innerHTML = `
+      <div class="paldex-detail-empty">
+        <strong>Haz click en una card</strong>
+        <span>Verás un detalle compacto con imagen, métricas y campos útiles del catálogo.</span>
+      </div>
+    `;
+    return;
+  }
+
+  if (section === 'items') {
+    nodes.paldexDetail.innerHTML = `
+      <div class="paldex-detail-card">
+        <div class="paldex-detail-media">
+          ${item.imageUrl ? `<img src="${escapeHtml(item.imageUrl)}" alt="${escapeHtml(item.name)}">` : '<div class="paldex-thumb-fallback">Sin imagen</div>'}
+        </div>
+        <div class="paldex-detail-copy">
+          <div class="paldex-topline">
+            <strong>${escapeHtml(item.name)}</strong>
+            <span class="paldex-key">${escapeHtml(item.key || 'item')}</span>
+          </div>
+          <p class="paldex-description">Detalle de item del catálogo Paldex.</p>
+          <div class="paldex-mini-list">
+            <span class="paldex-item-badge">Gold ${escapeHtml(item.gold || 0)}</span>
+            <span class="paldex-mini-chip"><strong>Weight</strong> ${escapeHtml(item.weight || 0)}</span>
+            <span class="paldex-mini-chip"><strong>Type</strong> ${escapeHtml(item.type || 'unknown')}</span>
+          </div>
+        </div>
+      </div>
+    `;
+    return;
+  }
+
+  if (section === 'gear') {
+    const tiers = Array.isArray(item.tiers) ? item.tiers : [];
+
+    nodes.paldexDetail.innerHTML = `
+      <div class="paldex-detail-card">
+        <div class="paldex-detail-media">
+          ${item.imageUrl ? `<img src="${escapeHtml(item.imageUrl)}" alt="${escapeHtml(item.name)}">` : '<div class="paldex-thumb-fallback">Sin imagen</div>'}
+        </div>
+        <div class="paldex-detail-copy">
+          <div class="paldex-topline">
+            <strong>${escapeHtml(item.name)}</strong>
+            <span class="paldex-key">${escapeHtml(item.key || 'gear')}</span>
+          </div>
+          <p class="paldex-description">Equipo y sus variantes por rareza.</p>
+          <div class="paldex-tier-grid">
+            ${tiers
+              .map(
+                (tier) => `
+                  <div class="paldex-tier-card">
+                    <strong>${escapeHtml(tier.tier)}</strong>
+                    <span>HP ${escapeHtml(tier.hp)} · DEF ${escapeHtml(tier.defense)}</span>
+                    <span>Durability ${escapeHtml(tier.durability)} · Price ${escapeHtml(tier.price)}</span>
+                  </div>
+                `
+              )
+              .join('')}
+          </div>
+        </div>
+      </div>
+    `;
+    return;
+  }
+
+  const types = Array.isArray(item.types) ? item.types : [];
+  const suitabilities = Array.isArray(item.suitabilities) ? item.suitabilities : [];
+  const drops = Array.isArray(item.drops) ? item.drops : [];
+  const suitabilityLabels = suitabilities
+    .map((suitability) => suitability?.name || suitability?.type || suitability?.level || suitability)
+    .map((value) => String(value).trim())
+    .filter(Boolean);
+
+  nodes.paldexDetail.innerHTML = `
+    <div class="paldex-detail-card">
+      <div class="paldex-detail-media">
+        ${item.imageUrl ? `<img src="${escapeHtml(item.imageUrl)}" alt="${escapeHtml(item.name)}">` : '<div class="paldex-thumb-fallback">Sin imagen</div>'}
+      </div>
+      <div class="paldex-detail-copy">
+        <div class="paldex-topline">
+          <strong>${escapeHtml(item.name)}</strong>
+          <span class="paldex-key">#${escapeHtml(item.key || item.id || '--')}</span>
+        </div>
+        <p class="paldex-description">${escapeHtml(item.description || 'Sin descripción')}</p>
+        <div class="paldex-type-list">
+          ${types
+            .map(
+              (type) => `
+                <span class="paldex-type-chip">
+                  ${type.imageUrl ? `<img class="paldex-type-icon" src="${escapeHtml(type.imageUrl)}" alt="${escapeHtml(type.name)}">` : ''}
+                  <span>${escapeHtml(type.name)}</span>
+                </span>
+              `
+            )
+            .join('')}
+        </div>
+        <div class="paldex-mini-list">
+          ${item.genus ? `<span class="paldex-mini-chip"><strong>Genus</strong> ${escapeHtml(item.genus)}</span>` : ''}
+          ${Number.isFinite(item.rarity) ? `<span class="paldex-mini-chip"><strong>Rareza</strong> ${escapeHtml(item.rarity)}</span>` : ''}
+          ${Number.isFinite(item.price) ? `<span class="paldex-mini-chip"><strong>Precio</strong> ${escapeHtml(item.price)}</span>` : ''}
+          ${drops.length ? `<span class="paldex-mini-chip"><strong>Drops</strong> ${escapeHtml(drops.slice(0, 3).join(', '))}</span>` : ''}
+          ${suitabilityLabels.length ? `<span class="paldex-mini-chip"><strong>Skills</strong> ${escapeHtml(suitabilityLabels.slice(0, 3).join(', '))}</span>` : ''}
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function renderPaldexPagination(section, payload) {
+  if (!nodes.paldexPagination || !nodes.paldexPage) {
+    return;
+  }
+
+  const page = Number(payload?.page || 1);
+  const limit = Number(payload?.limit || paldexLimit(section));
+  const total = Number(payload?.total ?? payload?.count ?? 0);
+  const totalPages = Math.max(1, Math.ceil(total / Math.max(1, limit)));
+  const safePage = Math.min(Math.max(page, 1), totalPages);
+
+  nodes.paldexPagination.hidden = total <= limit && section !== 'pals';
+  nodes.paldexPage.textContent = `Página ${safePage} de ${totalPages}`;
+
+  if (nodes.paldexPrev) {
+    nodes.paldexPrev.disabled = safePage <= 1;
+  }
+
+  if (nodes.paldexNext) {
+    nodes.paldexNext.disabled = safePage >= totalPages;
+  }
+}
+
+function renderPaldexResults(section, results, selectedSignature = '') {
   if (!results.length) {
     return renderPaldexEmpty(
       'Sin resultados todavía',
@@ -327,10 +528,13 @@ function renderPaldexResults(section, results) {
   }
 
   return results
-    .map((item) => {
+    .map((item, index) => {
+      const signature = paldexSignature(section, item, index);
+      const selectedClass = selectedSignature && selectedSignature === signature ? ' is-selected' : '';
+
       if (section === 'items') {
         return `
-          <article class="paldex-card items">
+          <button type="button" class="paldex-card paldex-card-button items${selectedClass}" data-paldex-index="${index}" data-paldex-signature="${escapeHtml(signature)}">
             <div class="paldex-thumb">
               ${item.imageUrl ? `<img src="${escapeHtml(item.imageUrl)}" alt="${escapeHtml(item.name)}">` : '<div class="paldex-thumb-fallback">Sin imagen</div>'}
             </div>
@@ -346,7 +550,7 @@ function renderPaldexResults(section, results) {
                 <span class="paldex-mini-chip"><strong>Type</strong> ${escapeHtml(item.type || 'unknown')}</span>
               </div>
             </div>
-          </article>
+          </button>
         `;
       }
 
@@ -354,7 +558,7 @@ function renderPaldexResults(section, results) {
         const tiers = Array.isArray(item.tiers) ? item.tiers : [];
 
         return `
-          <article class="paldex-card gear">
+          <button type="button" class="paldex-card paldex-card-button gear${selectedClass}" data-paldex-index="${index}" data-paldex-signature="${escapeHtml(signature)}">
             <div class="paldex-thumb">
               ${item.imageUrl ? `<img src="${escapeHtml(item.imageUrl)}" alt="${escapeHtml(item.name)}">` : '<div class="paldex-thumb-fallback">Sin imagen</div>'}
             </div>
@@ -378,7 +582,7 @@ function renderPaldexResults(section, results) {
                   .join('')}
               </div>
             </div>
-          </article>
+          </button>
         `;
       }
 
@@ -391,7 +595,7 @@ function renderPaldexResults(section, results) {
         .filter(Boolean);
 
       return `
-        <article class="paldex-card">
+        <button type="button" class="paldex-card paldex-card-button${selectedClass}" data-paldex-index="${index}" data-paldex-signature="${escapeHtml(signature)}">
           <div class="paldex-thumb">
             ${item.imageUrl ? `<img src="${escapeHtml(item.imageUrl)}" alt="${escapeHtml(item.name)}">` : '<div class="paldex-thumb-fallback">Sin imagen</div>'}
           </div>
@@ -421,7 +625,7 @@ function renderPaldexResults(section, results) {
               ${suitabilityLabels.length ? `<span class="paldex-mini-chip"><strong>Skills</strong> ${escapeHtml(suitabilityLabels.slice(0, 2).join(', '))}</span>` : ''}
             </div>
           </div>
-        </article>
+        </button>
       `;
     })
     .join('');
@@ -431,6 +635,8 @@ function renderPaldexState(payload, query, section = state.paldex.section) {
   const results = Array.isArray(payload?.content) ? payload.content : [];
   const count = Number(payload?.total ?? results.length ?? 0);
   const configured = Boolean(payload?.configured);
+  const selectedSignature = state.paldex.selectedSignature || '';
+  const selectedItem = results.find((item, index) => paldexSignature(section, item, index) === selectedSignature) || null;
 
   state.paldex.loading = false;
   state.paldex.configured = configured;
@@ -438,6 +644,8 @@ function renderPaldexState(payload, query, section = state.paldex.section) {
   state.paldex.results = results;
   state.paldex.query = query;
   state.paldex.section = section;
+  state.paldex.page = Number(payload?.page || 1);
+  state.paldex.selectedItem = selectedItem;
 
   if (nodes.paldexSearch) {
     nodes.paldexSearch.disabled = false;
@@ -460,6 +668,8 @@ function renderPaldexState(payload, query, section = state.paldex.section) {
     nodes.paldexSectionPill.textContent = paldexSectionLabel(section);
   }
 
+  syncPaldexFilterVisibility(section);
+
   if (nodes.paldexTabs) {
     nodes.paldexTabs.forEach((button) => {
       button.classList.toggle('is-active', button.dataset.paldexSection === section);
@@ -481,12 +691,15 @@ function renderPaldexState(payload, query, section = state.paldex.section) {
   }
 
   if (nodes.paldexResults) {
-    nodes.paldexResults.innerHTML = renderPaldexResults(section, results);
+    nodes.paldexResults.innerHTML = renderPaldexResults(section, results, selectedItem ? selectedSignature : '');
   }
 
   if (nodes.paldexQuery) {
     nodes.paldexQuery.placeholder = paldexPlaceholder(section);
   }
+
+  renderPaldexDetail(section, selectedItem);
+  renderPaldexPagination(section, payload);
 }
 
 function setPaldexLoading(query, section = state.paldex.section) {
@@ -515,37 +728,37 @@ function setPaldexLoading(query, section = state.paldex.section) {
       'El dashboard consulta el catálogo desde backend y pinta las cards cuando llegan los resultados.'
     );
   }
+
+  if (nodes.paldexDetail) {
+    nodes.paldexDetail.innerHTML = `
+      <div class="paldex-detail-empty">
+        <strong>Buscando catálogo</strong>
+        <span>La vista de detalle se actualiza cuando llega la respuesta.</span>
+      </div>
+    `;
+  }
 }
 
 async function fetchPaldex(query, section = state.paldex.section) {
   const normalizedQuery = String(query || '').trim();
+  const page = Number(state.paldex.page || 1);
+  const normalizedSection = String(section || state.paldex.section || 'pals').trim().toLowerCase();
+  const filters = paldexFilterValues(normalizedSection);
 
-  if (!normalizedQuery) {
-    renderPaldexState(
-      {
-        configured: state.paldex.configured,
-        baseUrl: state.paldex.baseUrl,
-        content: [],
-        total: 0,
-        note: 'Escribe un término para buscar.'
-      },
-      '',
-      section
-    );
-    return;
-  }
-
-  setPaldexLoading(normalizedQuery, section);
+  setPaldexLoading(normalizedQuery, normalizedSection);
 
   try {
-    const params = new URLSearchParams({
-      term: normalizedQuery,
-      limit: section === 'gear' ? '6' : '12'
-    });
+    const params = buildPaldexRequestParams(normalizedSection, normalizedQuery, page);
 
-    const response = await fetch(`/api/paldex/${encodeURIComponent(section)}/search?${params.toString()}`);
+    for (const [key, value] of Object.entries(filters)) {
+      if (value) {
+        params.set(key, value);
+      }
+    }
+
+    const response = await fetch(`/api/paldex/catalog?section=${encodeURIComponent(normalizedSection)}&${params.toString()}`);
     const payload = await response.json();
-    renderPaldexState(payload, normalizedQuery, section);
+    renderPaldexState(payload, normalizedQuery, normalizedSection);
   } catch (error) {
     renderPaldexState(
       {
@@ -556,7 +769,7 @@ async function fetchPaldex(query, section = state.paldex.section) {
         total: 0
       },
       normalizedQuery,
-      section
+      normalizedSection
     );
   }
 }
@@ -1038,6 +1251,8 @@ nodes.historyButtons.forEach((button) => {
 
 if (nodes.paldexSearch) {
   nodes.paldexSearch.addEventListener('click', () => {
+    state.paldex.page = 1;
+    state.paldex.selectedSignature = '';
     void fetchPaldex(nodes.paldexQuery?.value || '', state.paldex.section);
   });
 }
@@ -1049,6 +1264,8 @@ if (nodes.paldexQuery) {
       clearTimeout(state.paldexSearchTimer);
     }
 
+    state.paldex.page = 1;
+    state.paldex.selectedSignature = '';
     state.paldexSearchTimer = setTimeout(() => {
       void fetchPaldex(query, state.paldex.section);
     }, 350);
@@ -1060,6 +1277,8 @@ if (nodes.paldexQuery) {
       if (state.paldexSearchTimer) {
         clearTimeout(state.paldexSearchTimer);
       }
+      state.paldex.page = 1;
+      state.paldex.selectedSignature = '';
       void fetchPaldex(nodes.paldexQuery.value, state.paldex.section);
     }
   });
@@ -1074,11 +1293,79 @@ if (nodes.paldexTabs) {
       }
 
       state.paldex.section = section;
+      state.paldex.page = 1;
+      state.paldex.selectedSignature = '';
       if (state.paldexSearchTimer) {
         clearTimeout(state.paldexSearchTimer);
       }
       void fetchPaldex(nodes.paldexQuery?.value || '', section);
     });
+  });
+}
+
+if (nodes.paldexResults) {
+  nodes.paldexResults.addEventListener('click', (event) => {
+    const button = event.target.closest('[data-paldex-index]');
+    if (!button) {
+      return;
+    }
+
+    const index = Number(button.dataset.paldexIndex);
+    const item = state.paldex.results[index];
+    if (!item) {
+      return;
+    }
+
+    state.paldex.selectedSignature = button.dataset.paldexSignature || paldexSignature(state.paldex.section, item, index);
+    state.paldex.selectedItem = item;
+    renderPaldexResults(state.paldex.section, state.paldex.results, state.paldex.selectedSignature);
+    renderPaldexDetail(state.paldex.section, item);
+  });
+}
+
+if (nodes.paldexPrev) {
+  nodes.paldexPrev.addEventListener('click', () => {
+    if (state.paldex.page <= 1) {
+      return;
+    }
+
+    state.paldex.page -= 1;
+    void fetchPaldex(nodes.paldexQuery?.value || '', state.paldex.section);
+  });
+}
+
+if (nodes.paldexNext) {
+  nodes.paldexNext.addEventListener('click', () => {
+    state.paldex.page += 1;
+    void fetchPaldex(nodes.paldexQuery?.value || '', state.paldex.section);
+  });
+}
+
+if (nodes.paldexClear) {
+  nodes.paldexClear.addEventListener('click', () => {
+    if (nodes.paldexQuery) nodes.paldexQuery.value = '';
+    if (nodes.paldexType) nodes.paldexType.value = '';
+    if (nodes.paldexSuitabilities) nodes.paldexSuitabilities.value = '';
+    if (nodes.paldexDrops) nodes.paldexDrops.value = '';
+    state.paldex.page = 1;
+    state.paldex.selectedSignature = '';
+    void fetchPaldex('', state.paldex.section);
+  });
+}
+
+for (const filterNode of [nodes.paldexType, nodes.paldexSuitabilities, nodes.paldexDrops]) {
+  if (!filterNode) continue;
+
+  filterNode.addEventListener('input', () => {
+    if (state.paldexSearchTimer) {
+      clearTimeout(state.paldexSearchTimer);
+    }
+
+    state.paldex.page = 1;
+    state.paldex.selectedSignature = '';
+    state.paldexSearchTimer = setTimeout(() => {
+      void fetchPaldex(nodes.paldexQuery?.value || '', state.paldex.section);
+    }, 350);
   });
 }
 
@@ -1093,6 +1380,7 @@ renderPaldexState(
   '',
   'pals'
 );
+void fetchPaldex('', 'pals');
 
 fetch('/api/snapshot')
   .then((response) => response.json())

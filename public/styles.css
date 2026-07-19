@@ -390,6 +390,18 @@ body.light .search-input {
   text-transform: uppercase;
 }
 
+.paldex-clear-button {
+  min-height: 3.2rem;
+}
+
+.paldex-filter-row {
+  align-items: end;
+  display: grid;
+  gap: 0.75rem;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) auto;
+  margin: 1rem 0 0.2rem;
+}
+
 .services-status {
   color: #94a3b8;
   line-height: 1.55;
@@ -493,6 +505,23 @@ body.light .paldex-results-header h4 {
   display: grid;
   gap: 0.75rem;
   min-height: 12rem;
+}
+
+.paldex-card-button {
+  appearance: none;
+  cursor: pointer;
+  text-align: left;
+  width: 100%;
+}
+
+.paldex-card-button:focus-visible {
+  outline: 2px solid #6ee7b7;
+  outline-offset: 3px;
+}
+
+.paldex-card-button.is-selected {
+  border-color: rgb(110 231 183 / 65%);
+  box-shadow: 0 0 0 1px rgb(110 231 183 / 20%), 0 18px 30px rgb(2 8 23 / 20%);
 }
 
 .paldex-empty {
@@ -680,6 +709,88 @@ body.light .paldex-card {
   text-transform: uppercase;
 }
 
+.paldex-pagination {
+  align-items: center;
+  display: flex;
+  gap: 0.75rem;
+  justify-content: space-between;
+  margin-top: 0.9rem;
+}
+
+.paldex-pagination-button {
+  background: rgb(15 23 42 / 42%);
+  border: 1px solid rgb(148 163 184 / 16%);
+  border-radius: 999px;
+  color: #e2e8f0;
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.78rem;
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  padding: 0.55rem 0.8rem;
+  text-transform: uppercase;
+}
+
+.paldex-pagination-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+.paldex-pagination-label {
+  color: #94a3b8;
+  font-size: 0.82rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.paldex-detail {
+  background: linear-gradient(180deg, rgb(8 17 26 / 74%), rgb(8 17 26 / 56%));
+  border: 1px solid rgb(148 163 184 / 14%);
+  border-radius: 1.1rem;
+  margin-top: 0.9rem;
+  padding: 0.9rem;
+}
+
+.paldex-detail-empty {
+  align-items: start;
+  color: #cbd5e1;
+  display: grid;
+  gap: 0.35rem;
+}
+
+.paldex-detail-empty strong {
+  color: #f8fafc;
+}
+
+.paldex-detail-card {
+  display: grid;
+  gap: 0.9rem;
+  grid-template-columns: minmax(110px, 130px) minmax(0, 1fr);
+}
+
+.paldex-detail-media {
+  align-items: center;
+  background: rgb(8 17 26 / 70%);
+  border: 1px solid rgb(148 163 184 / 12%);
+  border-radius: 1rem;
+  display: flex;
+  justify-content: center;
+  overflow: hidden;
+  min-height: 100%;
+}
+
+.paldex-detail-media img {
+  display: block;
+  height: 100%;
+  object-fit: cover;
+  width: 100%;
+}
+
+.paldex-detail-copy {
+  min-width: 0;
+}
+
 body.light .paldex-type-chip {
   background: rgb(255 255 255 / 76%);
   color: #0f172a;
@@ -700,6 +811,27 @@ body.light .paldex-tier-card {
 
 body.light .paldex-tier-card span {
   color: #334155;
+}
+
+body.light .paldex-pagination-button {
+  background: rgb(255 255 255 / 72%);
+  color: #0f172a;
+}
+
+body.light .paldex-pagination-label {
+  color: #475569;
+}
+
+body.light .paldex-detail {
+  background: linear-gradient(180deg, rgb(255 255 255 / 84%), rgb(241 245 249 / 72%));
+}
+
+body.light .paldex-detail-empty {
+  color: #334155;
+}
+
+body.light .paldex-detail-empty strong {
+  color: #0f172a;
 }
 
 .panel {
@@ -1610,6 +1742,11 @@ body.light .summary-card {
   }
 
   .search-row {
+    grid-template-columns: 1fr;
+  }
+
+  .paldex-filter-row,
+  .paldex-detail-card {
     grid-template-columns: 1fr;
   }
 
