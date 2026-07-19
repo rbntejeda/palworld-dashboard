@@ -997,15 +997,22 @@ body.light .elemental-table-head h4 {
 
 .elemental-table-pill {
   align-items: center;
-  background: rgb(110 231 183 / 14%);
+  background: rgb(99 199 255 / 14%);
   border-radius: 999px;
-  color: #6ee7b7;
+  color: #63c7ff;
   display: inline-flex;
   font-size: 0.74rem;
   font-weight: 800;
   letter-spacing: 0.12em;
+  border: 1px solid rgb(99 199 255 / 18%);
   padding: 0.35rem 0.7rem;
   text-transform: uppercase;
+}
+
+body.light .elemental-table-pill {
+  background: rgb(99 199 255 / 12%);
+  color: #2563eb;
+  border-color: rgb(99 199 255 / 26%);
 }
 
 .elemental-table-scroll {
