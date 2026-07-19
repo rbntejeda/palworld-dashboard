@@ -13,7 +13,6 @@ const state = {
     selectedSignature: '',
     selectedItem: null
   },
-  dashboardView: 'server',
   mapViewer: null,
   mapAnno: null,
   mapImageUrl: '',
@@ -115,9 +114,6 @@ const nodes = {
   paldexRoute: el('paldex-route'),
   paldexSectionPill: el('paldex-section-pill'),
   paldexFilterRow: el('paldex-filter-row'),
-  dashboardSidebarButtons: Array.from(document.querySelectorAll('[data-dashboard-nav]')),
-  dashboardViewButtons: Array.from(document.querySelectorAll('[data-dashboard-view]')),
-  dashboardViewPanels: Array.from(document.querySelectorAll('[data-dashboard-view-panel]')),
   paldexTabs: Array.from(document.querySelectorAll('[data-paldex-section]')),
   historyButtons: Array.from(document.querySelectorAll('.history-toggle'))
 };
@@ -436,50 +432,6 @@ function syncPaldexResultsVisibility(isVisible) {
   }
 
   nodes.paldexResultsPanel.hidden = !isVisible;
-}
-
-function setDashboardView(view) {
-  const normalizedView = view === 'world' ? 'world' : 'server';
-  state.dashboardView = normalizedView;
-
-  if (nodes.dashboardViewButtons) {
-    nodes.dashboardViewButtons.forEach((button) => {
-      button.classList.toggle('is-active', button.dataset.dashboardView === normalizedView);
-    });
-  }
-
-  if (nodes.dashboardViewPanels) {
-    nodes.dashboardViewPanels.forEach((panel) => {
-      const isActive = panel.dataset.dashboardViewPanel === normalizedView;
-      panel.hidden = !isActive;
-      panel.classList.toggle('is-active', isActive);
-    });
-  }
-
-  if (nodes.dashboardSidebarButtons) {
-    nodes.dashboardSidebarButtons.forEach((button) => {
-      button.classList.toggle('is-active', button.dataset.dashboardNav === normalizedView);
-    });
-  }
-}
-
-function scrollToDashboardTarget(targetId) {
-  if (!targetId) {
-    return;
-  }
-
-  const selector = targetId.startsWith('#') ? targetId : `#${targetId}`;
-  const target = document.querySelector(selector);
-  if (!target) {
-    return;
-  }
-
-  window.requestAnimationFrame(() => {
-    target.scrollIntoView({
-      behavior: 'smooth',
-      block: 'start'
-    });
-  });
 }
 
 function paldexSignature(section, item, index) {
@@ -1535,25 +1487,6 @@ if (nodes.paldexTabs) {
   });
 }
 
-if (nodes.dashboardViewButtons) {
-  nodes.dashboardViewButtons.forEach((button) => {
-    button.addEventListener('click', () => {
-      setDashboardView(button.dataset.dashboardView || 'server');
-    });
-  });
-}
-
-if (nodes.dashboardSidebarButtons) {
-  nodes.dashboardSidebarButtons.forEach((button) => {
-    button.addEventListener('click', () => {
-      const view = button.dataset.dashboardNav || 'server';
-      const target = button.dataset.target || '';
-      setDashboardView(view);
-      scrollToDashboardTarget(target);
-    });
-  });
-}
-
 if (nodes.paldexResults) {
   nodes.paldexResults.addEventListener('click', (event) => {
     const button = event.target.closest('[data-paldex-index]');
@@ -1626,7 +1559,6 @@ for (const filterNode of [nodes.paldexSuitabilities, nodes.paldexDrops]) {
 }
 
 renderPaldexTypeOptions();
-setDashboardView('server');
 
 renderPaldexState(
   {
