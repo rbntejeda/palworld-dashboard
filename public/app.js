@@ -21,6 +21,18 @@ const state = {
   paldexSearchTimer: null
 };
 
+const PALDEX_TYPE_OPTIONS = [
+  { value: 'fire', label: 'Fuego', icon: '/images/elements/fire.png' },
+  { value: 'water', label: 'Agua', icon: '/images/elements/water.png' },
+  { value: 'grass', label: 'Planta', icon: '/images/elements/grass.png' },
+  { value: 'ice', label: 'Hielo', icon: '/images/elements/ice.png' },
+  { value: 'electric', label: 'Rayo', icon: '/images/elements/electric.png' },
+  { value: 'ground', label: 'Tierra', icon: '/images/elements/ground.png' },
+  { value: 'dark', label: 'Oscuridad', icon: '/images/elements/dark.png' },
+  { value: 'dragon', label: 'Dragón', icon: '/images/elements/dragon.png' },
+  { value: 'neutral', label: 'No elemental', icon: '/images/elements/neutral.png' }
+];
+
 const el = (id) => document.getElementById(id);
 
 const nodes = {
@@ -82,6 +94,10 @@ const nodes = {
   paldexQuery: el('paldex-query'),
   paldexSearch: el('paldex-search'),
   paldexType: el('paldex-type'),
+  paldexTypeMenu: el('paldex-type-menu'),
+  paldexTypeSummary: el('paldex-type-summary'),
+  paldexTypeCount: el('paldex-type-count'),
+  paldexTypeOptions: el('paldex-type-options'),
   paldexSuitabilities: el('paldex-suitabilities'),
   paldexDrops: el('paldex-drops'),
   paldexClear: el('paldex-clear'),
@@ -90,6 +106,7 @@ const nodes = {
   paldexPrev: el('paldex-prev'),
   paldexNext: el('paldex-next'),
   paldexResults: el('paldex-results'),
+  paldexResultsPanel: el('paldex-results-panel'),
   paldexDetail: el('paldex-detail'),
   paldexNote: el('paldex-note'),
   paldexCount: el('paldex-count'),
@@ -329,6 +346,94 @@ function paldexLimit(section) {
   return 12;
 }
 
+function paldexTypeLabel(value) {
+  const option = PALDEX_TYPE_OPTIONS.find((entry) => entry.value === value);
+  return option?.label || String(value || '').trim();
+}
+
+function paldexTypeIcon(value) {
+  return PALDEX_TYPE_OPTIONS.find((entry) => entry.value === value)?.icon || '';
+}
+
+function paldexSelectedTypes() {
+  if (!nodes.paldexTypeOptions) {
+    return [];
+  }
+
+  return Array.from(nodes.paldexTypeOptions.querySelectorAll('input[type="checkbox"]:checked')).map((input) => input.value);
+}
+
+function syncPaldexTypeField() {
+  if (!nodes.paldexType) {
+    return [];
+  }
+
+  const selected = paldexSelectedTypes();
+  nodes.paldexType.value = selected.join(',');
+
+  if (nodes.paldexTypeSummary) {
+    nodes.paldexTypeSummary.textContent = selected.length
+      ? selected.map((value) => paldexTypeLabel(value)).join(', ')
+      : 'Todos los elementos';
+  }
+
+  if (nodes.paldexTypeCount) {
+    nodes.paldexTypeCount.textContent = String(selected.length);
+  }
+
+  if (nodes.paldexTypeMenu) {
+    nodes.paldexTypeMenu.classList.toggle('has-selection', selected.length > 0);
+  }
+
+  return selected;
+}
+
+function renderPaldexTypeOptions() {
+  if (!nodes.paldexTypeOptions) {
+    return;
+  }
+
+  nodes.paldexTypeOptions.innerHTML = PALDEX_TYPE_OPTIONS.map(
+    (option) => `
+      <label class="paldex-multiselect-option">
+        <input type="checkbox" value="${escapeHtml(option.value)}" data-paldex-type-option>
+        <span class="paldex-multiselect-option-copy">
+          <img src="${escapeHtml(option.icon)}" alt="" aria-hidden="true">
+          <span>${escapeHtml(option.label)}</span>
+        </span>
+      </label>
+    `
+  ).join('');
+
+  syncPaldexTypeField();
+}
+
+function hasPaldexCriteria(query, section = state.paldex.section) {
+  const normalizedQuery = normalizePaldexSearchValue(query);
+
+  if (normalizedQuery) {
+    return true;
+  }
+
+  if (section !== 'pals') {
+    return false;
+  }
+
+  return Boolean(
+    normalizePaldexSearchValue(nodes.paldexType?.value) ||
+      normalizePaldexSearchValue(nodes.paldexSuitabilities?.value) ||
+      normalizePaldexSearchValue(nodes.paldexDrops?.value)
+  );
+}
+
+function syncPaldexResultsVisibility(isVisible) {
+  if (!nodes.paldexResultsPanel) {
+    return;
+  }
+
+  nodes.paldexResultsPanel.hidden = !isVisible;
+}
+
 function paldexSignature(section, item, index) {
   return `${section}:${String(item?.key || item?.id || item?.name || index)}`;
 }
@@ -503,7 +608,7 @@ function renderPaldexPagination(section, payload) {
   const totalPages = Math.max(1, Math.ceil(total / Math.max(1, limit)));
   const safePage = Math.min(Math.max(page, 1), totalPages);
 
-  nodes.paldexPagination.hidden = total <= limit && section !== 'pals';
+  nodes.paldexPagination.hidden = total <= limit;
   nodes.paldexPage.textContent = `Página ${safePage} de ${totalPages}`;
 
   if (nodes.paldexPrev) {
@@ -637,6 +742,7 @@ function renderPaldexState(payload, query, section = state.paldex.section) {
   const configured = Boolean(payload?.configured);
   const selectedSignature = state.paldex.selectedSignature || '';
   const selectedItem = results.find((item, index) => paldexSignature(section, item, index) === selectedSignature) || null;
+  const hasCriteria = hasPaldexCriteria(query, section);
 
   state.paldex.loading = false;
   state.paldex.configured = configured;
@@ -690,22 +796,39 @@ function renderPaldexState(payload, query, section = state.paldex.section) {
     }
   }
 
+  syncPaldexResultsVisibility(hasCriteria);
+
   if (nodes.paldexResults) {
-    nodes.paldexResults.innerHTML = renderPaldexResults(section, results, selectedItem ? selectedSignature : '');
+    nodes.paldexResults.innerHTML = hasCriteria
+      ? renderPaldexResults(section, results, selectedItem ? selectedSignature : '')
+      : '';
   }
 
   if (nodes.paldexQuery) {
     nodes.paldexQuery.placeholder = paldexPlaceholder(section);
   }
 
-  renderPaldexDetail(section, selectedItem);
-  renderPaldexPagination(section, payload);
+  if (hasCriteria) {
+    renderPaldexDetail(section, selectedItem);
+    renderPaldexPagination(section, payload);
+  } else if (nodes.paldexDetail) {
+    nodes.paldexDetail.innerHTML = `
+      <div class="paldex-detail-empty">
+        <strong>Escribe algo para desplegar resultados</strong>
+        <span>El panel de contenido se abre cuando escribes un nombre o eliges filtros.</span>
+      </div>
+    `;
+    if (nodes.paldexPagination) {
+      nodes.paldexPagination.hidden = true;
+    }
+  }
 }
 
 function setPaldexLoading(query, section = state.paldex.section) {
   state.paldex.loading = true;
   state.paldex.query = query;
   state.paldex.section = section;
+  const hasCriteria = hasPaldexCriteria(query, section);
 
   if (nodes.paldexSearch) {
     nodes.paldexSearch.disabled = true;
@@ -722,6 +845,8 @@ function setPaldexLoading(query, section = state.paldex.section) {
       : `Escribe un término para buscar ${paldexSectionLabel(section).toLowerCase()}.`;
   }
 
+  syncPaldexResultsVisibility(hasCriteria);
+
   if (nodes.paldexResults) {
     nodes.paldexResults.innerHTML = renderPaldexEmpty(
       query ? `Buscando "${query}"` : 'Escribe un término',
@@ -729,11 +854,18 @@ function setPaldexLoading(query, section = state.paldex.section) {
     );
   }
 
-  if (nodes.paldexDetail) {
+  if (nodes.paldexDetail && hasCriteria) {
     nodes.paldexDetail.innerHTML = `
       <div class="paldex-detail-empty">
         <strong>Buscando catálogo</strong>
         <span>La vista de detalle se actualiza cuando llega la respuesta.</span>
+      </div>
+    `;
+  } else if (nodes.paldexDetail) {
+    nodes.paldexDetail.innerHTML = `
+      <div class="paldex-detail-empty">
+        <strong>Escribe algo para desplegar resultados</strong>
+        <span>El panel de contenido se abre cuando escribes un nombre o eliges filtros.</span>
       </div>
     `;
   }
@@ -744,6 +876,37 @@ async function fetchPaldex(query, section = state.paldex.section) {
   const page = Number(state.paldex.page || 1);
   const normalizedSection = String(section || state.paldex.section || 'pals').trim().toLowerCase();
   const filters = paldexFilterValues(normalizedSection);
+  const hasCriteria = hasPaldexCriteria(normalizedQuery, normalizedSection);
+
+  if (!hasCriteria) {
+    state.paldex.loading = false;
+    syncPaldexResultsVisibility(false);
+    if (nodes.paldexResults) {
+      nodes.paldexResults.innerHTML = '';
+    }
+    if (nodes.paldexDetail) {
+      nodes.paldexDetail.innerHTML = `
+        <div class="paldex-detail-empty">
+          <strong>Escribe algo para desplegar resultados</strong>
+          <span>El panel de contenido se abre cuando escribes un nombre o eliges filtros.</span>
+        </div>
+      `;
+    }
+    if (nodes.paldexSearch) {
+      nodes.paldexSearch.disabled = false;
+      nodes.paldexSearch.textContent = 'Buscar';
+    }
+    if (nodes.paldexCount) {
+      nodes.paldexCount.textContent = '0 resultados';
+    }
+    if (nodes.paldexPagination) {
+      nodes.paldexPagination.hidden = true;
+    }
+    if (nodes.paldexNote) {
+      nodes.paldexNote.textContent = 'Escribe un término o elige un elemento para desplegar el catálogo.';
+    }
+    return;
+  }
 
   setPaldexLoading(normalizedQuery, normalizedSection);
 
@@ -1284,6 +1447,27 @@ if (nodes.paldexQuery) {
   });
 }
 
+if (nodes.paldexTypeOptions) {
+  nodes.paldexTypeOptions.addEventListener('change', (event) => {
+    const input = event.target.closest('input[type="checkbox"][data-paldex-type-option]');
+    if (!input) {
+      return;
+    }
+
+    syncPaldexTypeField();
+
+    if (state.paldexSearchTimer) {
+      clearTimeout(state.paldexSearchTimer);
+    }
+
+    state.paldex.page = 1;
+    state.paldex.selectedSignature = '';
+    state.paldexSearchTimer = setTimeout(() => {
+      void fetchPaldex(nodes.paldexQuery?.value || '', state.paldex.section);
+    }, 250);
+  });
+}
+
 if (nodes.paldexTabs) {
   nodes.paldexTabs.forEach((button) => {
     button.addEventListener('click', () => {
@@ -1344,7 +1528,12 @@ if (nodes.paldexNext) {
 if (nodes.paldexClear) {
   nodes.paldexClear.addEventListener('click', () => {
     if (nodes.paldexQuery) nodes.paldexQuery.value = '';
-    if (nodes.paldexType) nodes.paldexType.value = '';
+    if (nodes.paldexTypeOptions) {
+      nodes.paldexTypeOptions.querySelectorAll('input[type="checkbox"]').forEach((input) => {
+        input.checked = false;
+      });
+    }
+    syncPaldexTypeField();
     if (nodes.paldexSuitabilities) nodes.paldexSuitabilities.value = '';
     if (nodes.paldexDrops) nodes.paldexDrops.value = '';
     state.paldex.page = 1;
@@ -1353,7 +1542,7 @@ if (nodes.paldexClear) {
   });
 }
 
-for (const filterNode of [nodes.paldexType, nodes.paldexSuitabilities, nodes.paldexDrops]) {
+for (const filterNode of [nodes.paldexSuitabilities, nodes.paldexDrops]) {
   if (!filterNode) continue;
 
   filterNode.addEventListener('input', () => {
@@ -1369,6 +1558,8 @@ for (const filterNode of [nodes.paldexType, nodes.paldexSuitabilities, nodes.pal
   });
 }
 
+renderPaldexTypeOptions();
+
 renderPaldexState(
   {
     configured: true,
@@ -1380,7 +1571,6 @@ renderPaldexState(
   '',
   'pals'
 );
-void fetchPaldex('', 'pals');
 
 fetch('/api/snapshot')
   .then((response) => response.json())

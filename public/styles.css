@@ -261,7 +261,7 @@ body.light .notes li {
   align-items: stretch;
   display: grid;
   gap: 1rem;
-  grid-template-columns: minmax(0, 0.82fr) minmax(0, 1.18fr);
+  grid-template-columns: minmax(0, 1fr);
   padding: 1.35rem;
 }
 
@@ -402,6 +402,111 @@ body.light .search-input {
   margin: 1rem 0 0.2rem;
 }
 
+.paldex-multiselect {
+  position: relative;
+}
+
+.paldex-multiselect summary {
+  list-style: none;
+}
+
+.paldex-multiselect summary::-webkit-details-marker {
+  display: none;
+}
+
+.paldex-multiselect-summary {
+  align-items: center;
+  cursor: pointer;
+  display: flex;
+  gap: 0.65rem;
+  justify-content: space-between;
+  min-height: 3.2rem;
+}
+
+.paldex-multiselect-summary:focus-visible {
+  border-color: rgb(110 231 183 / 58%);
+  box-shadow: 0 0 0 4px rgb(110 231 183 / 10%);
+  outline: none;
+}
+
+.paldex-multiselect-count {
+  align-items: center;
+  background: rgb(110 231 183 / 12%);
+  border-radius: 999px;
+  color: #86efac;
+  display: inline-flex;
+  flex: 0 0 auto;
+  font-size: 0.72rem;
+  font-weight: 900;
+  justify-content: center;
+  letter-spacing: 0.12em;
+  min-width: 1.9rem;
+  padding: 0.18rem 0.45rem;
+  text-transform: uppercase;
+}
+
+.paldex-multiselect.has-selection .paldex-multiselect-count {
+  background: rgb(255 190 93 / 14%);
+  color: #ffbe5d;
+}
+
+.paldex-multiselect-panel {
+  background: rgb(8 17 26 / 98%);
+  border: 1px solid rgb(148 163 184 / 16%);
+  border-radius: 1rem;
+  box-shadow: 0 24px 44px rgb(2 8 23 / 28%);
+  display: grid;
+  gap: 0.45rem;
+  left: 0;
+  margin-top: 0.55rem;
+  padding: 0.7rem;
+  position: absolute;
+  right: 0;
+  top: 100%;
+  z-index: 5;
+}
+
+body.light .paldex-multiselect-panel {
+  background: rgb(255 255 255 / 98%);
+}
+
+.paldex-multiselect-option {
+  align-items: center;
+  border-radius: 0.85rem;
+  cursor: pointer;
+  display: flex;
+  gap: 0.65rem;
+  padding: 0.55rem 0.65rem;
+}
+
+.paldex-multiselect-option:hover {
+  background: rgb(110 231 183 / 8%);
+}
+
+.paldex-multiselect-option input {
+  accent-color: #6ee7b7;
+}
+
+.paldex-multiselect-option-copy {
+  align-items: center;
+  color: #f8fafc;
+  display: inline-flex;
+  gap: 0.55rem;
+  font-size: 0.84rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.paldex-multiselect-option-copy img {
+  height: 1rem;
+  width: 1rem;
+}
+
+body.light .paldex-multiselect-option-copy {
+  color: #0f172a;
+}
+
 .services-status {
   color: #94a3b8;
   line-height: 1.55;
@@ -460,6 +565,7 @@ body.light .services-meta > div {
   border: 1px solid rgb(148 163 184 / 14%);
   border-radius: 1.4rem;
   min-width: 0;
+  margin-top: 0.35rem;
   padding: 1rem;
 }
 
@@ -832,6 +938,15 @@ body.light .paldex-detail-empty {
 
 body.light .paldex-detail-empty strong {
   color: #0f172a;
+}
+
+body.light .paldex-multiselect-count {
+  background: rgb(110 231 183 / 14%);
+  color: #0f766e;
+}
+
+body.light .paldex-multiselect-option:hover {
+  background: rgb(110 231 183 / 10%);
 }
 
 .panel {

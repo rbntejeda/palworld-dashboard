@@ -195,7 +195,7 @@
             </div>
             <label class="search-field" for="paldex-query">
               <span class="search-label">Buscar catálogo</span>
-              <div class="search-row">
+            <div class="search-row">
                 <input
                   id="paldex-query"
                   class="search-input"
@@ -207,10 +207,17 @@
               </div>
             </label>
             <div class="paldex-filter-row" id="paldex-filter-row">
-              <label class="search-field" for="paldex-type">
-                <span class="search-label">Type</span>
-                <input id="paldex-type" class="search-input" type="search" placeholder="fire, water, grass..." autocomplete="off">
-              </label>
+              <div class="search-field">
+                <span class="search-label">Elemento</span>
+                <details class="paldex-multiselect" id="paldex-type-menu">
+                  <summary class="search-input paldex-multiselect-summary">
+                    <span id="paldex-type-summary">Todos los elementos</span>
+                    <span class="paldex-multiselect-count" id="paldex-type-count">0</span>
+                  </summary>
+                  <div class="paldex-multiselect-panel" id="paldex-type-options"></div>
+                </details>
+                <input id="paldex-type" type="hidden" value="">
+              </div>
               <label class="search-field" for="paldex-suitabilities">
                 <span class="search-label">Suitabilities</span>
                 <input id="paldex-suitabilities" class="search-input" type="search" placeholder="mining, watering, farming..." autocomplete="off">
@@ -234,7 +241,7 @@
             </div>
           </div>
 
-          <div class="paldex-results-panel">
+          <div class="paldex-results-panel" id="paldex-results-panel" hidden>
             <div class="paldex-results-header">
               <div>
                 <p class="eyebrow">Resultados</p>

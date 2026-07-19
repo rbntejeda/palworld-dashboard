@@ -64,6 +64,7 @@ async function searchPaldexCatalog({
 
 async function searchPals({ query, apiBaseUrl, assetBaseUrl, dataBaseUrl, timeoutMs }) {
   const hasSearchCriteria = hasQuery(query, ['term', 'name', 'description', 'key', 'types', 'suitabilities', 'drops']);
+  const hasAdvancedFilters = hasQuery(query, ['types', 'suitabilities', 'drops']);
   const remoteAvailable = Boolean(apiBaseUrl);
 
   if (!hasSearchCriteria) {
@@ -86,7 +87,7 @@ async function searchPals({ query, apiBaseUrl, assetBaseUrl, dataBaseUrl, timeou
     };
   }
 
-  if (remoteAvailable) {
+  if (remoteAvailable && !hasAdvancedFilters) {
     const remote = await fetchRemotePals({ apiBaseUrl, query, timeoutMs, assetBaseUrl });
     if (remote.ok) {
       return remote;
@@ -398,6 +399,13 @@ function normalizeText(value) {
   return String(text || '').trim();
 }
 
+function splitValues(value) {
+  return normalizeText(value)
+    .split(',')
+    .map((item) => item.trim().toLowerCase())
+    .filter(Boolean);
+}
+
 function hasQuery(query, keys) {
   return keys.some((key) => Boolean(query[key]));
 }
@@ -423,7 +431,28 @@ function matchesPalQuery(pal, query) {
     .join(' ')
     .toLowerCase();
 
-  return matchesText(haystack, query.term || query.name || query.description || query.key || query.types || query.suitabilities || query.drops);
+  const term = query.term || query.name || query.description || query.key;
+  const selectedTypes = splitValues(query.types);
+  const selectedSuitabilities = splitValues(query.suitabilities);
+  const selectedDrops = splitValues(query.drops);
+  const palTypes = Array.isArray(pal?.types)
+    ? pal.types.map((type) => String(type?.name || type || '').trim().toLowerCase()).filter(Boolean)
+    : [];
+  const palSuitabilities = Array.isArray(pal?.suitabilities)
+    ? pal.suitabilities.map((item) => String(item?.type || item?.name || '').trim().toLowerCase()).filter(Boolean)
+    : Array.isArray(pal?.suitability)
+      ? pal.suitability.map((item) => String(item?.type || item?.name || '').trim().toLowerCase()).filter(Boolean)
+      : [];
+  const palDrops = Array.isArray(pal?.drops)
+    ? pal.drops.map((drop) => String(drop || '').trim().toLowerCase()).filter(Boolean)
+    : [];
+
+  return (
+    (!term || matchesText(haystack, term)) &&
+    matchesAny(selectedTypes, palTypes) &&
+    matchesAny(selectedSuitabilities, palSuitabilities) &&
+    matchesAny(selectedDrops, palDrops)
+  );
 }
 
 function matchesItemQuery(item, query) {
@@ -455,6 +484,21 @@ function matchesGearQuery(item, query) {
 
 function matchesText(haystack, needle) {
   return String(haystack).includes(String(needle).toLowerCase());
+}
+
+function matchesAny(needles, haystackValues) {
+  if (!needles.length) {
+    return true;
+  }
+
+  return needles.some((needle) => {
+    const normalizedNeedle = String(needle || '').trim().toLowerCase();
+    if (!normalizedNeedle) {
+      return false;
+    }
+
+    return haystackValues.some((value) => value.includes(normalizedNeedle) || normalizedNeedle.includes(value));
+  });
 }
 
 function paginate(items, page, limit) {
