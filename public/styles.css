@@ -248,9 +248,68 @@ body.light .notes li {
 }
 
 .content-grid {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: 1fr;
   margin-top: 1rem;
   padding-bottom: 3rem;
+}
+
+.dashboard-switch {
+  align-items: end;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  justify-content: space-between;
+  margin: 1rem 0 0;
+}
+
+.dashboard-switch h3 {
+  font-size: clamp(1.2rem, 1.7vw, 1.55rem);
+  letter-spacing: -0.05em;
+  margin-bottom: 0.35rem;
+}
+
+.dashboard-switch-note {
+  color: #94a3b8;
+  margin-bottom: 0;
+}
+
+.dashboard-switch-tabs {
+  background: rgb(15 23 42 / 42%);
+  border: 1px solid rgb(148 163 184 / 14%);
+  border-radius: 999px;
+  display: inline-flex;
+  gap: 0.35rem;
+  padding: 0.3rem;
+}
+
+body.light .dashboard-switch-tabs {
+  background: rgb(255 255 255 / 70%);
+}
+
+.dashboard-switch-tab {
+  background: transparent;
+  border: 0;
+  border-radius: 999px;
+  color: inherit;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 800;
+  padding: 0.55rem 1rem;
+}
+
+.dashboard-switch-tab.is-active {
+  background: linear-gradient(135deg, #6ee7b7, #ffbe5d);
+  color: #08111a;
+}
+
+.dashboard-view {
+  display: grid;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.dashboard-view[hidden] {
+  display: none !important;
 }
 
 .services-section {
@@ -258,10 +317,9 @@ body.light .notes li {
 }
 
 .services-card {
-  align-items: stretch;
   display: grid;
   gap: 1rem;
-  grid-template-columns: minmax(0, 1fr);
+  grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr);
   padding: 1.35rem;
 }
 
@@ -1835,6 +1893,11 @@ body.light .summary-card {
 
   .services-meta {
     grid-template-columns: 1fr;
+  }
+
+  .dashboard-switch {
+    align-items: flex-start;
+    flex-direction: column;
   }
 
   .search-row {

@@ -69,200 +69,277 @@
         </article>
       </section>
 
-      <section class="metrics" id="metrics">
-        <article class="metric-card good">
-          <span class="metric-title">Disponibilidad</span>
-          <strong class="metric-value" id="availability">0%</strong>
-          <p id="availability-note">Esperando datos</p>
-        </article>
-        <article class="metric-card warn">
-          <span class="metric-title">Latency API</span>
-          <strong class="metric-value" id="latency-card">-- ms</strong>
-          <p id="latency-note">Sin lectura</p>
-        </article>
-        <article class="metric-card good">
-          <span class="metric-title">Estado WS</span>
-          <strong class="metric-value" id="ws-card">Connecting</strong>
-          <p>Conexión en tiempo real al backend.</p>
-        </article>
-        <article class="metric-card warn">
-          <span class="metric-title">Server FPS</span>
-          <strong class="metric-value" id="server-fps">--</strong>
-          <p id="server-fps-note">Lectura REST</p>
-        </article>
-        <article class="metric-card good">
-          <span class="metric-title">Server Temp</span>
-          <strong class="metric-value" id="server-temp">--</strong>
-          <p id="server-temp-note">Temperatura del host</p>
-        </article>
-        <article class="metric-card good">
-          <span class="metric-title">In-game Days</span>
-          <strong class="metric-value" id="game-days">--</strong>
-          <p id="game-days-note">Mundo actual</p>
-        </article>
-        <article class="metric-card warn">
-          <span class="metric-title">Base Camps</span>
-          <strong class="metric-value" id="base-camps">--</strong>
-          <p id="base-camps-note">Bases del mundo</p>
-        </article>
+      <section class="dashboard-switch">
+        <div>
+          <p class="eyebrow">Vistas</p>
+          <h3>Divide el panel para leerlo más rápido</h3>
+          <p class="dashboard-switch-note">Servidor por un lado. Mundo, jugadores y Paldex por el otro.</p>
+        </div>
+        <div class="dashboard-switch-tabs" role="tablist" aria-label="Vistas del dashboard">
+          <button class="dashboard-switch-tab is-active" type="button" data-dashboard-view="server">Servidor</button>
+          <button class="dashboard-switch-tab" type="button" data-dashboard-view="world">Mundo y Paldex</button>
+        </div>
       </section>
 
-      <section class="world-section">
-        <article class="panel world-card">
-          <p class="eyebrow">World</p>
-          <h3 id="server-name">Palworld</h3>
-          <p class="world-description" id="server-description">Esperando datos REST.</p>
-          <div class="world-meta">
-            <div>
-              <span class="world-label">Version</span>
-              <strong id="server-version">--</strong>
-            </div>
-            <div>
-              <span class="world-label">World GUID</span>
-              <strong id="world-guid">--</strong>
-            </div>
-          </div>
-        </article>
+      <section class="dashboard-view is-active" data-dashboard-view-panel="server">
+        <section class="metrics" id="metrics">
+          <article class="metric-card good">
+            <span class="metric-title">Disponibilidad</span>
+            <strong class="metric-value" id="availability">0%</strong>
+            <p id="availability-note">Esperando datos</p>
+          </article>
+          <article class="metric-card warn">
+            <span class="metric-title">Latency API</span>
+            <strong class="metric-value" id="latency-card">-- ms</strong>
+            <p id="latency-note">Sin lectura</p>
+          </article>
+          <article class="metric-card good">
+            <span class="metric-title">Estado WS</span>
+            <strong class="metric-value" id="ws-card">Connecting</strong>
+            <p>Conexión en tiempo real al backend.</p>
+          </article>
+          <article class="metric-card warn">
+            <span class="metric-title">Server FPS</span>
+            <strong class="metric-value" id="server-fps">--</strong>
+            <p id="server-fps-note">Lectura REST</p>
+          </article>
+          <article class="metric-card good">
+            <span class="metric-title">Server Temp</span>
+            <strong class="metric-value" id="server-temp">--</strong>
+            <p id="server-temp-note">Temperatura del host</p>
+          </article>
+          <article class="metric-card good">
+            <span class="metric-title">In-game Days</span>
+            <strong class="metric-value" id="game-days">--</strong>
+            <p id="game-days-note">Mundo actual</p>
+          </article>
+          <article class="metric-card warn">
+            <span class="metric-title">Base Camps</span>
+            <strong class="metric-value" id="base-camps">--</strong>
+            <p id="base-camps-note">Bases del mundo</p>
+          </article>
+        </section>
 
-        <article class="panel players-card">
-          <p class="eyebrow">Players online</p>
-          <div class="players-header">
-            <h3 id="player-count">0 players</h3>
-            <span class="players-pill" id="players-pill">REST</span>
-          </div>
-          <div class="players-list" id="players-list"></div>
-        </article>
-
-        <article class="panel map-card">
-          <div class="map-header">
-            <div>
-              <p class="eyebrow">Player map</p>
-              <h3>Ubicación en el mundo</h3>
-            </div>
-            <span class="map-pill" id="map-pill">0 markers</span>
-          </div>
-          <p class="map-note" id="map-note">Cargando mapa...</p>
-          <div class="map-frame">
-            <div class="map-surface" id="map-surface" aria-label="Mapa de jugadores zoomable"></div>
-          </div>
-          <div class="map-legend" id="map-legend"></div>
-        </article>
-      </section>
-
-      <section class="content-grid">
-        <article class="panel">
-          <p class="eyebrow">Timeline</p>
-          <h3>Historial reciente</h3>
-          <div class="history-list" id="history"></div>
-        </article>
-
-        <article class="panel">
-          <p class="eyebrow">Arquitectura</p>
-          <h3>Lista para crecer</h3>
-          <ul class="notes">
-            <li>Collector para leer estado del host y del juego.</li>
-            <li>Pub/Sub para desacoplar recolección y frontend.</li>
-            <li>WebSocket para empujar snapshots al navegador.</li>
-            <li>Nginx Proxy Manager para publicar el panel con TLS.</li>
-          </ul>
-          <div class="connection-block">
-            <span class="connection-label">API</span>
-            <strong>GET /api/snapshot</strong>
-            <p>El navegador puede arrancar con un snapshot inicial y luego seguir por WS.</p>
-          </div>
-        </article>
-      </section>
-
-      <section class="services-section">
-        <article class="panel services-card">
-          <div class="services-copy">
-            <p class="eyebrow">Servicios</p>
-            <h3>Palworld Paldex API</h3>
-            <p class="services-note">
-              Busca pals por nombre, tipo, drops o habilidad y muestra sus imágenes e iconos de elementos dentro del dashboard.
-            </p>
-            <div class="services-pills">
-              <span class="service-pill">term</span>
-              <span class="service-pill">name</span>
-              <span class="service-pill">types</span>
-              <span class="service-pill">suitabilities</span>
-              <span class="service-pill">drops</span>
-            </div>
-            <div class="service-tabs" role="tablist" aria-label="Catálogo Paldex">
-              <button class="service-tab is-active" type="button" data-paldex-section="pals">Pals</button>
-              <button class="service-tab" type="button" data-paldex-section="items">Items</button>
-              <button class="service-tab" type="button" data-paldex-section="gear">Gear</button>
-            </div>
-            <label class="search-field" for="paldex-query">
-              <span class="search-label">Buscar catálogo</span>
-            <div class="search-row">
-                <input
-                  id="paldex-query"
-                  class="search-input"
-                  type="search"
-                  placeholder="Relaxaurus, fire, lightning, aqua..."
-                  autocomplete="off"
-                >
-                <button id="paldex-search" class="search-button" type="button">Buscar</button>
+        <section class="history-section">
+          <article class="panel history-panel">
+            <div class="panel-header">
+              <div>
+                <p class="eyebrow">Histórico</p>
+                <h3>Resumen por tiempo desde Redis o memoria</h3>
               </div>
-            </label>
-            <div class="paldex-filter-row" id="paldex-filter-row">
-              <div class="search-field">
-                <span class="search-label">Elemento</span>
-                <details class="paldex-multiselect" id="paldex-type-menu">
-                  <summary class="search-input paldex-multiselect-summary">
-                    <span id="paldex-type-summary">Todos los elementos</span>
-                    <span class="paldex-multiselect-count" id="paldex-type-count">0</span>
-                  </summary>
-                  <div class="paldex-multiselect-panel" id="paldex-type-options"></div>
-                </details>
-                <input id="paldex-type" type="hidden" value="">
+              <div class="history-controls" role="group" aria-label="Selector de histórico">
+                <button class="history-toggle is-active" type="button" data-bucket="hour">Hora</button>
+                <button class="history-toggle" type="button" data-bucket="day">Día</button>
               </div>
-              <label class="search-field" for="paldex-suitabilities">
-                <span class="search-label">Suitabilities</span>
-                <input id="paldex-suitabilities" class="search-input" type="search" placeholder="mining, watering, farming..." autocomplete="off">
+            </div>
+            <p class="history-note" id="history-note">Cargando histórico...</p>
+            <div class="availability-panel">
+              <div class="availability-header">
+                <div>
+                  <p class="eyebrow">Availability</p>
+                  <h3>Estado del servicio en el tiempo</h3>
+                </div>
+                <div class="availability-legend" aria-label="Leyenda de disponibilidad">
+                  <span class="availability-chip online">Online</span>
+                  <span class="availability-chip degraded">Degraded</span>
+                  <span class="availability-chip offline">Offline</span>
+                </div>
+              </div>
+              <div class="availability-stats">
+                <div class="availability-stat">
+                  <span class="availability-label">Disponibilidad media</span>
+                  <strong id="availability-average">--%</strong>
+                  <p id="availability-average-note">Esperando puntos</p>
+                </div>
+                <div class="availability-stat">
+                  <span class="availability-label">Tiempo caído</span>
+                  <strong id="availability-downtime">--</strong>
+                  <p id="availability-downtime-note">Sin historial</p>
+                </div>
+                <div class="availability-stat">
+                  <span class="availability-label">Estado actual</span>
+                  <strong id="availability-current">--</strong>
+                  <p id="availability-current-note">Sin snapshot</p>
+                </div>
+              </div>
+              <div class="availability-timeline" id="availability-timeline" aria-label="Línea temporal de disponibilidad"></div>
+            </div>
+            <svg id="history-chart" class="history-chart" viewBox="0 0 1200 360" preserveAspectRatio="none" aria-label="Gráfico de carga histórica">
+              <defs>
+                <linearGradient id="cpu-gradient" x1="0" x2="0" y1="0" y2="1">
+                  <stop offset="0%" stop-color="#ffbe5d" stop-opacity="0.55"></stop>
+                  <stop offset="100%" stop-color="#ffbe5d" stop-opacity="0.03"></stop>
+                </linearGradient>
+                <linearGradient id="mem-gradient" x1="0" x2="0" y1="0" y2="1">
+                  <stop offset="0%" stop-color="#6ee7b7" stop-opacity="0.55"></stop>
+                  <stop offset="100%" stop-color="#6ee7b7" stop-opacity="0.03"></stop>
+                </linearGradient>
+              </defs>
+              <g id="history-grid" class="history-grid"></g>
+              <path id="cpu-area" class="history-area cpu" d=""></path>
+              <path id="memory-area" class="history-area memory" d=""></path>
+              <polyline id="cpu-line" class="history-line cpu" points=""></polyline>
+              <polyline id="memory-line" class="history-line memory" points=""></polyline>
+              <g id="history-points"></g>
+              <g id="history-labels"></g>
+            </svg>
+            <div class="history-summary" id="history-summary"></div>
+          </article>
+        </section>
+
+        <section class="content-grid">
+          <article class="panel">
+            <p class="eyebrow">Arquitectura</p>
+            <h3>Lista para crecer</h3>
+            <ul class="notes">
+              <li>Collector para leer estado del host y del juego.</li>
+              <li>Pub/Sub para desacoplar recolección y frontend.</li>
+              <li>WebSocket para empujar snapshots al navegador.</li>
+              <li>Nginx Proxy Manager para publicar el panel con TLS.</li>
+            </ul>
+            <div class="connection-block">
+              <span class="connection-label">API</span>
+              <strong>GET /api/snapshot</strong>
+              <p>El navegador puede arrancar con un snapshot inicial y luego seguir por WS.</p>
+            </div>
+          </article>
+        </section>
+      </section>
+
+      <section class="dashboard-view" data-dashboard-view-panel="world" hidden>
+        <section class="world-section">
+          <article class="panel world-card">
+            <p class="eyebrow">World</p>
+            <h3 id="server-name">Palworld</h3>
+            <p class="world-description" id="server-description">Esperando datos REST.</p>
+            <div class="world-meta">
+              <div>
+                <span class="world-label">Version</span>
+                <strong id="server-version">--</strong>
+              </div>
+              <div>
+                <span class="world-label">World GUID</span>
+                <strong id="world-guid">--</strong>
+              </div>
+            </div>
+          </article>
+
+          <article class="panel players-card">
+            <p class="eyebrow">Players online</p>
+            <div class="players-header">
+              <h3 id="player-count">0 players</h3>
+              <span class="players-pill" id="players-pill">REST</span>
+            </div>
+            <div class="players-list" id="players-list"></div>
+          </article>
+
+          <article class="panel map-card">
+            <div class="map-header">
+              <div>
+                <p class="eyebrow">Player map</p>
+                <h3>Ubicación en el mundo</h3>
+              </div>
+              <span class="map-pill" id="map-pill">0 markers</span>
+            </div>
+            <p class="map-note" id="map-note">Cargando mapa...</p>
+            <div class="map-frame">
+              <div class="map-surface" id="map-surface" aria-label="Mapa de jugadores zoomable"></div>
+            </div>
+            <div class="map-legend" id="map-legend"></div>
+          </article>
+        </section>
+
+        <section class="services-section">
+          <article class="panel services-card">
+            <div class="services-copy">
+              <p class="eyebrow">Servicios</p>
+              <h3>Palworld Paldex API</h3>
+              <p class="services-note">
+                Busca pals por nombre, tipo, drops o habilidad y muestra sus imágenes e iconos de elementos dentro del dashboard.
+              </p>
+              <div class="services-pills">
+                <span class="service-pill">term</span>
+                <span class="service-pill">name</span>
+                <span class="service-pill">types</span>
+                <span class="service-pill">suitabilities</span>
+                <span class="service-pill">drops</span>
+              </div>
+              <div class="service-tabs" role="tablist" aria-label="Catálogo Paldex">
+                <button class="service-tab is-active" type="button" data-paldex-section="pals">Pals</button>
+                <button class="service-tab" type="button" data-paldex-section="items">Items</button>
+                <button class="service-tab" type="button" data-paldex-section="gear">Gear</button>
+              </div>
+              <label class="search-field" for="paldex-query">
+                <span class="search-label">Buscar catálogo</span>
+                <div class="search-row">
+                  <input
+                    id="paldex-query"
+                    class="search-input"
+                    type="search"
+                    placeholder="Relaxaurus, fire, lightning, aqua..."
+                    autocomplete="off"
+                  >
+                  <button id="paldex-search" class="search-button" type="button">Buscar</button>
+                </div>
               </label>
-              <label class="search-field" for="paldex-drops">
-                <span class="search-label">Drops</span>
-                <input id="paldex-drops" class="search-input" type="search" placeholder="cloth, meat, leather..." autocomplete="off">
-              </label>
-              <button id="paldex-clear" class="search-button paldex-clear-button" type="button">Limpiar</button>
-            </div>
-            <p class="services-status" id="paldex-note">El catálogo Paldex está listo para buscar pals, items y gear.</p>
-            <div class="services-meta">
-              <div>
-                <span class="services-meta-label">Origen</span>
-                <strong id="paldex-source">Paldex module</strong>
+              <div class="paldex-filter-row" id="paldex-filter-row">
+                <div class="search-field">
+                  <span class="search-label">Elemento</span>
+                  <details class="paldex-multiselect" id="paldex-type-menu">
+                    <summary class="search-input paldex-multiselect-summary">
+                      <span id="paldex-type-summary">Todos los elementos</span>
+                      <span class="paldex-multiselect-count" id="paldex-type-count">0</span>
+                    </summary>
+                    <div class="paldex-multiselect-panel" id="paldex-type-options"></div>
+                  </details>
+                  <input id="paldex-type" type="hidden" value="">
+                </div>
+                <label class="search-field" for="paldex-suitabilities">
+                  <span class="search-label">Suitabilities</span>
+                  <input id="paldex-suitabilities" class="search-input" type="search" placeholder="mining, watering, farming..." autocomplete="off">
+                </label>
+                <label class="search-field" for="paldex-drops">
+                  <span class="search-label">Drops</span>
+                  <input id="paldex-drops" class="search-input" type="search" placeholder="cloth, meat, leather..." autocomplete="off">
+                </label>
+                <button id="paldex-clear" class="search-button paldex-clear-button" type="button">Limpiar</button>
               </div>
-              <div>
-                <span class="services-meta-label">Ruta</span>
-                <strong id="paldex-route">/api/paldex/catalog</strong>
+              <p class="services-status" id="paldex-note">El catálogo Paldex está listo para buscar pals, items y gear.</p>
+              <div class="services-meta">
+                <div>
+                  <span class="services-meta-label">Origen</span>
+                  <strong id="paldex-source">Paldex module</strong>
+                </div>
+                <div>
+                  <span class="services-meta-label">Ruta</span>
+                  <strong id="paldex-route">/api/paldex/catalog</strong>
+                </div>
               </div>
             </div>
-          </div>
 
-          <div class="paldex-results-panel" id="paldex-results-panel" hidden>
-            <div class="paldex-results-header">
-              <div>
-                <p class="eyebrow">Resultados</p>
-                <h4 id="paldex-count">0 resultados</h4>
+            <div class="paldex-results-panel" id="paldex-results-panel" hidden>
+              <div class="paldex-results-header">
+                <div>
+                  <p class="eyebrow">Resultados</p>
+                  <h4 id="paldex-count">0 resultados</h4>
+                </div>
+                <span class="paldex-results-pill" id="paldex-section-pill">Pals</span>
               </div>
-              <span class="paldex-results-pill" id="paldex-section-pill">Pals</span>
-            </div>
-            <div class="paldex-results" id="paldex-results"></div>
-            <div class="paldex-pagination" id="paldex-pagination">
-              <button id="paldex-prev" class="paldex-pagination-button" type="button">Anterior</button>
-              <span id="paldex-page" class="paldex-pagination-label">Página 1 de 1</span>
-              <button id="paldex-next" class="paldex-pagination-button" type="button">Siguiente</button>
-            </div>
-            <div class="paldex-detail" id="paldex-detail">
-              <div class="paldex-detail-empty">
-                <strong>Haz click en una card</strong>
-                <span>Verás un detalle compacto del resultado en esta zona.</span>
+              <div class="paldex-results" id="paldex-results"></div>
+              <div class="paldex-pagination" id="paldex-pagination">
+                <button id="paldex-prev" class="paldex-pagination-button" type="button">Anterior</button>
+                <span id="paldex-page" class="paldex-pagination-label">Página 1 de 1</span>
+                <button id="paldex-next" class="paldex-pagination-button" type="button">Siguiente</button>
+              </div>
+              <div class="paldex-detail" id="paldex-detail">
+                <div class="paldex-detail-empty">
+                  <strong>Haz click en una card</strong>
+                  <span>Verás un detalle compacto del resultado en esta zona.</span>
+                </div>
               </div>
             </div>
-          </div>
-        </article>
+          </article>
+        </section>
       </section>
 
       <section class="elemental-section">
@@ -382,73 +459,6 @@
               </table>
             </div>
           </div>
-        </article>
-      </section>
-
-      <section class="history-section">
-        <article class="panel history-panel">
-          <div class="panel-header">
-            <div>
-              <p class="eyebrow">Histórico</p>
-              <h3>Resumen por tiempo desde Redis o memoria</h3>
-            </div>
-            <div class="history-controls" role="group" aria-label="Selector de histórico">
-              <button class="history-toggle is-active" type="button" data-bucket="hour">Hora</button>
-              <button class="history-toggle" type="button" data-bucket="day">Día</button>
-            </div>
-          </div>
-          <p class="history-note" id="history-note">Cargando histórico...</p>
-          <div class="availability-panel">
-            <div class="availability-header">
-              <div>
-                <p class="eyebrow">Availability</p>
-                <h3>Estado del servicio en el tiempo</h3>
-              </div>
-              <div class="availability-legend" aria-label="Leyenda de disponibilidad">
-                <span class="availability-chip online">Online</span>
-                <span class="availability-chip degraded">Degraded</span>
-                <span class="availability-chip offline">Offline</span>
-              </div>
-            </div>
-            <div class="availability-stats">
-              <div class="availability-stat">
-                <span class="availability-label">Disponibilidad media</span>
-                <strong id="availability-average">--%</strong>
-                <p id="availability-average-note">Esperando puntos</p>
-              </div>
-              <div class="availability-stat">
-                <span class="availability-label">Tiempo caído</span>
-                <strong id="availability-downtime">--</strong>
-                <p id="availability-downtime-note">Sin historial</p>
-              </div>
-              <div class="availability-stat">
-                <span class="availability-label">Estado actual</span>
-                <strong id="availability-current">--</strong>
-                <p id="availability-current-note">Sin snapshot</p>
-              </div>
-            </div>
-            <div class="availability-timeline" id="availability-timeline" aria-label="Línea temporal de disponibilidad"></div>
-          </div>
-          <svg id="history-chart" class="history-chart" viewBox="0 0 1200 360" preserveAspectRatio="none" aria-label="Gráfico de carga histórica">
-            <defs>
-              <linearGradient id="cpu-gradient" x1="0" x2="0" y1="0" y2="1">
-                <stop offset="0%" stop-color="#ffbe5d" stop-opacity="0.55"></stop>
-                <stop offset="100%" stop-color="#ffbe5d" stop-opacity="0.03"></stop>
-              </linearGradient>
-              <linearGradient id="mem-gradient" x1="0" x2="0" y1="0" y2="1">
-                <stop offset="0%" stop-color="#6ee7b7" stop-opacity="0.55"></stop>
-                <stop offset="100%" stop-color="#6ee7b7" stop-opacity="0.03"></stop>
-              </linearGradient>
-            </defs>
-            <g id="history-grid" class="history-grid"></g>
-            <path id="cpu-area" class="history-area cpu" d=""></path>
-            <path id="memory-area" class="history-area memory" d=""></path>
-            <polyline id="cpu-line" class="history-line cpu" points=""></polyline>
-            <polyline id="memory-line" class="history-line memory" points=""></polyline>
-            <g id="history-points"></g>
-            <g id="history-labels"></g>
-          </svg>
-          <div class="history-summary" id="history-summary"></div>
         </article>
       </section>
     </main>
