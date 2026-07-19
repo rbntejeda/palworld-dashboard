@@ -1076,6 +1076,9 @@ body.light .elemental-table tbody td {
   align-items: center;
   display: inline-flex;
   gap: 0.55rem;
+  margin-right: 0.65rem;
+  margin-top: 0.1rem;
+  margin-bottom: 0.1rem;
 }
 
 .elemental-icon {
@@ -1083,28 +1086,6 @@ body.light .elemental-table tbody td {
   width: 1.1rem;
   flex: 0 0 auto;
 }
-
-.elemental-chip {
-  border-radius: 999px;
-  color: #08111a;
-  display: inline-flex;
-  font-size: 0.72rem;
-  font-weight: 800;
-  letter-spacing: 0.08em;
-  margin: 0.12rem 0.18rem 0.12rem 0;
-  padding: 0.38rem 0.72rem;
-  text-transform: uppercase;
-}
-
-.elemental-chip.fire { background: #ff944d; }
-.elemental-chip.water { background: #63c7ff; }
-.elemental-chip.grass { background: #8ad85d; }
-.elemental-chip.ice { background: #9de5f3; }
-.elemental-chip.electric { background: #ffe36d; }
-.elemental-chip.ground { background: #d7a047; }
-.elemental-chip.dark { background: #d04a86; }
-.elemental-chip.dragon { background: #b66df1; }
-.elemental-chip.neutral { background: #d7b59f; }
 
 .map-card {
   grid-column: 1 / -1;
