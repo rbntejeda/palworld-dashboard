@@ -312,6 +312,87 @@ body.light .dashboard-switch-tabs {
   display: none !important;
 }
 
+.dashboard-layout {
+  align-items: start;
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: minmax(250px, 290px) minmax(0, 1fr);
+  margin-top: 1rem;
+}
+
+.dashboard-content {
+  display: grid;
+  gap: 1rem;
+  min-width: 0;
+}
+
+.dashboard-sidebar {
+  position: sticky;
+  top: 1rem;
+}
+
+.dashboard-sidebar-card,
+.dashboard-sidebar-group {
+  background: linear-gradient(180deg, rgb(8 19 30 / 86%), rgb(8 19 30 / 66%));
+  border: 1px solid rgb(148 163 184 / 14%);
+  border-radius: 1.4rem;
+  box-shadow: 0 20px 40px rgb(2 6 23 / 26%);
+  padding: 1rem;
+}
+
+body.light .dashboard-sidebar-card,
+body.light .dashboard-sidebar-group {
+  background: linear-gradient(180deg, rgb(255 255 255 / 86%), rgb(241 245 249 / 84%));
+}
+
+.dashboard-sidebar-card h3 {
+  font-size: 1.25rem;
+  letter-spacing: -0.05em;
+  margin-bottom: 0.4rem;
+}
+
+.dashboard-sidebar-note {
+  color: #94a3b8;
+  margin-bottom: 0;
+}
+
+.dashboard-sidebar-group {
+  display: grid;
+  gap: 0.45rem;
+  margin-top: 0.85rem;
+}
+
+.dashboard-sidebar-group-label {
+  color: #87f5c2;
+  font-size: 0.74rem;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.dashboard-sidebar-link {
+  background: rgb(15 23 42 / 42%);
+  border: 1px solid rgb(148 163 184 / 14%);
+  border-radius: 0.95rem;
+  color: #cbd5e1;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 800;
+  padding: 0.8rem 0.9rem;
+  text-align: left;
+}
+
+.dashboard-sidebar-link.is-active {
+  background: linear-gradient(135deg, #6ee7b7, #ffbe5d);
+  border-color: transparent;
+  color: #08111a;
+}
+
+body.light .dashboard-sidebar-link {
+  background: rgb(255 255 255 / 70%);
+  color: #0f172a;
+}
+
 .services-section {
   margin-top: 1rem;
 }
@@ -1862,6 +1943,7 @@ body.light .summary-card {
   .hero,
   .metrics,
   .content-grid,
+  .dashboard-layout,
   .services-card,
   .elemental-card,
   .world-section,
@@ -1880,6 +1962,10 @@ body.light .summary-card {
 
   .panel-header {
     flex-direction: column;
+  }
+
+  .dashboard-sidebar {
+    position: static;
   }
 
   .availability-header {
