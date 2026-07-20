@@ -84,6 +84,7 @@ const nodes = {
   historyPoints: el('history-points'),
   historyLabels: el('history-labels'),
   historySummary: el('history-summary'),
+  servicesCard: el('services-card'),
   availabilityAverage: el('availability-average'),
   availabilityAverageNote: el('availability-average-note'),
   availabilityDowntime: el('availability-downtime'),
@@ -432,6 +433,10 @@ function syncPaldexResultsVisibility(isVisible) {
   }
 
   nodes.paldexResultsPanel.hidden = !isVisible;
+
+  if (nodes.servicesCard) {
+    nodes.servicesCard.classList.toggle('is-paldex-compact', !isVisible);
+  }
 }
 
 function paldexSignature(section, item, index) {
