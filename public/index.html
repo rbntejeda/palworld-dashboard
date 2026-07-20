@@ -10,12 +10,13 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@recogito/annotorious-openseadragon@2.7.16/dist/annotorious.min.css">
+    <link rel="stylesheet" href="/bootstrap-grid.min.css">
     <link rel="stylesheet" href="/styles.css">
   </head>
   <body>
-    <main class="shell">
-      <section class="hero">
-        <div class="hero-copy">
+    <main class="container-xxl shell">
+      <section class="hero row g-4 align-items-start">
+        <div class="hero-copy col-12 col-lg-7">
           <p class="eyebrow">Palworld server monitor</p>
           <h1>palworld-dashboard</h1>
           <p class="subtitle">
@@ -29,7 +30,7 @@
           </div>
         </div>
 
-        <article class="status-card">
+        <article class="status-card col-12 col-lg-5">
           <div class="status-header">
             <div>
               <p class="eyebrow">Live snapshot</p>
@@ -69,46 +70,46 @@
         </article>
       </section>
 
-      <section class="metrics" id="metrics">
-        <article class="metric-card good">
+      <section class="metrics row g-4" id="metrics">
+        <article class="metric-card good col-12 col-sm-6 col-xl-3">
           <span class="metric-title">Disponibilidad</span>
           <strong class="metric-value" id="availability">0%</strong>
           <p id="availability-note">Esperando datos</p>
         </article>
-        <article class="metric-card warn">
+        <article class="metric-card warn col-12 col-sm-6 col-xl-3">
           <span class="metric-title">Latency API</span>
           <strong class="metric-value" id="latency-card">-- ms</strong>
           <p id="latency-note">Sin lectura</p>
         </article>
-        <article class="metric-card good">
+        <article class="metric-card good col-12 col-sm-6 col-xl-3">
           <span class="metric-title">Estado WS</span>
           <strong class="metric-value" id="ws-card">Connecting</strong>
           <p>Conexión en tiempo real al backend.</p>
         </article>
-        <article class="metric-card warn">
+        <article class="metric-card warn col-12 col-sm-6 col-xl-3">
           <span class="metric-title">Server FPS</span>
           <strong class="metric-value" id="server-fps">--</strong>
           <p id="server-fps-note">Lectura REST</p>
         </article>
-        <article class="metric-card good">
+        <article class="metric-card good col-12 col-sm-6 col-xl-3">
           <span class="metric-title">Server Temp</span>
           <strong class="metric-value" id="server-temp">--</strong>
           <p id="server-temp-note">Temperatura del host</p>
         </article>
-        <article class="metric-card good">
+        <article class="metric-card good col-12 col-sm-6 col-xl-3">
           <span class="metric-title">In-game Days</span>
           <strong class="metric-value" id="game-days">--</strong>
           <p id="game-days-note">Mundo actual</p>
         </article>
-        <article class="metric-card warn">
+        <article class="metric-card warn col-12 col-sm-6 col-xl-3">
           <span class="metric-title">Base Camps</span>
           <strong class="metric-value" id="base-camps">--</strong>
           <p id="base-camps-note">Bases del mundo</p>
         </article>
       </section>
 
-      <section class="world-section">
-        <article class="panel world-card">
+      <section class="world-section row g-4">
+        <article class="panel world-card col-12 col-lg-4">
           <p class="eyebrow">World</p>
           <h3 id="server-name">Palworld</h3>
           <p class="world-description" id="server-description">Esperando datos REST.</p>
@@ -124,7 +125,7 @@
           </div>
         </article>
 
-        <article class="panel players-card">
+        <article class="panel players-card col-12 col-lg-8">
           <p class="eyebrow">Players online</p>
           <div class="players-header">
             <h3 id="player-count">0 players</h3>
@@ -133,7 +134,7 @@
           <div class="players-list" id="players-list"></div>
         </article>
 
-        <article class="panel map-card">
+        <article class="panel map-card col-12">
           <div class="map-header">
             <div>
               <p class="eyebrow">Player map</p>
@@ -149,14 +150,14 @@
         </article>
       </section>
 
-      <section class="content-grid">
-        <article class="panel">
+      <section class="content-grid row g-4">
+        <article class="panel col-12 col-lg-6">
           <p class="eyebrow">Timeline</p>
           <h3>Historial reciente</h3>
           <div class="history-list" id="history"></div>
         </article>
 
-        <article class="panel">
+        <article class="panel col-12 col-lg-6">
           <p class="eyebrow">Arquitectura</p>
           <h3>Lista para crecer</h3>
           <ul class="notes">
@@ -174,8 +175,8 @@
       </section>
 
       <section class="services-section">
-        <article class="panel services-card">
-          <div class="services-copy">
+        <article class="panel services-card row g-4">
+          <div class="services-copy col-12 col-xl-5">
             <p class="eyebrow">Servicios</p>
             <h3>Palworld Paldex API</h3>
             <p class="services-note">
@@ -241,7 +242,7 @@
             </div>
           </div>
 
-          <div class="paldex-results-panel" id="paldex-results-panel" hidden>
+          <div class="paldex-results-panel col-12 col-xl-7" id="paldex-results-panel" hidden>
             <div class="paldex-results-header">
               <div>
                 <p class="eyebrow">Resultados</p>
@@ -266,8 +267,8 @@
       </section>
 
       <section class="elemental-section">
-        <article class="panel elemental-card">
-          <div class="elemental-copy">
+        <article class="panel elemental-card row g-4">
+          <div class="elemental-copy col-12 col-xl-4">
             <p class="eyebrow">Guía elemental</p>
             <h3>Tabla de fortalezas y debilidades</h3>
             <p class="elemental-note">
@@ -278,7 +279,7 @@
               <li>No elemental no tiene ventaja ofensiva y Oscuridad lo castiga.</li>
             </ul>
           </div>
-          <div class="elemental-table-wrap">
+          <div class="elemental-table-wrap col-12 col-xl-8">
             <div class="elemental-table-head">
               <div>
                 <p class="eyebrow">Sección</p>
@@ -382,7 +383,7 @@
               </table>
             </div>
           </div>
-          <div class="elemental-reference-wrap">
+          <div class="elemental-reference-wrap col-12">
             <div class="elemental-reference-head">
               <div>
                 <p class="eyebrow">Sección</p>
