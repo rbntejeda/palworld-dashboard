@@ -1347,7 +1347,7 @@ function renderHistoryChart(points) {
     .slice(-8)
     .map(
       (point) => `
-          <div class="summary-card">
+          <div class="summary-card col-12 col-sm-6 col-xl-3">
             <strong>${point.label}</strong>
             <span>CPU ${point.cpuLoad}%</span>
             <span>RAM ${point.memoryUsagePercent}%</span>

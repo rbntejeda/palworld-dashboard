@@ -39,18 +39,18 @@
             <button id="theme-toggle" class="toggle-button" type="button">Modo noche</button>
           </div>
 
-          <div class="status-grid">
-            <div>
+          <div class="status-grid row g-3">
+            <div class="col-12 col-md-4">
               <span class="status-label">Servicio</span>
               <strong id="service-state">--</strong>
               <p id="service-note">Conectando...</p>
             </div>
-            <div>
+            <div class="col-12 col-md-4">
               <span class="status-label">Jugadores</span>
               <strong id="players">0/0</strong>
               <p id="latency">Latencia -- ms</p>
             </div>
-            <div>
+            <div class="col-12 col-md-4">
               <span class="status-label">Uptime</span>
               <strong id="uptime">--</strong>
               <p id="ws-state">WS connecting</p>
@@ -113,12 +113,12 @@
           <p class="eyebrow">World</p>
           <h3 id="server-name">Palworld</h3>
           <p class="world-description" id="server-description">Esperando datos REST.</p>
-          <div class="world-meta">
-            <div>
+          <div class="world-meta row g-3">
+            <div class="col-12 col-sm-6">
               <span class="world-label">Version</span>
               <strong id="server-version">--</strong>
             </div>
-            <div>
+            <div class="col-12 col-sm-6">
               <span class="world-label">World GUID</span>
               <strong id="world-guid">--</strong>
             </div>
@@ -230,12 +230,12 @@
               <button id="paldex-clear" class="search-button paldex-clear-button" type="button">Limpiar</button>
             </div>
             <p class="services-status" id="paldex-note">El catálogo Paldex está listo para buscar pals, items y gear.</p>
-            <div class="services-meta">
-              <div>
+            <div class="services-meta row g-3">
+              <div class="col-12 col-sm-6">
                 <span class="services-meta-label">Origen</span>
                 <strong id="paldex-source">Paldex module</strong>
               </div>
-              <div>
+              <div class="col-12 col-sm-6">
                 <span class="services-meta-label">Ruta</span>
                 <strong id="paldex-route">/api/paldex/catalog</strong>
               </div>
@@ -391,64 +391,64 @@
               </div>
               <span class="elemental-table-pill">Iconos 48px</span>
             </div>
-            <div class="elemental-reference-grid" aria-label="Referencia visual de elementos">
-              <article class="elemental-reference-item">
+            <div class="elemental-reference-grid row g-3" aria-label="Referencia visual de elementos">
+              <article class="elemental-reference-item col-12 col-md-6 col-lg-4">
                 <img class="elemental-reference-icon" src="/images/elements/fire.png" alt="">
                 <div>
                   <strong>Fuego</strong>
                   <span>Daño alto contra Hielo y Planta.</span>
                 </div>
               </article>
-              <article class="elemental-reference-item">
+              <article class="elemental-reference-item col-12 col-md-6 col-lg-4">
                 <img class="elemental-reference-icon" src="/images/elements/water.png" alt="">
                 <div>
                   <strong>Agua</strong>
                   <span>Presiona a Fuego y recibe de Rayo.</span>
                 </div>
               </article>
-              <article class="elemental-reference-item">
+              <article class="elemental-reference-item col-12 col-md-6 col-lg-4">
                 <img class="elemental-reference-icon" src="/images/elements/grass.png" alt="">
                 <div>
                   <strong>Planta</strong>
                   <span>Ventaja contra Tierra y debilidad a Fuego.</span>
                 </div>
               </article>
-              <article class="elemental-reference-item">
+              <article class="elemental-reference-item col-12 col-md-6 col-lg-4">
                 <img class="elemental-reference-icon" src="/images/elements/ice.png" alt="">
                 <div>
                   <strong>Hielo</strong>
                   <span>Golpea Dragón y cae ante Fuego.</span>
                 </div>
               </article>
-              <article class="elemental-reference-item">
+              <article class="elemental-reference-item col-12 col-md-6 col-lg-4">
                 <img class="elemental-reference-icon" src="/images/elements/electric.png" alt="">
                 <div>
                   <strong>Rayo</strong>
                   <span>Efectivo contra Agua y vulnerable a Tierra.</span>
                 </div>
               </article>
-              <article class="elemental-reference-item">
+              <article class="elemental-reference-item col-12 col-md-6 col-lg-4">
                 <img class="elemental-reference-icon" src="/images/elements/ground.png" alt="">
                 <div>
                   <strong>Tierra</strong>
                   <span>Castiga a Rayo y Planta lo frena.</span>
                 </div>
               </article>
-              <article class="elemental-reference-item">
+              <article class="elemental-reference-item col-12 col-md-6 col-lg-4">
                 <img class="elemental-reference-icon" src="/images/elements/dark.png" alt="">
                 <div>
                   <strong>Oscuridad</strong>
                   <span>Presiona No elemental y Dragón lo castiga.</span>
                 </div>
               </article>
-              <article class="elemental-reference-item">
+              <article class="elemental-reference-item col-12 col-md-6 col-lg-4">
                 <img class="elemental-reference-icon" src="/images/elements/dragon.png" alt="">
                 <div>
                   <strong>Dragón</strong>
                   <span>Fuerte contra Oscuridad, débil ante Hielo.</span>
                 </div>
               </article>
-              <article class="elemental-reference-item">
+              <article class="elemental-reference-item col-12 col-md-6 col-lg-4">
                 <img class="elemental-reference-icon" src="/images/elements/neutral.png" alt="">
                 <div>
                   <strong>No elemental</strong>
@@ -485,18 +485,18 @@
                 <span class="availability-chip offline">Offline</span>
               </div>
             </div>
-            <div class="availability-stats">
-              <div class="availability-stat">
+            <div class="availability-stats row g-3">
+              <div class="availability-stat col-12 col-md-4">
                 <span class="availability-label">Disponibilidad media</span>
                 <strong id="availability-average">--%</strong>
                 <p id="availability-average-note">Esperando puntos</p>
               </div>
-              <div class="availability-stat">
+              <div class="availability-stat col-12 col-md-4">
                 <span class="availability-label">Tiempo caído</span>
                 <strong id="availability-downtime">--</strong>
                 <p id="availability-downtime-note">Sin historial</p>
               </div>
-              <div class="availability-stat">
+              <div class="availability-stat col-12 col-md-4">
                 <span class="availability-label">Estado actual</span>
                 <strong id="availability-current">--</strong>
                 <p id="availability-current-note">Sin snapshot</p>
@@ -523,7 +523,7 @@
             <g id="history-points"></g>
             <g id="history-labels"></g>
           </svg>
-          <div class="history-summary" id="history-summary"></div>
+          <div class="history-summary row g-3" id="history-summary"></div>
         </article>
       </section>
     </main>
