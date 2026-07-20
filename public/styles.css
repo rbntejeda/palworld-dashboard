@@ -2024,8 +2024,65 @@ body.light .summary-card {
     margin-top: 3rem;
   }
 
+  .paldex-results {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .paldex-card,
+  .paldex-card.items,
+  .paldex-card.gear {
+    grid-template-columns: minmax(90px, 108px) minmax(0, 1fr);
+  }
+
+  .paldex-thumb {
+    min-height: 7.25rem;
+  }
+
+  .paldex-description {
+    font-size: 0.88rem;
+  }
+
+  .paldex-mini-chip,
+  .paldex-type-chip {
+    font-size: 0.72rem;
+  }
+
+  .history-panel {
+    display: grid;
+    gap: 1rem 1.25rem;
+    grid-template-areas:
+      "header header"
+      "note note"
+      "availability summary"
+      "chart summary";
+    grid-template-columns: minmax(0, 1.15fr) minmax(340px, 0.85fr);
+    align-items: start;
+  }
+
+  .panel-header {
+    grid-area: header;
+  }
+
+  .history-note {
+    grid-area: note;
+    margin-bottom: 0;
+  }
+
+  .availability-panel {
+    grid-area: availability;
+    margin-bottom: 0;
+  }
+
+  .history-chart {
+    grid-area: chart;
+    height: clamp(280px, 20vw, 304px);
+  }
+
   .history-summary {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-area: summary;
+    align-self: start;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    margin-top: 0;
   }
 
   .elemental-copy h3 {

@@ -8,7 +8,8 @@ Panel simple para monitorear un servidor Palworld con snapshots cada 5 segundos 
 - Express
 - `ws`
 - Palworld Paldex API proxy
-- HTML, CSS y JavaScript
+- Angular 22 para el frontend
+- HTML, CSS y TypeScript
 
 ## Arquitectura
 
@@ -17,7 +18,8 @@ El backend está separado por contexto:
 - `src/application`: orquestación y casos de uso
 - `src/domain`: reglas y modelos puros
 - `src/infrastructure`: MySQL/Prisma, Redis, REST API de Palworld, probe de red y métricas del host
-- `public/`: UI estática
+- `frontend/src`: frontend Angular
+- `dist/palworld-dashboard/browser`: build compilado que sirve Express
 
 La idea es mantener el dashboard como un monolito modular, no como un archivo gigante.
 
@@ -28,7 +30,15 @@ npm install
 npm start
 ```
 
+`npm start` ejecuta primero `npm run build:web` y luego levanta el backend Express.
+
 Luego abre `http://localhost:3000`.
+
+Si quieres compilar solo el frontend:
+
+```bash
+npm run build:web
+```
 
 ## Persistencia con MySQL
 

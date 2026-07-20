@@ -7,7 +7,12 @@ FROM base AS deps
 COPY package.json package-lock.json ./
 COPY scripts ./scripts
 COPY prisma ./prisma
-RUN npm ci --omit=dev
+RUN npm ci
+
+FROM deps AS build
+COPY . .
+RUN npm run build:web
+RUN npm prune --omit=dev
 
 FROM base AS runtime
 ENV NODE_ENV=production
@@ -15,12 +20,13 @@ ENV PORT=3000
 
 RUN addgroup -S app && adduser -S app -G app
 
-COPY --from=deps /app/node_modules ./node_modules
-COPY package.json server.js ./
-COPY src ./src
-COPY public ./public
-COPY scripts ./scripts
-COPY prisma ./prisma
+COPY --from=build /app/node_modules ./node_modules
+COPY --from=build /app/package.json ./
+COPY --from=build /app/server.js ./
+COPY --from=build /app/src ./src
+COPY --from=build /app/scripts ./scripts
+COPY --from=build /app/prisma ./prisma
+COPY --from=build /app/dist ./dist
 
 RUN chown -R app:app /app
 USER app

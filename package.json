@@ -4,6 +4,9 @@
   "private": false,
   "type": "commonjs",
   "scripts": {
+    "build:web": "ng build --configuration production",
+    "prestart": "npm run build:web",
+    "predev": "npm run build:web",
     "start": "node server.js",
     "dev": "NODE_ENV=development node server.js",
     "lint": "node --check server.js && find src public -name '*.js' -print0 | xargs -0 -n1 node --check",
@@ -12,10 +15,26 @@
     "postinstall": "node scripts/prisma-generate.js"
   },
   "dependencies": {
+    "@angular/common": "^22.0.7",
+    "@angular/compiler": "^22.0.7",
+    "@angular/core": "^22.0.7",
+    "@angular/forms": "^22.0.7",
+    "@angular/platform-browser": "^22.0.7",
+    "@angular/platform-browser-dynamic": "^22.0.7",
+    "@angular/router": "^22.0.7",
     "@prisma/client": "^6.12.0",
     "express": "^4.21.2",
     "prisma": "^6.12.0",
     "redis": "^5.8.2",
-    "ws": "^8.18.3"
+    "rxjs": "^7.8.2",
+    "tslib": "^2.8.1",
+    "ws": "^8.18.3",
+    "zone.js": "^0.16.2"
+  },
+  "devDependencies": {
+    "@angular-devkit/build-angular": "^22.0.7",
+    "@angular/cli": "^22.0.7",
+    "@angular/compiler-cli": "^22.0.7",
+    "typescript": "^6.0.3"
   }
 }

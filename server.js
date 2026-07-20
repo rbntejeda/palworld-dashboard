@@ -1,4 +1,5 @@
 const http = require('node:http');
+const fs = require('node:fs');
 const path = require('node:path');
 const express = require('express');
 const { WebSocketServer } = require('ws');
@@ -11,8 +12,10 @@ const config = loadConfig();
 const runtime = createDashboardRuntime(config);
 const app = express();
 const publicDir = path.join(__dirname, 'public');
+const angularBuildDir = path.join(__dirname, 'dist', 'palworld-dashboard', 'browser');
+const webRoot = fs.existsSync(angularBuildDir) ? angularBuildDir : publicDir;
 
-app.use(express.static(publicDir));
+app.use(express.static(webRoot));
 
 app.get('/api/snapshot', (_req, res) => {
   res.json(runtime.state.snapshot);
