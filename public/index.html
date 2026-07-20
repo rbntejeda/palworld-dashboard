@@ -194,9 +194,9 @@
               <button class="service-tab" type="button" data-paldex-section="items">Items</button>
               <button class="service-tab" type="button" data-paldex-section="gear">Gear</button>
             </div>
-            <label class="search-field" for="paldex-query">
-              <span class="search-label">Buscar catálogo</span>
-            <div class="search-row">
+            <div class="search-field">
+              <span class="search-label" id="paldex-query-label">Buscar catálogo</span>
+              <div class="search-row" role="group" aria-labelledby="paldex-query-label">
                 <input
                   id="paldex-query"
                   class="search-input"
@@ -206,7 +206,7 @@
                 >
                 <button id="paldex-search" class="search-button" type="button">Buscar</button>
               </div>
-            </label>
+            </div>
             <div class="paldex-filter-row" id="paldex-filter-row">
               <div class="search-field">
                 <span class="search-label">Elemento</span>
