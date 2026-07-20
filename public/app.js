@@ -203,9 +203,9 @@ function memoryUsagePercent(item) {
 }
 
 function metricColor(stateValue) {
-  if (stateValue === 'online') return '#6ee7b7';
-  if (stateValue === 'degraded') return '#ffbe5d';
-  return '#ff5f6d';
+  if (stateValue === 'online') return '#4ade80';
+  if (stateValue === 'degraded') return '#facc15';
+  return '#ef4444';
 }
 
 function platformMeta(player) {
@@ -1324,8 +1324,8 @@ function renderHistoryChart(points) {
       const memoryY = toY(point.memoryUsagePercent);
       return `
         <g>
-          <circle cx="${x.toFixed(1)}" cy="${cpuY.toFixed(1)}" r="5" fill="#ffbe5d"></circle>
-          <circle cx="${x.toFixed(1)}" cy="${memoryY.toFixed(1)}" r="5" fill="#6ee7b7"></circle>
+          <circle cx="${x.toFixed(1)}" cy="${cpuY.toFixed(1)}" r="5" fill="#facc15"></circle>
+          <circle cx="${x.toFixed(1)}" cy="${memoryY.toFixed(1)}" r="5" fill="#38bdf8"></circle>
         </g>
       `;
     })
