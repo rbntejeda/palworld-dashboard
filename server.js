@@ -5,11 +5,13 @@ const express = require('express');
 const { WebSocketServer } = require('ws');
 const { loadConfig } = require('./src/config');
 const { createDashboardRuntime } = require('./src/application/dashboardRuntime');
+const { createRestartAnnouncer } = require('./src/application/restartAnnouncer');
 const { normalizeBucket, normalizeLimit } = require('./src/domain/history');
 const { searchPaldexCatalog } = require('./src/infrastructure/paldexCatalog');
 
 const config = loadConfig();
 const runtime = createDashboardRuntime(config);
+const restartAnnouncer = createRestartAnnouncer(config);
 const app = express();
 const publicDir = path.join(__dirname, 'public');
 const angularBuildDir = path.join(__dirname, 'dist', 'palworld-dashboard', 'browser');
@@ -106,6 +108,7 @@ setInterval(() => {
 async function start() {
   await runtime.ensureHistoryBackend();
   await refreshAndBroadcast();
+  restartAnnouncer.start();
 
   server.listen(config.port, config.hostname, () => {
     console.log(`palworld-dashboard listening on http://${config.hostname}:${config.port}`);

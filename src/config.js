@@ -25,6 +25,11 @@ function parseCoordinate(value, fallback) {
   return Number.isFinite(parsed) ? parsed : fallback;
 }
 
+function parseTime(value, fallback) {
+  const normalized = String(value || fallback).trim();
+  return /^\d{2}:\d{2}$/.test(normalized) ? normalized : fallback;
+}
+
 function loadConfig() {
   const mapBounds = {
     xMin: parseCoordinate(process.env.PALWORLD_MAP_X_MIN, -500000),
@@ -54,6 +59,12 @@ function loadConfig() {
     redisHistoryKey: process.env.REDIS_HISTORY_KEY || 'palworld:history',
     historyRetentionDays: parseNumber(process.env.HISTORY_RETENTION_DAYS || 30, 30),
     refreshIntervalMs: parseNumber(process.env.REFRESH_INTERVAL_MS || 5000, 5000),
+    restartAnnounceEnabled: parseBoolean(process.env.PALWORLD_RESTART_ANNOUNCE_ENABLED, true),
+    restartAnnounceTime: parseTime(process.env.PALWORLD_RESTART_ANNOUNCE_TIME, '02:55'),
+    restartAnnounceTimezone: process.env.PALWORLD_RESTART_ANNOUNCE_TIMEZONE || 'America/Santiago',
+    restartAnnounceMessage:
+      process.env.PALWORLD_RESTART_ANNOUNCE_MESSAGE || 'El servidor se reiniciara pronto.',
+    restartAnnounceCheckIntervalMs: parseNumber(process.env.PALWORLD_RESTART_ANNOUNCE_CHECK_INTERVAL_MS || 30000, 30000),
     mapImageUrl: process.env.PALWORLD_MAP_IMAGE || '/map.jpg',
     mapCaption: process.env.PALWORLD_MAP_CAPTION || 'Mapa del mundo de Palworld',
     mapInvertY: parseBoolean(process.env.PALWORLD_MAP_INVERT_Y, true),

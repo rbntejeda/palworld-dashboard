@@ -56,6 +56,41 @@ async function fetchPalworldJson(baseUrl, pathname, headers) {
   return response.json();
 }
 
+async function announcePalworldMessage({ baseUrl, username, password, message }) {
+  if (!baseUrl) {
+    return {
+      configured: false,
+      ok: false,
+      status: 0
+    };
+  }
+
+  const headers = {
+    'Content-Type': 'application/json'
+  };
+
+  if (username || password) {
+    headers.Authorization = `Basic ${Buffer.from(`${username}:${password}`).toString('base64')}`;
+  }
+
+  const response = await fetch(`${baseUrl}/announce`, {
+    method: 'POST',
+    headers,
+    body: JSON.stringify({ message }),
+    signal: AbortSignal.timeout(2500)
+  });
+
+  if (!response.ok) {
+    throw new Error(`/announce -> ${response.status}`);
+  }
+
+  return {
+    configured: true,
+    ok: true,
+    status: response.status
+  };
+}
+
 function normalizeFetchResult(result, errors) {
   if (result && result.error) {
     errors.push(result.error.message || String(result.error));
@@ -66,5 +101,6 @@ function normalizeFetchResult(result, errors) {
 }
 
 module.exports = {
+  announcePalworldMessage,
   fetchPalworldRestData
 };

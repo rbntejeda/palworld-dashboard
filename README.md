@@ -114,6 +114,10 @@ Si quieres leer el mundo y los jugadores desde la API oficial, configura:
 - `PALWORLD_REST_USER`
 - `PALWORLD_REST_PASSWORD`
 - `DATABASE_URL`: cadena de conexión MySQL para Prisma
+- `PALWORLD_RESTART_ANNOUNCE_TIME`: hora local para avisar reinicio, por defecto `02:55`
+- `PALWORLD_RESTART_ANNOUNCE_TIMEZONE`: zona horaria del aviso, por defecto `America/Santiago`
+- `PALWORLD_RESTART_ANNOUNCE_MESSAGE`: mensaje enviado a `POST /announce`, por defecto `El servidor se reiniciara pronto.`
+- `PALWORLD_RESTART_ANNOUNCE_ENABLED`: activa o desactiva el aviso, por defecto `true`
 
 Ejemplo:
 
@@ -121,6 +125,8 @@ Ejemplo:
 PALWORLD_REST_URL=http://palworld-server:8212
 PALWORLD_REST_USER=usuario
 PALWORLD_REST_PASSWORD=clave
+PALWORLD_RESTART_ANNOUNCE_TIME=02:55
+PALWORLD_RESTART_ANNOUNCE_TIMEZONE=America/Santiago
 ```
 
 ## Palworld Paldex API
@@ -185,6 +191,11 @@ El repo incluye assets en:
 - `PALWORLD_REST_URL`: URL base de la REST API de Palworld
 - `PALWORLD_REST_USER`: usuario de la REST API
 - `PALWORLD_REST_PASSWORD`: contraseña de la REST API
+- `PALWORLD_RESTART_ANNOUNCE_ENABLED`: activa el anuncio automatico de reinicio por REST, por defecto `true`
+- `PALWORLD_RESTART_ANNOUNCE_TIME`: hora local del anuncio automatico, por defecto `02:55`
+- `PALWORLD_RESTART_ANNOUNCE_TIMEZONE`: zona horaria del anuncio automatico, por defecto `America/Santiago`
+- `PALWORLD_RESTART_ANNOUNCE_MESSAGE`: mensaje enviado al endpoint `/announce`
+- `PALWORLD_RESTART_ANNOUNCE_CHECK_INTERVAL_MS`: frecuencia de revision del scheduler, por defecto `30000`
 - `PALDEX_API_URL`: URL base del API de Palworld Paldex
 - `PALDEX_ASSET_BASE_URL`: base URL para resolver imágenes del catálogo de Paldex
 - `PALDEX_DATA_BASE_URL`: base URL de los JSON del catálogo de Paldex
