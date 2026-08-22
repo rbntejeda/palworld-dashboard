@@ -18,7 +18,8 @@ const state = {
   mapImageUrl: '',
   mapPlayers: [],
   mapConfig: null,
-  paldexSearchTimer: null
+  paldexSearchTimer: null,
+  serviceActionInFlight: false
 };
 
 const PALDEX_TYPE_OPTIONS = [
@@ -92,6 +93,21 @@ const nodes = {
   availabilityCurrent: el('availability-current'),
   availabilityCurrentNote: el('availability-current-note'),
   availabilityTimeline: el('availability-timeline'),
+  serverServiceDescription: el('server-service-description'),
+  serverServiceStatus: el('server-service-status'),
+  serverServiceContainer: el('server-service-container'),
+  serverServiceAutostop: el('server-service-autostop'),
+  serverServiceStart: el('server-service-start'),
+  serverServiceRestart: el('server-service-restart'),
+  serverServiceStop: el('server-service-stop'),
+  serverServiceFeedback: el('server-service-feedback'),
+  serverServiceAvailability: el('server-service-availability'),
+  serverServiceState: el('server-service-state'),
+  serverServiceIdle: el('server-service-idle'),
+  serverServiceIdleNote: el('server-service-idle-note'),
+  serverServiceLastAction: el('server-service-last-action'),
+  serverServiceLastActionNote: el('server-service-last-action-note'),
+  serverServiceOperations: el('server-service-operations'),
   paldexQuery: el('paldex-query'),
   paldexSearch: el('paldex-search'),
   paldexType: el('paldex-type'),
@@ -147,6 +163,40 @@ function availabilityStateLabel(stateValue) {
   if (stateValue === 'online') return 'En línea';
   if (stateValue === 'degraded') return 'Degradado';
   return 'Caído';
+}
+
+function serverServiceStatusLabel(status) {
+  if (status === 'running') return 'Disponible';
+  if (status === 'stopped') return 'Detenido';
+  if (status === 'missing') return 'No encontrado';
+  if (status === 'unconfigured') return 'Sin configurar';
+  return 'Desconocido';
+}
+
+function formatIdleHours(value) {
+  const hours = Number(value || 0);
+  if (!Number.isFinite(hours) || hours <= 0) {
+    return '0m';
+  }
+
+  if (hours < 1) {
+    return `${Math.floor(hours * 60)}m`;
+  }
+
+  return `${hours.toFixed(1)}h`;
+}
+
+function formatServiceDate(value) {
+  if (!value) {
+    return 'Sin fecha';
+  }
+
+  return new Intl.DateTimeFormat('es-CL', {
+    hour: '2-digit',
+    minute: '2-digit',
+    day: '2-digit',
+    month: '2-digit'
+  }).format(new Date(value));
 }
 
 function formatWorldCoord(value) {
@@ -1047,8 +1097,78 @@ function render(snapshot, connected) {
   nodes.worldGuid.textContent = abbreviateId(worldGuid);
   nodes.worldGuid.title = worldGuid || 'Sin world GUID';
   nodes.playersList.innerHTML = renderPlayers(snapshot.rest?.players || []);
+  renderServerService(snapshot.serverService);
   renderMap(snapshot.rest?.players || [], snapshot.map);
   renderHistory();
+}
+
+function renderServerService(serverService = {}) {
+  if (!nodes.serverServiceDescription) {
+    return;
+  }
+
+  const status = serverService.status || 'unknown';
+  const autoStop = serverService.autoStop || {};
+  const lastAction = autoStop.lastAction || null;
+  const operations = Array.isArray(serverService.operations) ? serverService.operations : [];
+  const disabled = state.serviceActionInFlight || !serverService.configured || status === 'missing' || status === 'unknown';
+
+  nodes.serverServiceDescription.textContent = serverService.description || 'Esperando estado del contenedor de Palworld.';
+  nodes.serverServiceStatus.textContent = serverServiceStatusLabel(status);
+  nodes.serverServiceStatus.className = `server-service-pill ${status}`;
+  nodes.serverServiceContainer.textContent = serverService.containerName || 'sin contenedor';
+  nodes.serverServiceAutostop.textContent = autoStop.enabled
+    ? `auto-stop ${autoStop.thresholdHours}h`
+    : 'auto-stop off';
+  nodes.serverServiceAvailability.textContent = serverService.available ? 'Online' : 'Offline';
+  nodes.serverServiceState.textContent = serverService.error || serverService.state || '--';
+  nodes.serverServiceIdle.textContent = formatIdleHours(autoStop.idleHours);
+  nodes.serverServiceIdleNote.textContent = autoStop.enabled
+    ? `Umbral ${autoStop.thresholdHours}h · último jugador ${formatServiceDate(autoStop.lastPlayerSeenAt)}`
+    : 'Define INACTIVITY_SHUTDOWN_DELAY';
+  nodes.serverServiceLastAction.textContent = lastAction?.action ? lastAction.action.toUpperCase() : '--';
+  nodes.serverServiceLastActionNote.textContent = lastAction?.message || 'Sin registros';
+  nodes.serverServiceOperations.innerHTML = operations
+    .map((operation) => `<li>${escapeHtml(operation)}</li>`)
+    .join('');
+
+  nodes.serverServiceStart.disabled = disabled || !serverService.canStart;
+  nodes.serverServiceRestart.disabled = disabled || !serverService.canRestart;
+  nodes.serverServiceStop.disabled = disabled || !serverService.canStop;
+}
+
+async function runServerServiceAction(action) {
+  state.serviceActionInFlight = true;
+  renderServerService(state.lastSnapshot?.serverService);
+
+  if (nodes.serverServiceFeedback) {
+    nodes.serverServiceFeedback.textContent = `Ejecutando ${action}...`;
+  }
+
+  try {
+    const response = await fetch(`/api/server-service/${encodeURIComponent(action)}`, {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json'
+      }
+    });
+    const payload = await response.json();
+
+    if (nodes.serverServiceFeedback) {
+      nodes.serverServiceFeedback.textContent = payload.message || (payload.ok ? 'Operación completada.' : 'Operación fallida.');
+    }
+
+    if (payload.snapshot) {
+      render(payload.snapshot, true);
+    }
+  } catch (error) {
+    if (nodes.serverServiceFeedback) {
+      nodes.serverServiceFeedback.textContent = `No pude ejecutar la operación: ${error.message}`;
+    }
+  } finally {
+    state.serviceActionInFlight = false;
+    renderServerService(state.lastSnapshot?.serverService);
+  }
 }
 
 function renderPlayers(players) {
@@ -1416,6 +1536,19 @@ nodes.historyButtons.forEach((button) => {
     void fetchHistory(button.dataset.bucket);
   });
 });
+
+for (const button of [nodes.serverServiceStart, nodes.serverServiceRestart, nodes.serverServiceStop]) {
+  if (!button) continue;
+
+  button.addEventListener('click', () => {
+    const action = button.dataset.serverServiceAction;
+    if (!action || state.serviceActionInFlight) {
+      return;
+    }
+
+    void runServerServiceAction(action);
+  });
+}
 
 if (nodes.paldexSearch) {
   nodes.paldexSearch.addEventListener('click', () => {

@@ -30,6 +30,29 @@ function parseTime(value, fallback) {
   return /^\d{2}:\d{2}$/.test(normalized) ? normalized : fallback;
 }
 
+function parseDurationHours(value, fallback) {
+  if (value === undefined || value === null || value === '') {
+    return fallback;
+  }
+
+  const normalized = String(value).trim().toLowerCase();
+  const match = normalized.match(/^(\d+(?:\.\d+)?)(ms|s|m|h)?$/);
+  if (!match) {
+    return fallback;
+  }
+
+  const amount = Number(match[1]);
+  if (!Number.isFinite(amount)) {
+    return fallback;
+  }
+
+  const unit = match[2] || 'h';
+  if (unit === 'ms') return amount / (1000 * 60 * 60);
+  if (unit === 's') return amount / (60 * 60);
+  if (unit === 'm') return amount / 60;
+  return amount;
+}
+
 function loadConfig() {
   const mapBounds = {
     xMin: parseCoordinate(process.env.PALWORLD_MAP_X_MIN, -500000),
@@ -59,6 +82,16 @@ function loadConfig() {
     redisHistoryKey: process.env.REDIS_HISTORY_KEY || 'palworld:history',
     historyRetentionDays: parseNumber(process.env.HISTORY_RETENTION_DAYS || 30, 30),
     refreshIntervalMs: parseNumber(process.env.REFRESH_INTERVAL_MS || 5000, 5000),
+    serverContainerName:
+      process.env.CONTAINER_NAME ||
+      process.env.PALWORLD_SERVER_CONTAINER_NAME ||
+      process.env.PALWORLD_CONTAINER_NAME ||
+      '',
+    dockerSocketPath: process.env.DOCKER_SOCKET_PATH || '/var/run/docker.sock',
+    autoStopIdleHours: parseDurationHours(
+      process.env.INACTIVITY_SHUTDOWN_DELAY || process.env.PALWORLD_AUTO_STOP_IDLE_HOURS,
+      0
+    ),
     restartAnnounceEnabled: parseBoolean(process.env.PALWORLD_RESTART_ANNOUNCE_ENABLED, true),
     restartAnnounceTime: parseTime(process.env.PALWORLD_RESTART_ANNOUNCE_TIME, '02:55'),
     restartAnnounceTimezone: process.env.PALWORLD_RESTART_ANNOUNCE_TIMEZONE || 'America/Santiago',

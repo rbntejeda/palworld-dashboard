@@ -103,6 +103,9 @@ Si quieres que el panel lea temperatura del host dentro de Docker, monta tambié
 - `GET /api/paldex/catalog?section=pals|items|gear&term=Relaxaurus&page=1&limit=12`
 - `GET /api/paldex/search?term=Relaxaurus&limit=12`
 - `GET /api/paldex/:section/search`
+- `POST /api/server-service/start`
+- `POST /api/server-service/restart`
+- `POST /api/server-service/stop`
 - `GET /healthz`
 - `WS /ws`
 
@@ -164,6 +167,33 @@ Y soporta paginación con:
 - `page`
 - `limit`
 
+## Servicios Docker del servidor
+
+El dashboard puede operar el contenedor del servidor Palworld desde un módulo de servicios:
+
+- si el contenedor está detenido, muestra la opción `Iniciar`
+- si el contenedor está en ejecución, muestra `Reiniciar` y `Detener`
+- si no hay jugadores conectados durante el umbral configurado, detiene el contenedor automáticamente
+
+Configura:
+
+- `CONTAINER_NAME`: nombre del contenedor de Palworld que se debe operar
+- `PALWORLD_SERVER_CONTAINER_NAME`: alias compatible para el nombre del contenedor
+- `PALWORLD_CONTAINER_NAME`: alias compatible para el nombre del contenedor
+- `DOCKER_SOCKET_PATH`: socket Docker, por defecto `/var/run/docker.sock`
+- `INACTIVITY_SHUTDOWN_DELAY`: tiempo sin jugadores antes de detener el contenedor; por defecto `0`, desactivado. Un número solo se interpreta como horas, y también acepta `ms`, `s`, `m` o `h`
+- `PALWORLD_AUTO_STOP_IDLE_HOURS`: alias compatible para horas sin jugadores
+
+Ejemplo en Docker:
+
+```bash
+docker run --rm -p 3000:3000 \
+  -v /var/run/docker.sock:/var/run/docker.sock \
+  -e CONTAINER_NAME=palworld-server \
+  -e INACTIVITY_SHUTDOWN_DELAY=3h \
+  palworld-dashboard
+```
+
 El repo incluye assets en:
 
 - `public/images/paldeck`
@@ -191,6 +221,12 @@ El repo incluye assets en:
 - `PALWORLD_REST_URL`: URL base de la REST API de Palworld
 - `PALWORLD_REST_USER`: usuario de la REST API
 - `PALWORLD_REST_PASSWORD`: contraseña de la REST API
+- `CONTAINER_NAME`: nombre del contenedor Docker del servidor Palworld
+- `PALWORLD_SERVER_CONTAINER_NAME`: alias para `CONTAINER_NAME`
+- `PALWORLD_CONTAINER_NAME`: alias para `CONTAINER_NAME`
+- `DOCKER_SOCKET_PATH`: ruta del socket Docker, por defecto `/var/run/docker.sock`
+- `INACTIVITY_SHUTDOWN_DELAY`: tiempo sin jugadores para detener automáticamente el contenedor, por defecto `0`
+- `PALWORLD_AUTO_STOP_IDLE_HOURS`: alias compatible para horas sin jugadores
 - `PALWORLD_RESTART_ANNOUNCE_ENABLED`: activa el anuncio automatico de reinicio por REST, por defecto `true`
 - `PALWORLD_RESTART_ANNOUNCE_TIME`: hora local del anuncio automatico, por defecto `02:55`
 - `PALWORLD_RESTART_ANNOUNCE_TIMEZONE`: zona horaria del anuncio automatico, por defecto `America/Santiago`

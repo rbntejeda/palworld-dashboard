@@ -17,6 +17,7 @@ const publicDir = path.join(__dirname, 'public');
 const angularBuildDir = path.join(__dirname, 'dist', 'palworld-dashboard', 'browser');
 const webRoot = fs.existsSync(angularBuildDir) ? angularBuildDir : publicDir;
 
+app.use(express.json());
 app.use(express.static(webRoot));
 
 app.get('/api/snapshot', (_req, res) => {
@@ -67,6 +68,15 @@ app.get('/api/paldex/:section/search', async (req, res) => {
   });
 
   res.status(result.ok || !result.configured ? 200 : 502).json(result);
+});
+
+app.post('/api/server-service/:action', async (req, res) => {
+  const result = await runtime.runServerServiceAction(req.params.action);
+  if (result.snapshot) {
+    broadcastSnapshot(result.snapshot);
+  }
+
+  res.status(result.ok ? 200 : 400).json(result);
 });
 
 app.get('/healthz', (_req, res) => {
