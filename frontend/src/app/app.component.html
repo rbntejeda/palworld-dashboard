@@ -134,49 +134,7 @@
         </article>
       </section>
 
-      <section class="server-services-section">
-        <article class="panel server-services-card row g-4">
-          <div class="server-services-copy col-12 col-xl-5">
-            <p class="eyebrow">Server services</p>
-            <h3>Operaciones Docker del servidor</h3>
-            <p class="server-services-note" id="server-service-description">
-              Esperando estado del contenedor de Palworld.
-            </p>
-            <div class="server-services-pills">
-              <span class="server-service-pill" id="server-service-status">unknown</span>
-              <span class="server-service-pill" id="server-service-container">sin contenedor</span>
-              <span class="server-service-pill" id="server-service-autostop">auto-stop off</span>
-            </div>
-            <div class="server-service-actions" role="group" aria-label="Operaciones Docker del servidor Palworld">
-              <button id="server-service-start" class="server-service-button start" type="button" data-server-service-action="start">Iniciar</button>
-              <button id="server-service-restart" class="server-service-button restart" type="button" data-server-service-action="restart">Reiniciar</button>
-              <button id="server-service-stop" class="server-service-button stop" type="button" data-server-service-action="stop">Detener</button>
-            </div>
-            <p class="server-service-feedback" id="server-service-feedback">Sin operaciones recientes.</p>
-          </div>
-
-          <div class="server-services-details col-12 col-xl-7">
-            <div class="server-service-stat-grid row g-3">
-              <div class="server-service-stat col-12 col-md-4">
-                <span>Disponibilidad</span>
-                <strong id="server-service-availability">--</strong>
-                <p id="server-service-state">Esperando Docker</p>
-              </div>
-              <div class="server-service-stat col-12 col-md-4">
-                <span>Inactividad</span>
-                <strong id="server-service-idle">--</strong>
-                <p id="server-service-idle-note">Sin regla configurada</p>
-              </div>
-              <div class="server-service-stat col-12 col-md-4">
-                <span>Última acción</span>
-                <strong id="server-service-last-action">--</strong>
-                <p id="server-service-last-action-note">Sin registros</p>
-              </div>
-            </div>
-            <ul class="server-service-operation-list" id="server-service-operations"></ul>
-          </div>
-        </article>
-      </section>
+      <app-server-services></app-server-services>
 
       <section class="content-grid row g-4">
         <article class="panel col-12 col-lg-6">
