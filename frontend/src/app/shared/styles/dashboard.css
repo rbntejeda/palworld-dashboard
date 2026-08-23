@@ -77,9 +77,9 @@ p {
 }
 
 h1 {
-  font-size: clamp(3rem, 7vw, 6rem);
-  line-height: 0.92;
-  letter-spacing: -0.08em;
+  font-size: clamp(2.75rem, 6.4vw, 5.4rem);
+  line-height: 0.94;
+  letter-spacing: -0.045em;
   margin-bottom: 1rem;
 }
 
@@ -1540,7 +1540,10 @@ body.light .elemental-reference-item span {
 .map-frame {
   border: 1px solid rgb(148 163 184 / 18%);
   border-radius: 1.4rem;
+  margin: 0 auto;
+  max-width: 860px;
   overflow: hidden;
+  width: 100%;
 }
 
 .map-surface {
@@ -2277,5 +2280,269 @@ body.light .summary-card {
 @media (min-width: 1400px) {
   .shell {
     max-width: 1440px;
+  }
+}
+
+/* Feature layout polish: cards are laid out by section grids so gutters stay external. */
+.hero,
+.metrics,
+.world-section,
+.content-grid,
+.server-services-card,
+.services-card,
+.elemental-card,
+.status-grid,
+.server-service-stat-grid,
+.world-meta,
+.services-meta,
+.elemental-reference-grid,
+.availability-stats,
+.history-summary {
+  display: grid;
+  gap: 1rem;
+}
+
+.hero > *,
+.metrics > *,
+.world-section > *,
+.content-grid > *,
+.server-services-card > *,
+.services-card > *,
+.elemental-card > *,
+.status-grid > *,
+.server-service-stat-grid > *,
+.world-meta > *,
+.services-meta > *,
+.elemental-reference-grid > *,
+.availability-stats > *,
+.history-summary > * {
+  max-width: none;
+  min-width: 0;
+  padding-left: 0;
+  padding-right: 0;
+  width: 100%;
+}
+
+.hero,
+.world-section,
+.content-grid {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.hero {
+  align-items: start;
+  gap: clamp(1.25rem, 3vw, 2rem);
+}
+
+.metrics {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.metric-card,
+.panel,
+.status-card {
+  overflow: hidden;
+}
+
+.metric-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 9.5rem;
+}
+
+.status-header,
+.players-header,
+.map-header,
+.panel-header,
+.availability-header,
+.elemental-table-head,
+.elemental-reference-head,
+.paldex-results-header {
+  min-width: 0;
+}
+
+.status-header h2,
+.players-header h3,
+.map-header h3,
+.panel-header h3,
+.availability-header h3,
+.elemental-table-head h4,
+.elemental-reference-head h4,
+.paldex-results-header h4 {
+  overflow-wrap: anywhere;
+}
+
+.status-grid,
+.server-service-stat-grid,
+.availability-stats,
+.history-summary {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.world-meta,
+.services-meta {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.server-services-card,
+.services-card,
+.elemental-card {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.server-services-details,
+.paldex-results-panel,
+.elemental-table-wrap,
+.elemental-reference-wrap,
+.availability-panel,
+.history-chart {
+  min-width: 0;
+}
+
+.map-surface {
+  min-height: 16rem;
+}
+
+.history-chart {
+  min-height: 18rem;
+}
+
+.history-controls,
+.availability-legend,
+.server-service-actions,
+.service-tabs,
+.services-pills,
+.server-services-pills,
+.hero-pills {
+  align-items: center;
+}
+
+.search-row {
+  align-items: stretch;
+}
+
+.search-button,
+.server-service-button,
+.history-toggle,
+.toggle-button {
+  white-space: nowrap;
+}
+
+@media (max-width: 575.98px) {
+  .shell {
+    padding: 1rem;
+  }
+
+  .status-card,
+  .metric-card,
+  .panel,
+  .server-services-card,
+  .services-card,
+  .history-panel {
+    border-radius: 1.2rem;
+  }
+
+  .status-card,
+  .panel,
+  .server-services-card,
+  .services-card,
+  .history-panel {
+    padding: 1rem;
+  }
+
+  .status-header,
+  .players-header,
+  .map-header,
+  .panel-header,
+  .availability-header,
+  .elemental-table-head,
+  .elemental-reference-head,
+  .paldex-results-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .search-row {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .search-button,
+  .server-service-button,
+  .toggle-button {
+    width: 100%;
+  }
+
+  .history-controls {
+    border-radius: 1rem;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    width: 100%;
+  }
+
+  .history-toggle {
+    padding-left: 0.65rem;
+    padding-right: 0.65rem;
+  }
+}
+
+@media (min-width: 576px) {
+  .metrics,
+  .world-meta,
+  .services-meta,
+  .elemental-reference-grid,
+  .history-summary {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .status-grid,
+  .server-service-stat-grid,
+  .availability-stats {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 992px) {
+  .hero {
+    grid-template-columns: minmax(0, 1.25fr) minmax(360px, 0.75fr);
+  }
+
+  .world-section {
+    grid-template-columns: minmax(0, 0.45fr) minmax(0, 0.55fr);
+  }
+
+  .map-card {
+    grid-column: 1 / -1;
+  }
+
+  .content-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1200px) {
+  .metrics {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .server-services-card,
+  .services-card {
+    grid-template-columns: minmax(0, 0.72fr) minmax(0, 1fr);
+  }
+
+  .elemental-card {
+    grid-template-columns: minmax(280px, 0.4fr) minmax(0, 0.6fr);
+  }
+
+  .elemental-reference-wrap {
+    grid-column: 1 / -1;
+  }
+
+  .elemental-reference-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .history-summary {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
