@@ -1,0 +1,41 @@
+<section class="world-section row g-4">
+  <article class="panel world-card col-12 col-lg-4">
+    <p class="eyebrow">World</p>
+    <h3 id="server-name">Palworld</h3>
+    <p class="world-description" id="server-description">Esperando datos REST.</p>
+    <div class="world-meta row g-3">
+      <div class="col-12 col-sm-6">
+        <span class="world-label">Version</span>
+        <strong id="server-version">--</strong>
+      </div>
+      <div class="col-12 col-sm-6">
+        <span class="world-label">World GUID</span>
+        <strong id="world-guid">--</strong>
+      </div>
+    </div>
+  </article>
+
+  <article class="panel players-card col-12 col-lg-8">
+    <p class="eyebrow">Players online</p>
+    <div class="players-header">
+      <h3 id="player-count">0 players</h3>
+      <span class="players-pill" id="players-pill">REST</span>
+    </div>
+    <div class="players-list" id="players-list"></div>
+  </article>
+
+  <article class="panel map-card col-12">
+    <div class="map-header">
+      <div>
+        <p class="eyebrow">Player map</p>
+        <h3>Ubicación en el mundo</h3>
+      </div>
+      <span class="map-pill" id="map-pill">0 markers</span>
+    </div>
+    <p class="map-note" id="map-note">Cargando mapa...</p>
+    <div class="map-frame">
+      <div class="map-surface" id="map-surface" aria-label="Mapa de jugadores zoomable"></div>
+    </div>
+    <div class="map-legend" id="map-legend"></div>
+  </article>
+</section>

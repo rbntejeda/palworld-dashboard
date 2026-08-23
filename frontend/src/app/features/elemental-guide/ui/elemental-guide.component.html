@@ -1,0 +1,75 @@
+<section class="elemental-section">
+  <article class="panel elemental-card row g-4">
+    <div class="elemental-copy col-12 col-xl-4">
+      <p class="eyebrow">Guía elemental</p>
+      <h3>Tabla de fortalezas y debilidades</h3>
+      <p class="elemental-note">
+        Una lectura compacta de la tabla oficial de Palworld para ver, de un vistazo, qué tipo pega mejor y qué tipo lo castiga.
+      </p>
+      <ul class="elemental-list">
+        <li>Fuego es el único tipo eficaz contra dos elementos: Hielo y Planta.</li>
+        <li>No elemental no tiene ventaja ofensiva y Oscuridad lo castiga.</li>
+      </ul>
+    </div>
+    <div class="elemental-table-wrap col-12 col-xl-8">
+      <div class="elemental-table-head">
+        <div>
+          <p class="eyebrow">Sección</p>
+          <h4>Tabla de fortalezas</h4>
+        </div>
+        <span class="elemental-table-pill">Tabla real</span>
+      </div>
+      <div class="elemental-table-scroll" role="region" aria-label="Tabla de fortalezas y debilidades de Palworld" tabindex="0">
+        <table class="elemental-table">
+          <thead>
+            <tr>
+              <th scope="col">Elemento</th>
+              <th scope="col">Eficaz contra</th>
+              <th scope="col">Vulnerable a</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let matchup of matchups">
+              <th scope="row">
+                <span class="elemental-cell">
+                  <img class="elemental-icon" [src]="matchup.element.icon" alt="">
+                  <span>{{ matchup.element.name }}</span>
+                </span>
+              </th>
+              <td>
+                <span class="elemental-cell" *ngFor="let target of matchup.strongAgainst">
+                  <img class="elemental-icon" [src]="target.icon" alt="">
+                  <span>{{ target.name }}</span>
+                </span>
+              </td>
+              <td>
+                <span class="elemental-cell" *ngFor="let counter of matchup.weakAgainst">
+                  <img class="elemental-icon" [src]="counter.icon" alt="">
+                  <span>{{ counter.name }}</span>
+                </span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="elemental-reference-wrap col-12">
+      <div class="elemental-reference-head">
+        <div>
+          <p class="eyebrow">Sección</p>
+          <h4>Referencia elemental</h4>
+        </div>
+        <span class="elemental-table-pill">Iconos 48px</span>
+      </div>
+      <div class="elemental-reference-grid row g-3" aria-label="Referencia visual de elementos">
+        <article class="elemental-reference-item col-12 col-md-6 col-lg-4" *ngFor="let item of references">
+          <img class="elemental-reference-icon" [src]="item.icon" alt="">
+          <div>
+            <strong>{{ item.name }}</strong>
+            <span>{{ item.note }}</span>
+          </div>
+        </article>
+      </div>
+    </div>
+  </article>
+</section>

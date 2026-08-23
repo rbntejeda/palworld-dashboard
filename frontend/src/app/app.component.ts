@@ -1,11 +1,25 @@
 import { AfterViewInit, Component } from '@angular/core';
 import { bootstrapDashboard } from './dashboard.bootstrap';
+import { DashboardOverviewComponent } from './features/dashboard-overview/ui/dashboard-overview.component';
+import { ElementalGuideComponent } from './features/elemental-guide/ui/elemental-guide.component';
+import { HistoryAvailabilityComponent } from './features/history-availability/ui/history-availability.component';
+import { PaldexCatalogComponent } from './features/paldex-catalog/ui/paldex-catalog.component';
+import { RuntimeNotesComponent } from './features/runtime-notes/ui/runtime-notes.component';
 import { ServerServicesComponent } from './features/server-services/ui/server-services.component';
+import { WorldMonitoringComponent } from './features/world-monitoring/ui/world-monitoring.component';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [ServerServicesComponent],
+  imports: [
+    DashboardOverviewComponent,
+    WorldMonitoringComponent,
+    ServerServicesComponent,
+    RuntimeNotesComponent,
+    PaldexCatalogComponent,
+    ElementalGuideComponent,
+    HistoryAvailabilityComponent
+  ],
   templateUrl: './app.component.html'
 })
 export class AppComponent implements AfterViewInit {

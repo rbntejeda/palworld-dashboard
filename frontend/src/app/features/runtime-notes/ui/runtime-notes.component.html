@@ -1,0 +1,23 @@
+<section class="content-grid row g-4">
+  <article class="panel col-12 col-lg-6">
+    <p class="eyebrow">Timeline</p>
+    <h3>Historial reciente</h3>
+    <div class="history-list" id="history"></div>
+  </article>
+
+  <article class="panel col-12 col-lg-6">
+    <p class="eyebrow">Arquitectura</p>
+    <h3>Lista para crecer</h3>
+    <ul class="notes">
+      <li>Collector para leer estado del host y del juego.</li>
+      <li>Pub/Sub para desacoplar recolección y frontend.</li>
+      <li>WebSocket para empujar snapshots al navegador.</li>
+      <li>Nginx Proxy Manager para publicar el panel con TLS.</li>
+    </ul>
+    <div class="connection-block">
+      <span class="connection-label">API</span>
+      <strong>GET /api/snapshot</strong>
+      <p>El navegador puede arrancar con un snapshot inicial y luego seguir por WS.</p>
+    </div>
+  </article>
+</section>

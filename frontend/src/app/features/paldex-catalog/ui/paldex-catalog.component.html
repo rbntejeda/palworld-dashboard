@@ -1,0 +1,97 @@
+<section class="services-section">
+  <article class="panel services-card row g-4" id="services-card">
+    <div class="services-copy col-12 col-xl-5">
+      <p class="eyebrow">Servicios</p>
+      <h3>Palworld Paldex API</h3>
+      <p class="services-note">
+        Busca pals por nombre, tipo, drops o habilidad y muestra sus imágenes e iconos de elementos dentro del dashboard.
+      </p>
+      <div class="services-pills">
+        <span class="service-pill">term</span>
+        <span class="service-pill">name</span>
+        <span class="service-pill">types</span>
+        <span class="service-pill">suitabilities</span>
+        <span class="service-pill">drops</span>
+      </div>
+      <div class="service-tabs" role="tablist" aria-label="Catálogo Paldex">
+        <button
+          *ngFor="let tab of tabs; let first = first"
+          class="service-tab"
+          [class.is-active]="first"
+          type="button"
+          [attr.data-paldex-section]="tab.id"
+        >
+          {{ tab.label }}
+        </button>
+      </div>
+      <div class="search-field">
+        <span class="search-label" id="paldex-query-label">Buscar catálogo</span>
+        <div class="search-row" role="group" aria-labelledby="paldex-query-label">
+          <input
+            id="paldex-query"
+            class="search-input"
+            type="search"
+            placeholder="Relaxaurus, fire, lightning, aqua..."
+            autocomplete="off"
+          >
+          <button id="paldex-search" class="search-button" type="button">Buscar</button>
+        </div>
+      </div>
+      <div class="paldex-filter-row" id="paldex-filter-row">
+        <div class="search-field">
+          <span class="search-label">Elemento</span>
+          <details class="paldex-multiselect" id="paldex-type-menu">
+            <summary class="search-input paldex-multiselect-summary">
+              <span id="paldex-type-summary">Todos los elementos</span>
+              <span class="paldex-multiselect-count" id="paldex-type-count">0</span>
+            </summary>
+            <div class="paldex-multiselect-panel" id="paldex-type-options"></div>
+          </details>
+          <input id="paldex-type" type="hidden" value="">
+        </div>
+        <label class="search-field" for="paldex-suitabilities">
+          <span class="search-label">Suitabilities</span>
+          <input id="paldex-suitabilities" class="search-input" type="search" placeholder="mining, watering, farming..." autocomplete="off">
+        </label>
+        <label class="search-field" for="paldex-drops">
+          <span class="search-label">Drops</span>
+          <input id="paldex-drops" class="search-input" type="search" placeholder="cloth, meat, leather..." autocomplete="off">
+        </label>
+        <button id="paldex-clear" class="search-button paldex-clear-button" type="button">Limpiar</button>
+      </div>
+      <p class="services-status" id="paldex-note">El catálogo Paldex está listo para buscar pals, items y gear.</p>
+      <div class="services-meta row g-3">
+        <div class="col-12 col-sm-6">
+          <span class="services-meta-label">Origen</span>
+          <strong id="paldex-source">Paldex module</strong>
+        </div>
+        <div class="col-12 col-sm-6">
+          <span class="services-meta-label">Ruta</span>
+          <strong id="paldex-route">/api/paldex/catalog</strong>
+        </div>
+      </div>
+    </div>
+
+    <div class="paldex-results-panel col-12 col-xl-7" id="paldex-results-panel" hidden>
+      <div class="paldex-results-header">
+        <div>
+          <p class="eyebrow">Resultados</p>
+          <h4 id="paldex-count">0 resultados</h4>
+        </div>
+        <span class="paldex-results-pill" id="paldex-section-pill">Pals</span>
+      </div>
+      <div class="paldex-results" id="paldex-results"></div>
+      <div class="paldex-pagination" id="paldex-pagination">
+        <button id="paldex-prev" class="paldex-pagination-button" type="button">Anterior</button>
+        <span id="paldex-page" class="paldex-pagination-label">Página 1 de 1</span>
+        <button id="paldex-next" class="paldex-pagination-button" type="button">Siguiente</button>
+      </div>
+      <div class="paldex-detail" id="paldex-detail">
+        <div class="paldex-detail-empty">
+          <strong>Haz click en una card</strong>
+          <span>Verás un detalle compacto del resultado en esta zona.</span>
+        </div>
+      </div>
+    </div>
+  </article>
+</section>
