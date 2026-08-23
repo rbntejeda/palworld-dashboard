@@ -38,7 +38,7 @@ body.light {
 .shell {
   margin: 0 auto;
   max-width: 1320px;
-  padding: clamp(1rem, 3vw, 2rem);
+  padding: clamp(1.25rem, 4vw, 3rem);
 }
 
 .hero,
@@ -1541,7 +1541,7 @@ body.light .elemental-reference-item span {
   border: 1px solid rgb(148 163 184 / 18%);
   border-radius: 1.4rem;
   margin: 0 auto;
-  max-width: 860px;
+  max-width: 100%;
   overflow: hidden;
   width: 100%;
 }
@@ -2299,7 +2299,7 @@ body.light .summary-card {
 .availability-stats,
 .history-summary {
   display: grid;
-  gap: 1rem;
+  gap: clamp(1rem, 2vw, 1.35rem);
 }
 
 .hero > *,
@@ -2344,11 +2344,17 @@ body.light .summary-card {
   overflow: hidden;
 }
 
+.status-card,
+.panel {
+  padding: clamp(1.25rem, 2.2vw, 1.85rem);
+}
+
 .metric-card {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   min-height: 9.5rem;
+  padding: clamp(1.15rem, 1.9vw, 1.45rem);
 }
 
 .status-header,
@@ -2404,6 +2410,12 @@ body.light .summary-card {
   min-height: 16rem;
 }
 
+.map-card {
+  justify-self: center;
+  max-width: min(100%, 760px);
+  width: 100%;
+}
+
 .history-chart {
   min-height: 18rem;
 }
@@ -2431,7 +2443,7 @@ body.light .summary-card {
 
 @media (max-width: 575.98px) {
   .shell {
-    padding: 1rem;
+    padding: 1.1rem;
   }
 
   .status-card,
@@ -2448,7 +2460,7 @@ body.light .summary-card {
   .server-services-card,
   .services-card,
   .history-panel {
-    padding: 1rem;
+    padding: 1.1rem;
   }
 
   .status-header,
