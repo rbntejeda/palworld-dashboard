@@ -53,6 +53,29 @@ function parseDurationHours(value, fallback) {
   return amount;
 }
 
+function parseDurationMs(value, fallback) {
+  if (value === undefined || value === null || value === '') {
+    return fallback;
+  }
+
+  const normalized = String(value).trim().toLowerCase();
+  const match = normalized.match(/^(\d+(?:\.\d+)?)(ms|s|m|h)?$/);
+  if (!match) {
+    return fallback;
+  }
+
+  const amount = Number(match[1]);
+  if (!Number.isFinite(amount)) {
+    return fallback;
+  }
+
+  const unit = match[2] || 'm';
+  if (unit === 'h') return amount * 60 * 60 * 1000;
+  if (unit === 'm') return amount * 60 * 1000;
+  if (unit === 's') return amount * 1000;
+  return amount;
+}
+
 function loadConfig() {
   const mapBounds = {
     xMin: parseCoordinate(process.env.PALWORLD_MAP_X_MIN, -500000),
@@ -91,6 +114,10 @@ function loadConfig() {
     autoStopIdleHours: parseDurationHours(
       process.env.INACTIVITY_SHUTDOWN_DELAY || process.env.PALWORLD_AUTO_STOP_IDLE_HOURS,
       0
+    ),
+    autoStopStartupGraceMs: parseDurationMs(
+      process.env.PALWORLD_AUTO_STOP_STARTUP_GRACE,
+      15 * 60 * 1000
     ),
     restartAnnounceEnabled: parseBoolean(process.env.PALWORLD_RESTART_ANNOUNCE_ENABLED, true),
     restartAnnounceTime: parseTime(process.env.PALWORLD_RESTART_ANNOUNCE_TIME, '02:55'),

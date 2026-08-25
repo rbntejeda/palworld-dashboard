@@ -1123,7 +1123,9 @@ function renderServerService(serverService = {}) {
   nodes.serverServiceAvailability.textContent = serverService.available ? 'Online' : 'Offline';
   nodes.serverServiceState.textContent = serverService.error || serverService.state || '--';
   nodes.serverServiceIdle.textContent = formatIdleHours(autoStop.idleHours);
-  nodes.serverServiceIdleNote.textContent = autoStop.enabled
+  nodes.serverServiceIdleNote.textContent = autoStop.inStartupGrace
+    ? `Gracia de arranque hasta ${formatServiceDate(autoStop.startupGraceUntilAt)}`
+    : autoStop.enabled
     ? `Umbral ${autoStop.thresholdHours}h · último jugador ${formatServiceDate(autoStop.lastPlayerSeenAt)}`
     : 'Define INACTIVITY_SHUTDOWN_DELAY';
   nodes.serverServiceLastAction.textContent = lastAction?.action ? lastAction.action.toUpperCase() : '--';

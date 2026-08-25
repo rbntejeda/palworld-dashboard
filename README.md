@@ -183,6 +183,7 @@ Configura:
 - `DOCKER_SOCKET_PATH`: socket Docker, por defecto `/var/run/docker.sock`
 - `INACTIVITY_SHUTDOWN_DELAY`: tiempo sin jugadores antes de detener el contenedor; por defecto `0`, desactivado. Un número solo se interpreta como horas, y también acepta `ms`, `s`, `m` o `h`
 - `PALWORLD_AUTO_STOP_IDLE_HOURS`: alias compatible para horas sin jugadores
+- `PALWORLD_AUTO_STOP_STARTUP_GRACE`: ventana de gracia después de iniciar o reiniciar antes de evaluar auto-stop; por defecto `15m`. Un número solo se interpreta como minutos, y también acepta `ms`, `s`, `m` o `h`
 
 Ejemplo en Docker:
 
@@ -227,6 +228,7 @@ El repo incluye assets en:
 - `DOCKER_SOCKET_PATH`: ruta del socket Docker, por defecto `/var/run/docker.sock`
 - `INACTIVITY_SHUTDOWN_DELAY`: tiempo sin jugadores para detener automáticamente el contenedor, por defecto `0`
 - `PALWORLD_AUTO_STOP_IDLE_HOURS`: alias compatible para horas sin jugadores
+- `PALWORLD_AUTO_STOP_STARTUP_GRACE`: tiempo de espera tras `start` o `restart` antes de apagar por inactividad, por defecto `15m`. Un número solo se interpreta como minutos
 - `PALWORLD_RESTART_ANNOUNCE_ENABLED`: activa el anuncio automatico de reinicio por REST, por defecto `true`
 - `PALWORLD_RESTART_ANNOUNCE_TIME`: hora local del anuncio automatico, por defecto `02:55`
 - `PALWORLD_RESTART_ANNOUNCE_TIMEZONE`: zona horaria del anuncio automatico, por defecto `America/Santiago`

@@ -196,13 +196,28 @@ function createDashboardRuntime(config) {
 
   async function maybeAutoStopIdleServer({ dockerStatus, playerCount, now }) {
     const idleThresholdMs = Math.max(0, Number(config.autoStopIdleHours || 0)) * 60 * 60 * 1000;
-    const idleSince = state.lastPlayerSeenAt || state.startedAt;
-    const idleMs = playerCount > 0 ? 0 : now - idleSince;
+    const lastActionAt = parseTimestamp(state.lastServiceAction?.at);
+    const dockerStartedAt = parseTimestamp(dockerStatus.startedAt);
+    const startupActionAt = ['start', 'restart'].includes(state.lastServiceAction?.action)
+      ? lastActionAt
+      : null;
+    const startupSince = latestTimestamp(dockerStartedAt, startupActionAt);
+    const startupGraceMs = Math.max(0, Number(config.autoStopStartupGraceMs || 0));
+    const startupGraceUntil = dockerStatus.running && startupSince && startupGraceMs > 0
+      ? startupSince + startupGraceMs
+      : null;
+    const inStartupGrace = Boolean(startupGraceUntil && now < startupGraceUntil);
+    const idleSince = latestTimestamp(state.lastPlayerSeenAt, dockerStartedAt, state.startedAt) || state.startedAt;
+    const idleMs = playerCount > 0 ? 0 : Math.max(0, now - idleSince);
     const autoStop = {
       enabled: idleThresholdMs > 0,
       idleHours: idleMs / (60 * 60 * 1000),
       thresholdHours: Number(config.autoStopIdleHours || 0),
       eligible: false,
+      idleSinceAt: new Date(idleSince).toISOString(),
+      startupGraceSeconds: startupGraceMs / 1000,
+      startupGraceUntilAt: startupGraceUntil ? new Date(startupGraceUntil).toISOString() : null,
+      inStartupGrace,
       lastPlayerSeenAt: state.lastPlayerSeenAt ? new Date(state.lastPlayerSeenAt).toISOString() : null,
       lastAction: state.lastServiceAction
     };
@@ -213,8 +228,8 @@ function createDashboardRuntime(config) {
       operations: describeDockerOperations(dockerStatus, autoStop)
     };
 
-    if (!autoStop.enabled || playerCount > 0 || !dockerStatus.running || idleMs < idleThresholdMs) {
-      autoStop.eligible = autoStop.enabled && playerCount === 0 && dockerStatus.running;
+    if (!autoStop.enabled || playerCount > 0 || !dockerStatus.running || inStartupGrace || idleMs < idleThresholdMs) {
+      autoStop.eligible = autoStop.enabled && playerCount === 0 && dockerStatus.running && !inStartupGrace;
       return status;
     }
 
@@ -250,6 +265,20 @@ function createDashboardRuntime(config) {
     runServerServiceAction,
     refreshSnapshot
   };
+}
+
+function parseTimestamp(value) {
+  if (!value) {
+    return null;
+  }
+
+  const timestamp = new Date(value).getTime();
+  return Number.isNaN(timestamp) ? null : timestamp;
+}
+
+function latestTimestamp(...timestamps) {
+  const validTimestamps = timestamps.filter((timestamp) => Number.isFinite(timestamp));
+  return validTimestamps.length > 0 ? Math.max(...validTimestamps) : null;
 }
 
 function createEmptySnapshot(config, startedAt) {
@@ -291,6 +320,10 @@ function createEmptySnapshot(config, startedAt) {
         idleHours: 0,
         thresholdHours: Number(config.autoStopIdleHours || 0),
         eligible: false,
+        idleSinceAt: null,
+        startupGraceSeconds: Number(config.autoStopStartupGraceMs || 0) / 1000,
+        startupGraceUntilAt: null,
+        inStartupGrace: false,
         lastPlayerSeenAt: null,
         lastAction: null
       },
@@ -354,6 +387,9 @@ function describeDockerOperations(status, autoStop) {
 
   if (autoStop.enabled) {
     operations.push(`Auto-stop activo: si no hay jugadores por ${autoStop.thresholdHours}h, el dashboard detiene el contenedor.`);
+    if (autoStop.inStartupGrace) {
+      operations.push(`Auto-stop en espera: el contenedor está dentro de la ventana de arranque hasta ${autoStop.startupGraceUntilAt}.`);
+    }
   } else {
     operations.push('Auto-stop inactivo: define INACTIVITY_SHUTDOWN_DELAY para apagar por inactividad.');
   }
