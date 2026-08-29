@@ -996,6 +996,10 @@ async function fetchPaldex(query, section = state.paldex.section) {
 }
 
 function renderHistory() {
+  if (!nodes.history) {
+    return;
+  }
+
   nodes.history.innerHTML = state.history
     .slice(-5)
     .reverse()
@@ -1490,6 +1494,10 @@ function renderHistoryChart(points) {
 }
 
 async function fetchHistory(bucket) {
+  if (!nodes.historyNote || !nodes.historyChart || !nodes.historySummary) {
+    return;
+  }
+
   state.historyMode = bucket;
   nodes.historyButtons.forEach((button) => {
     button.classList.toggle('is-active', button.dataset.bucket === bucket);
@@ -1720,7 +1728,9 @@ fetch('/api/snapshot')
   .then((snapshot) => {
     render(snapshot, false);
     connect();
-    void fetchHistory(state.historyMode);
+    if (nodes.historyButtons.length > 0) {
+      void fetchHistory(state.historyMode);
+    }
   })
   .catch(() => {
     const fallback = {
@@ -1739,6 +1749,8 @@ fetch('/api/snapshot')
     };
     render(fallback, false);
     connect();
-    void fetchHistory(state.historyMode);
+    if (nodes.historyButtons.length > 0) {
+      void fetchHistory(state.historyMode);
+    }
   });
 }
